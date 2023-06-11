@@ -1,40 +1,54 @@
 package com.github.picture2pc.common.net.multicast
 
-private typealias PayloadRecievedCallback = () -> Unit
+import kotlin.reflect.KClass
+
+private typealias PayloadReceivedCallback<PayloadType> = (payload: PayloadType, packet: ReceivedMulticastPacket) -> Unit
+
+private class Subscription<PayloadType : MulticastPayload>(
+    private val paylaodClass: KClass<PayloadType>,
+    private val callback: PayloadReceivedCallback<PayloadType>
+) {
+    fun invokeCallbackIfPayloadMatches(payload: MulticastPayload, packet: ReceivedMulticastPacket) {
+        if (paylaodClass.isInstance(payload)) {
+            @Suppress("UNCHECKED_CAST")
+            callback.invoke(payload as PayloadType, packet)
+        }
+    }
+}
 
 class MulticastTransceiver {
     companion object {
         private const val multicastAddress = "232.242.119.180"
         private const val multicastPort = 42852
-
-        enum class Payload(val content: String) {
-            SERVER_ONLINE("<P2PC|SERVER-ONLINE>"),
-            LIST_SERVERS("<P2PC|LIST-SERVERS>");
-
-            companion object {
-                fun fromContent(content: String) = values().find { it.content == content }
-            }
-        }
-
     }
 
     private val socket = SimpleMulticastSocket(multicastAddress, multicastPort)
-    private val subscriptions = mutableListOf<Pair<Payload, PayloadRecievedCallback>>()
+    private val subscriptions = mutableListOf<Subscription<*>>()
     private var awationLoopActive = false
 
-    fun sendPayload(payload: Payload) {
-        socket.sendMessage(payload.content)
+    fun sendPayload(payload: MulticastPayload) {
+        socket.sendMessage(payload.stringRepresentation)
     }
 
-    fun subscribeToPayload(payload: Payload, callback: PayloadRecievedCallback) {
-        subscriptions += payload to callback
+    fun <PayloadType : MulticastPayload> subscribeToPayload(
+        payloadClass: KClass<PayloadType>,
+        callback: PayloadReceivedCallback<PayloadType>
+    ) {
+        subscriptions += Subscription(payloadClass, callback)
     }
 
-    fun awaitNextMessage(timeoutMs: Int? = null): Payload? {
-        val message = socket.readMessage(timeoutMs) ?: return null
-        val payload = Payload.fromContent(message) ?: return null
+    inline fun <reified PayloadType : MulticastPayload> subscribeToPayload(
+        noinline callback: PayloadReceivedCallback<PayloadType>
+    ) {
+        subscribeToPayload(PayloadType::class, callback)
+    }
 
-        payload.invokeMatchingCallbacks()
+
+    fun awaitNextMessage(timeoutMs: Int? = null): MulticastPayload? {
+        val packet = socket.recievePacket(timeoutMs) ?: return null
+        val payload = MulticastPayloads.createPayloadFromString(packet.content) ?: return null
+
+        subscriptions.forEach { it.invokeCallbackIfPayloadMatches(payload, packet) }
         return payload
     }
 
@@ -46,11 +60,6 @@ class MulticastTransceiver {
     fun stopAwationLoop() {
         awationLoopActive = false
     }
-
-    private fun Payload.invokeMatchingCallbacks() = subscriptions
-        .filter { it.first == this }
-        .map { it.second }
-        .forEach { it.invoke() }
 
 }
 
