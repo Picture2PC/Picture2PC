@@ -22,7 +22,7 @@ class MulticastTransceiver {
     private val subscriptions = mutableListOf<Pair<Payload, PayloadRecievedCallback>>()
     private var awationLoopActive = false
 
-    fun sendMessage(payload: Payload) {
+    fun sendPayload(payload: Payload) {
         socket.sendMessage(payload.content)
     }
 
