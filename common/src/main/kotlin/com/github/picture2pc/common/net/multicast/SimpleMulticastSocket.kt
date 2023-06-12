@@ -25,7 +25,7 @@ internal class SimpleMulticastSocket(
         jvmMulticastSocket.send(packet)
     }
 
-    fun readMessage(timeoutMs: Int? = null): String? {
+    fun recievePacket(timeoutMs: Int? = null): ReceivedMulticastPacket? {
         jvmMulticastSocket.soTimeout = (timeoutMs ?: 0).coerceAtLeast(0)
 
         val buffer = ByteArray(recieveBufferSize)
@@ -38,7 +38,10 @@ internal class SimpleMulticastSocket(
             return null
         }
 
-        return buffer.decodeToString().removeNullBytes()
+        val content = buffer.decodeToString().removeNullBytes()
+        val address = packet.address.hostAddress
+
+        return ReceivedMulticastPacket(content, address)
     }
 
     private fun String.removeNullBytes() = replace("\u0000", "")
