@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm")
-    id("org.jetbrains.compose")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.compose.multiplatform)
 }
 
 group = "com.github.picture2pc.common"

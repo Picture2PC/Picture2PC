@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 plugins {
-    kotlin("jvm") apply false
-    kotlin("android") apply false
-    id("com.android.application") apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.android.application) apply false
 }
 
 group = "com.github.picture2pc"

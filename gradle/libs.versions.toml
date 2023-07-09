@@ -1,0 +1,12 @@
+[versions]
+kotlin = "1.8.20"
+androidGradlePlugin = "8.0.2"
+composeMultiplatformPlugin = "1.4.0"
+
+[libraries]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformPlugin" }
