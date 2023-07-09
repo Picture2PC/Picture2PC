@@ -3,7 +3,7 @@ plugins {
     kotlin("android")
 }
 
-group = "com.github.picture2pc"
+group = "com.github.picture2pc.android"
 version = "${rootProject.version}.0"
 
 repositories {
