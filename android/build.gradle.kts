@@ -11,6 +11,8 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.koin.android)
+
     implementation("androidx.core:core-ktx:1.10.1")
 
     val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
