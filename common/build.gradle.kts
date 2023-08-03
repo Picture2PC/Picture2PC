@@ -7,11 +7,11 @@ group = "com.github.picture2pc.common"
 version = "${rootProject.version}.0"
 
 dependencies {
-    implementation(compose.ui)
-    implementation(compose.foundation)
-    implementation(compose.material3)
-    implementation(compose.runtime)
+    api(compose.ui)
+    api(compose.foundation)
+    api(compose.material3)
+    api(compose.runtime)
 
-    implementation(libs.koin.core)
-    implementation(libs.koin.compose)
+    api(libs.koin.core)
+    api(libs.koin.compose)
 }
