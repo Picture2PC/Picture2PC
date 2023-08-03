@@ -9,7 +9,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class MulticastPayloadTransciever internal constructor(
+class MulticastPayloadTransceiver internal constructor(
     private val socket: SimpleMulticastSocket,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
