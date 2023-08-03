@@ -16,13 +16,7 @@ private class Subscription<PayloadType : MulticastPayload>(
     }
 }
 
-class MulticastTransceiver {
-    companion object {
-        private const val multicastAddress = "232.242.119.180"
-        private const val multicastPort = 42852
-    }
-
-    private val socket = SimpleMulticastSocket(multicastAddress, multicastPort)
+class MulticastTransceiver internal constructor(private val socket: SimpleMulticastSocket) {
     private val subscriptions = mutableListOf<Subscription<*>>()
     private var awationLoopActive = false
 
