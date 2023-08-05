@@ -3,26 +3,33 @@ package com.github.picture2pc.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import com.github.picture2pc.android.ui.theme.Picture2PcTheme
-import com.github.picture2pc.common.ui.Greeting
+import com.github.picture2pc.android.di.appModule
+import com.github.picture2pc.android.ui.main.Screen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val coroutineContextProviderModule = module {
+            factory { CoroutineScope(Dispatchers.IO) }
+        }
+
+        startKoin {
+            // Log Koin into Android logger
+            androidLogger()
+            // Reference Android context
+            androidContext(this@MainActivity)
+
+            modules(appModule)
+        }
+
         setContent {
-            Picture2PcTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+            Screen()
         }
     }
 }
