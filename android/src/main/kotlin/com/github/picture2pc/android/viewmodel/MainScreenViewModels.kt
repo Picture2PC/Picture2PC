@@ -2,29 +2,23 @@ package com.github.picture2pc.android.viewmodel
 
 import com.github.picture2pc.android.data.Device.Device
 import com.github.picture2pc.android.data.ServerBroadcasting.ServerBroadcaster
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 object MainScreenViewModels {
+    class BroadcastViewModel(private val device: Device, private val broadcaster: ServerBroadcaster, override val coroutineContext: CoroutineContext):CoroutineScope{
+        val name = device.name.asStateFlow()
+        var serving = device.serving.asStateFlow()
 
-    class BroadcastViewModel(private val device: Device, private val broadcaster: ServerBroadcaster) {
-        val name = device.nameState
-        var serving :Boolean
-            get() {
-                return device.serving.value
-            }
-            set(value){
-                if (value){
-                    broadcaster.start()
-                }
-                else{
-                    broadcaster.stop()
-                }
-
-            }
-
-        fun CheckedChanged(value: Boolean){
-            serving = value
+        fun checkedChanged(value: Boolean){
+            launch{device.serving.emit(value)}
+        }
+        fun nameChanged(value: String)
+        {
+            launch { device.name.emit(value) }
         }
     }
 

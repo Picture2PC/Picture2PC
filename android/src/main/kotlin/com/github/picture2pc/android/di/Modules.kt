@@ -1,6 +1,6 @@
 package com.github.picture2pc.android.di
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.Device.Device
 import com.github.picture2pc.android.data.ServerBroadcasting.ServerBroadcaster
 import com.github.picture2pc.android.data.ServerBroadcasting.impl.MulticastServerBroadcaster
@@ -15,12 +15,11 @@ import kotlin.coroutines.CoroutineContext
 val appModule = module {
     includes(multicastModule)
 
-
-    factory<CoroutineContext> { Dispatchers.Default }
+    single<CoroutineContext> { Dispatchers.IO }
 
     single{ClientsViewModel()}
-    single { MainScreenViewModels.BroadcastViewModel(get(), get()) }
-    single { Device(mutableStateOf(value = false), mutableStateOf("None")) }
-    single<ServerBroadcaster>{MulticastServerBroadcaster(get(), get(), get())}
-
+    single { MainScreenViewModels.BroadcastViewModel(get(), get(), get()) }
+    single<ServerBroadcaster>{MulticastServerBroadcaster(get(), Dispatchers.IO, get())}
+    single{SavedStateHandle()}
+    single { Device(get(), get()) }
 }

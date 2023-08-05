@@ -13,6 +13,7 @@ import com.github.picture2pc.android.ui.main.MainScreen.elements.Clients
 import com.github.picture2pc.android.ui.main.MainScreen.elements.Connection
 import com.github.picture2pc.android.ui.main.MainScreen.elements.Footer
 import com.github.picture2pc.android.ui.main.MainScreen.elements.Header
+import com.github.picture2pc.android.ui.main.MainScreen.elements.NameInput
 import com.github.picture2pc.android.ui.main.MainScreen.elements.Progress
 
 
@@ -25,7 +26,7 @@ fun MainScreen() {
             Modifier
                 .fillMaxWidth()
                 .padding(10.dp))
-        //NameInput(modifier = Modifier.fillMaxWidth())
+        NameInput(modifier = Modifier.fillMaxWidth().padding(40.dp, 0.dp))
         Connection(
             Modifier
                 .padding(40.dp)

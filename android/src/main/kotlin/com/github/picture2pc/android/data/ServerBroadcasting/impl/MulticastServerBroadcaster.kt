@@ -10,28 +10,23 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class MulticastServerBroadcaster(private val multicastPaylaodTransceiver: MulticastPayloadTransceiver, override val coroutineContext: CoroutineContext, val device: Device) : ServerBroadcaster, CoroutineScope {
-    override val servingState = device.serving
+class MulticastServerBroadcaster(private val multicastPaylaodTransceiver: MulticastPayloadTransceiver, override val coroutineContext: CoroutineContext, override val device: Device) : ServerBroadcaster, CoroutineScope {
+    val servingState = device.serving
 
     init {
-            multicastPaylaodTransceiver.incomingPayloads
-            .onEach { (payload, senderAddress) ->
-                if (payload is MulticastPayloads.ListServers && servingState.value) {
+        multicastPaylaodTransceiver.incomingPayloads
+        .onEach { (payload, senderAddress) ->
+            if (payload is MulticastPayloads.ListServers && servingState.value) {
 
-                    launch{
-                        multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(device.nameState.value))
-                    }
+                launch{
+                    multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(device.name.value))
                 }
-            }.launchIn(this)
-
-    }
-
-    override fun start() {
-        servingState.value = true
-    }
-
-    override fun stop() {
-        servingState.value = false
+            }
+        }.launchIn(this)
+        device.name.onEach{
+            if (servingState.value)
+                multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(it))
+        }.launchIn(this)
     }
 
 
