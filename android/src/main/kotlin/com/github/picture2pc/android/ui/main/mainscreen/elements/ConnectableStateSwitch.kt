@@ -20,7 +20,7 @@ fun ConnectableStateSwitch(
     viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
 
-    val connectableSwitch by viewModel.connectable.collectAsState()
+    val connectableSwitch by viewModel.serverConnectable.collectAsState()
 
     Row(
         verticalAlignment = Alignment.CenterVertically, modifier = modifier
@@ -33,7 +33,7 @@ fun ConnectableStateSwitch(
         )
         Switch(
             checked = connectableSwitch,
-            onCheckedChange = { viewModel.checkedChanged(it) },
+            onCheckedChange = { viewModel.saveConnectable(it) },
             modifier = Modifier.fillMaxWidth()
         )
     }

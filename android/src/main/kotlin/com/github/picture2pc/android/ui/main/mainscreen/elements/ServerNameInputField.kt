@@ -19,7 +19,7 @@ import org.koin.compose.rememberKoinInject
 @Composable
 fun ServerNameInputField(modifier: Modifier, viewModel: BroadcastViewModel = rememberKoinInject()) {
 
-    val nameInput by viewModel.name.collectAsState()
+    val nameInput by viewModel.serverName.collectAsState()
 
     OutlinedTextField(
         value = nameInput,

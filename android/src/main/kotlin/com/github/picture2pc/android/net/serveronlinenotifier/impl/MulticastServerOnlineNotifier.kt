@@ -17,37 +17,50 @@ class MulticastServerOnlineNotifier(
     override val coroutineContext: CoroutineContext,
     override val serverPreferencesRepository: ServerPreferencesRepository
 ) : ServerOnlineNotifier, CoroutineScope {
-    private val name = serverPreferencesRepository.name.stateIn(
+    private val serverName = serverPreferencesRepository.name.stateIn(
         scope = this,
         started = SharingStarted.Eagerly,
         initialValue = "<LOADING>"
     )
 
-    private val servingState = serverPreferencesRepository.connectable.stateIn(
+    private val serverConnectable = serverPreferencesRepository.connectable.stateIn(
         scope = this,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.Lazily,
         initialValue = false
     )
+
+    private var loadedName = false
 
     init {
         multicastPaylaodTransceiver.incomingPayloads
             .onEach { (payload, _) ->
-                if (payload is MulticastPayloads.ListServers && servingState.value) {
+                if (payload is MulticastPayloads.ListServers && serverConnectable.value) {
 
                     launch {
-                        multicastPaylaodTransceiver.outgoingPayloads.emit(
-                            MulticastPayloads.ServerOnline(
-                                name.value
-                            )
-                        )
+                        emitServerOnline(serverName.value)
                     }
                 }
             }.launchIn(this)
-        serverPreferencesRepository.name.onEach {
-            if (servingState.value)
-                multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(it))
-        }.launchIn(this)
+
+        launch {
+
+            serverName.onEach {
+                if (serverConnectable.value && loadedName)
+                    emitServerOnline(it)
+                if (it != "<LOADING>")
+                    loadedName = true
+
+            }.launchIn(this)
+
+
+            serverConnectable.onEach {
+                if (it)
+                    emitServerOnline(serverName.value)
+            }.launchIn(this)
+        }
     }
 
-
+    private suspend fun emitServerOnline(serverName: String) {
+        multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(serverName))
+    }
 }

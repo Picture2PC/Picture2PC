@@ -4,6 +4,7 @@ import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRep
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -11,38 +12,41 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class BroadcastViewModel(
-    private val serverSettingsRepository: ServerPreferencesRepository,
+    private val serverPreferencesRepository: ServerPreferencesRepository,
     override val coroutineContext: CoroutineContext
 ) :
     CoroutineScope {
-    private val _name = serverSettingsRepository.name.stateIn(
+    private val _serverNamePreference = serverPreferencesRepository.name.stateIn(
         scope = this,
         started = SharingStarted.Eagerly,
         initialValue = "Loading"
     )
 
-    private val connectable = serverSettingsRepository.connectable.stateIn(
+    val serverConnectable = serverPreferencesRepository.connectable.stateIn(
         scope = this,
         started = SharingStarted.Eagerly,
         initialValue = false
     )
 
-    val name = MutableStateFlow(_name.value)
+    // This is because writing needs a buffer, so
+    // that it only saves when *Done* is pressed
+    private val _serverName = MutableStateFlow(_serverNamePreference.value)
+    val serverName = _serverName.asStateFlow()
 
     init {
-        _name.onEach { name.value = it }.launchIn(this)
+        _serverNamePreference.onEach { _serverName.value = it }.launchIn(this)
     }
 
-    fun checkedChanged(newConnectable: Boolean) {
-        launch { serverSettingsRepository.setConnectable(newConnectable) }
+    fun saveConnectable(newConnectable: Boolean) {
+        launch { serverPreferencesRepository.setConnectable(newConnectable) }
     }
 
     fun saveName(newName: String) {
-        launch { serverSettingsRepository.saveName(newName) }
+        launch { serverPreferencesRepository.setName(newName) }
     }
 
     fun nameChanged(newName: String) {
-        name.value = newName
+        _serverName.value = newName
     }
 
 
