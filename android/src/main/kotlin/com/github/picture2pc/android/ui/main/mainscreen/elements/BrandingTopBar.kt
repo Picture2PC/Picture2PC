@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.ui.main.MainScreen.elements
+package com.github.picture2pc.android.ui.main.mainscreen.elements
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.sp
 import com.github.picture2pc.common.ui.Picture2PcIcon
 
 @Composable
-fun Header(modifier: Modifier){
+fun BrandingTopBar(modifier: Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically, modifier = modifier
     ) {

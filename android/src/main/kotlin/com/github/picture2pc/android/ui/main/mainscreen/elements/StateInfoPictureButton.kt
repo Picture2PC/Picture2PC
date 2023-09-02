@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.ui.main.MainScreen.elements
+package com.github.picture2pc.android.ui.main.mainscreen.elements
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Footer(modifier: Modifier){
+fun StateInfoPictureButton(modifier: Modifier) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {

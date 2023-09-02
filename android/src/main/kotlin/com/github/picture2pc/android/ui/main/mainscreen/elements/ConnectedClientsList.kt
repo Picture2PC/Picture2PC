@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.ui.main.MainScreen.elements
+package com.github.picture2pc.android.ui.main.mainscreen.elements
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -10,12 +10,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.android.viewmodel.MainScreenViewModels.ClientsViewModel
+import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun Clients(modifier: Modifier){
-    val viewModel: ClientsViewModel = rememberKoinInject()
+fun ConnectedClientsList(modifier: Modifier, viewModel: ClientsViewModel = rememberKoinInject()) {
+
     val connections by viewModel.serverEntries.collectAsState()
 
     LazyColumn(
