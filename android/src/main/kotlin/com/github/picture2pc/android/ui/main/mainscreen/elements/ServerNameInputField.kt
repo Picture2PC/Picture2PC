@@ -24,7 +24,7 @@ fun ServerNameInputField(modifier: Modifier, viewModel: BroadcastViewModel = rem
     OutlinedTextField(
         value = nameInput,
         singleLine = true,
-        onValueChange = { viewModel.name.value = it },
+        onValueChange = viewModel::nameChanged,
         placeholder = { Text("Unknown") },
         label = { Text("Name") },
         modifier = modifier,
@@ -33,6 +33,6 @@ fun ServerNameInputField(modifier: Modifier, viewModel: BroadcastViewModel = rem
             autoCorrect = true,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = { viewModel.nameChanged(nameInput) })
+        keyboardActions = KeyboardActions(onDone = { viewModel.saveName(nameInput) })
     )
 }

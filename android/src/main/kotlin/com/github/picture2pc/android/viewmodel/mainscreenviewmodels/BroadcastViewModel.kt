@@ -21,25 +21,29 @@ class BroadcastViewModel(
         initialValue = "Loading"
     )
 
-    private val _connectable = serverSettingsRepository.connectable.stateIn(
+    private val connectable = serverSettingsRepository.connectable.stateIn(
         scope = this,
         started = SharingStarted.Eagerly,
         initialValue = false
     )
 
     val name = MutableStateFlow(_name.value)
-    val connectable = MutableStateFlow(_connectable.value)
 
     init {
         _name.onEach { name.value = it }.launchIn(this)
-        _connectable.onEach { connectable.value = it }.launchIn(this)
     }
 
     fun checkedChanged(newConnectable: Boolean) {
         launch { serverSettingsRepository.setConnectable(newConnectable) }
     }
 
-    fun nameChanged(newName: String) {
-        launch { serverSettingsRepository.setName(newName) }
+    fun saveName(newName: String) {
+        launch { serverSettingsRepository.saveName(newName) }
     }
+
+    fun nameChanged(newName: String) {
+        name.value = newName
+    }
+
+
 }
