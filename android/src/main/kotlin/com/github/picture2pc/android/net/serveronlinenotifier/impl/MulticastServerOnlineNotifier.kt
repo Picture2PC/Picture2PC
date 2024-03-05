@@ -2,8 +2,8 @@ package com.github.picture2pc.android.net.serveronlinenotifier.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
+import com.github.picture2pc.common.net.common.NetworkDataPayloads
 import com.github.picture2pc.common.net.multicast.MulticastPayloadTransceiver
-import com.github.picture2pc.common.net.multicast.MulticastPayloads
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
@@ -32,9 +32,9 @@ class MulticastServerOnlineNotifier(
     private var loadedName = false
 
     init {
-        multicastPaylaodTransceiver.incomingPayloads
-            .onEach { (payload, _) ->
-                if (payload is MulticastPayloads.ListServers && serverConnectable.value) {
+        NetworkDataPayloads.ListServers.incomingPayloads
+            .onEach { payload ->
+                if (serverConnectable.value) {
 
                     launch {
                         emitServerOnline(serverName.value)
@@ -61,6 +61,6 @@ class MulticastServerOnlineNotifier(
     }
 
     private suspend fun emitServerOnline(serverName: String) {
-        multicastPaylaodTransceiver.outgoingPayloads.emit(MulticastPayloads.ServerOnline(serverName))
+        NetworkDataPayloads.ServerOnline(serverName).emit()
     }
 }

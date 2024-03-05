@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
 }
 
 group = "com.github.picture2pc.android"
@@ -8,12 +9,15 @@ version = "${rootProject.version}.0"
 
 repositories {
     google()
+    mavenCentral()
 }
 
 dependencies {
     implementation(libs.koin.android)
 
     implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:+")
+    implementation("androidx.core:core-ktx:+")
 
     val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
     implementation(composeBom)
@@ -29,11 +33,11 @@ dependencies {
 
 android {
     namespace = "com.github.picture2pc.android"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.github.picture2pc.android"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         vectorDrawables {

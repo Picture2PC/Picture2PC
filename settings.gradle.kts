@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Picture2Pc"
+rootProject.name = "Picture2PC"
 
 val usingAndroidStudio = System.getProperty("idea.platform.prefix") == "AndroidStudio"
 
