@@ -1,7 +1,7 @@
 package com.github.picture2pc.common.net.multicast
 
+import com.github.picture2pc.common.net.common.DefaultDataPayloadTransceiver
 import com.github.picture2pc.common.net.common.NetworkDataPayload
-import com.github.picture2pc.common.net.common.NetworkDataPayloadEventHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -16,15 +16,15 @@ import kotlin.coroutines.CoroutineContext
 class MulticastPayloadTransceiver internal constructor(
     private val socket: SimpleMulticastSocket,
     override val coroutineContext: CoroutineContext
-) : CoroutineScope {
+) : CoroutineScope, DefaultDataPayloadTransceiver() {
     init {
-        NetworkDataPayloadEventHandler.outgoingPayloads
+        outgoingPayloads
             .onEach { socket.sendMessage(it) }
             .launchIn(this)
 
         launch {
             while (isActive) {
-                val packet = socket.recievePacket(timeoutMs = 50) ?: continue
+                val packet = socket.receivePacket(timeoutMs = 50) ?: continue
                 val payload = Json.decodeFromStream<NetworkDataPayload>(packet.content)
                 payload.newEvent(payload, packet.address);
             }

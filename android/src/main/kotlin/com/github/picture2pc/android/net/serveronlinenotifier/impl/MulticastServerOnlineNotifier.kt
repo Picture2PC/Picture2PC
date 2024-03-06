@@ -44,9 +44,10 @@ class MulticastServerOnlineNotifier(
         launch {
 
             serverName.onEach {
-                if (it != "<LOADING>")
-                    loadedName = true
-                else if (serverConnectable.value && loadedName)
+                if (it == "<LOADING>")
+                    return@onEach
+                loadedName = true
+                if (serverConnectable.value)
                     emitServerOnline(it)
 
             }.launchIn(this)
@@ -60,6 +61,6 @@ class MulticastServerOnlineNotifier(
     }
 
     private suspend fun emitServerOnline(serverName: String) {
-        NetworkDataPayloads.ServerOnline(serverName).emit()
+        NetworkDataPayloads.ServerOnline(serverName).emit(multicastPaylaodTransceiver)
     }
 }

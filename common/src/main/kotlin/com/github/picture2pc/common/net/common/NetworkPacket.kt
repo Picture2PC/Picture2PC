@@ -54,4 +54,6 @@ data class NetworkPacket(private val inputStream: InputStream? = null, var addre
         inputStream.read(lastByteArray!!)
         return DatagramPacket(lastByteArray, a, address)
     }
+
+
 }

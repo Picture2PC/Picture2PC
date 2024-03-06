@@ -11,10 +11,10 @@ import java.net.InetAddress
 sealed interface NetworkDataPayload
 {
     @OptIn(ExperimentalSerializationApi::class)
-    suspend fun emit() {
+    suspend fun emit(defaultDataPayloadTransceiver: DefaultDataPayloadTransceiver) {
         val s = ByteArrayOutputStream()
         Json.encodeToStream(this, stream = s)
-        NetworkDataPayloadEventHandler._outgoingPayloads.emit(ByteArrayInputStream(s.toByteArray()))
+        defaultDataPayloadTransceiver._outgoingPayloads.emit(ByteArrayInputStream(s.toByteArray()))
     }
     suspend fun newEvent(p: Any, address: InetAddress)
 }
@@ -38,5 +38,15 @@ object NetworkDataPayloads {
         override suspend fun newEvent(p: Any, address: InetAddress) {
             Companion.newEvent(p as ServerOnline, address)
         }
+    }
+
+    @Serializable
+    class Ping : NetworkDataPayload {
+        companion object : NetworkDataPayloadEventHandler<Ping>()
+
+        override suspend fun newEvent(p: Any, address: InetAddress) {
+            Companion.newEvent(p as Ping, address)
+        }
+
     }
 }
