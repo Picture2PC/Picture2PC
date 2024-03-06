@@ -7,13 +7,12 @@ import kotlinx.serialization.json.encodeToStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.InetAddress
-
 @Serializable
 sealed interface NetworkDataPayload
 {
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun emit() {
-        val s = ByteArrayOutputStream();
+        val s = ByteArrayOutputStream()
         Json.encodeToStream(this, stream = s)
         NetworkDataPayloadEventHandler._outgoingPayloads.emit(ByteArrayInputStream(s.toByteArray()))
     }
@@ -37,8 +36,7 @@ object NetworkDataPayloads {
         companion object : NetworkDataPayloadEventHandler<ServerOnline>()
 
         override suspend fun newEvent(p: Any, address: InetAddress) {
-            Companion.newEvent(p as ServerOnline, address);
+            Companion.newEvent(p as ServerOnline, address)
         }
-
     }
 }

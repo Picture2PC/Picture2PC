@@ -11,7 +11,7 @@ import com.github.picture2pc.desktop.viewmodel.ServersSectionViewModel
 fun ServerEntry(state: ServersSectionViewModel.ServerEntryState) {
     //TODO Connection state
     Row {
-        Text(state.deviceName)
+        Text(state.deviceName.value)
         Spacer(Modifier.weight(1f))
         Text(state.deviceAddress)
     }

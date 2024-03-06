@@ -24,14 +24,17 @@ internal class SimpleMulticastSocket(
 
     fun sendMessage(message: InputStream) {
         val packet = NetworkPacket(message, socketAddress)
-        while (packet.available)
+        while (packet.available) {
             jvmMulticastSocket.send(packet.getDatagramPacket())
+            //Thread.sleep(10)
+        }
+
     }
 
     fun recievePacket(timeoutMs: Int? = null): ReceivedMulticastPacket? {
         jvmMulticastSocket.soTimeout = (timeoutMs ?: 0).coerceAtLeast(0)
 
-        val packet = NetworkPacket();
+        val packet = NetworkPacket()
         while (packet.available){
             try {
                 jvmMulticastSocket.receive(packet.getDatagramPacket())

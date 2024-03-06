@@ -1,5 +1,7 @@
 package com.github.picture2pc.desktop.viewmodel
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.github.picture2pc.desktop.data.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,11 +21,19 @@ class ServersSectionViewModel(
     init {
         availableServersCollector.availableServers
             .onEach {
-                _serverEntries.value = _serverEntries.value + ServerEntryState(
-                    it.deviceName,
+
+                if (_serverEntries.value.any { s -> s.deviceAddress == it.senderAddress }) {
+                    _serverEntries.value.first { s -> s.deviceAddress == it.senderAddress }.deviceName.value =
+                        it.deviceName
+                    return@onEach
+                }
+                _serverEntries.value += ServerEntryState(
+                    mutableStateOf(it.deviceName),
                     it.senderAddress,
                     ServerEntryConnectionState.DISCONNECTED //TODO
                 )
+
+
             }
             .launchIn(this)
     }
@@ -34,7 +44,7 @@ class ServersSectionViewModel(
     }
 
     data class ServerEntryState(
-        val deviceName: String,
+        val deviceName: MutableState<String>,
         val deviceAddress: String,
         val connectionState: ServerEntryConnectionState
     ) {
@@ -42,8 +52,7 @@ class ServersSectionViewModel(
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ServerEntryState
-            if (deviceAddress != other.deviceAddress) return false
-            return true
+            return deviceAddress == other.deviceAddress
         }
 
         override fun hashCode(): Int {

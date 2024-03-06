@@ -35,7 +35,6 @@ class MulticastServerOnlineNotifier(
         NetworkDataPayloads.ListServers.incomingPayloads
             .onEach { payload ->
                 if (serverConnectable.value) {
-
                     launch {
                         emitServerOnline(serverName.value)
                     }
@@ -45,10 +44,10 @@ class MulticastServerOnlineNotifier(
         launch {
 
             serverName.onEach {
-                if (serverConnectable.value && loadedName)
-                    emitServerOnline(it)
                 if (it != "<LOADING>")
                     loadedName = true
+                else if (serverConnectable.value && loadedName)
+                    emitServerOnline(it)
 
             }.launchIn(this)
 
