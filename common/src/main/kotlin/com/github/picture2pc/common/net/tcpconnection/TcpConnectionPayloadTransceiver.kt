@@ -18,14 +18,14 @@ class TcpConnectionPayloadTransceiver(private val tcpServer: SimpleTcpServer,
 
     val clients : HashMap<InetAddress, SimpleTcpClient> = HashMap()
     init {
-        NetworkDataPayloads.Ping.incomingPayloads.onEach {
+        /*NetworkDataPayloads.Ping.incomingPayloads.onEach {
             val client = clients[it.senderAddress] ?: return@onEach
             client.emit(it.payload)
         }.launchIn(this)
         NetworkDataPayloads.ListServers.incomingPayloads.onEach {
             clients[it.senderAddress] = SimpleTcpClient(this.coroutineContext)
             clients[it.senderAddress]!!.emit(NetworkDataPayloads.Ping())
-        }.launchIn(this)
+        }.launchIn(this)*/
         launch {
             while(isActive){
                 val client = tcpServer.accept()
