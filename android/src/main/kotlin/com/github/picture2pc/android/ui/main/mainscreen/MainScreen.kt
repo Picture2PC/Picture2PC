@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.ui.main.mainscreen.elements.BrandingTopBar
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
@@ -16,10 +17,9 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInput
 import com.github.picture2pc.android.ui.main.mainscreen.elements.StateInfoPictureButton
 import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionProgressbar
 
-
+//@Preview
 @Composable
-fun MainScreen() {
-
+fun MainScreen(function: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))
         BrandingTopBar(
@@ -52,8 +52,8 @@ fun MainScreen() {
         StateInfoPictureButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                .padding(0.dp, 0.dp, 0.dp, 20.dp),
+            onClick = { function() }
         )
-
     }
 }
