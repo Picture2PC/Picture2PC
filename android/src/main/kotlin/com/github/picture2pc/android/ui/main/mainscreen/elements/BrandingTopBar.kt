@@ -8,9 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.github.picture2pc.common.ui.Picture2PcIcon
+//import com.github.picture2pc.common.ui.Picture2PcIcon
+import com.github.picture2pc.android.R
 
 @Composable
 fun BrandingTopBar(modifier: Modifier) {
@@ -24,7 +26,7 @@ fun BrandingTopBar(modifier: Modifier) {
             modifier = Modifier.fillMaxWidth(0.6F)
         )
         Image(
-            painter = Picture2PcIcon,
+            painter = painterResource(id = R.drawable.icon),
             contentDescription = "ICON",
             modifier = Modifier
                 .fillMaxWidth()
