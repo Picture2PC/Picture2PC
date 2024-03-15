@@ -7,14 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.github.picture2pc.android.ui.main.camerascreen.CameraScreen
 import com.github.picture2pc.android.ui.main.mainscreen.MainScreen
 import com.github.picture2pc.android.ui.theme.Picture2PcTheme
 
 enum class Screens { MAIN, CAMERA }
 
-@Preview
 @Composable
 fun Screen() {
     val currentScreen = remember { mutableStateOf(Screens.MAIN) }
@@ -27,7 +25,7 @@ fun Screen() {
         ) {
             when (currentScreen.value) {
                 Screens.MAIN -> MainScreen { currentScreen.value = Screens.CAMERA }
-                Screens.CAMERA -> CameraScreen({ /*placeOnReturnActionHere*/ }) { currentScreen.value = Screens.MAIN }
+                Screens.CAMERA -> CameraScreen ({ currentScreen.value = Screens.MAIN }, { /*TODO: Here could be your send function*/ } )
             }
         }
     }

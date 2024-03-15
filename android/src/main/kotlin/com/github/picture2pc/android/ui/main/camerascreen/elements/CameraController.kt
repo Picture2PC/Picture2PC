@@ -40,14 +40,13 @@ class CameraController(context: Context, lifecycleOwner: LifecycleOwner) {
         if (!imageDir.exists()) {
             imageDir.mkdirs()
         }
-        val imageFile = File(imageDir, "img.png")
-        val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-        Log.d("CameraController", "Image path: ${imageFile.absolutePath}")
-        imageCapture.takePicture(outFileOptions, {}, object : OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                Log.d("CameraController", "Image saved: ${imageFile.absolutePath}")
-            }
 
+        val imageFile = File(context.externalCacheDir, "img.png")
+        val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+        imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object : OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+
+            }
             override fun onError(exception: ImageCaptureException) {
                 Log.e("CameraController", "Error saving image: ${exception.message}")
             }

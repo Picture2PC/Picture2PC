@@ -3,6 +3,7 @@ package com.github.picture2pc.android.ui.main.camerascreen.elements
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -26,7 +27,7 @@ fun TakePictureButton(
     ){
     Row (
         verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)) // Add this line
+        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)).padding(20.dp) // Add this line
     ) {
         Column( modifier = Modifier.weight(.5f, true), horizontalAlignment = Alignment.Start ){
             IconButton(onClick = onClickReturn) {
