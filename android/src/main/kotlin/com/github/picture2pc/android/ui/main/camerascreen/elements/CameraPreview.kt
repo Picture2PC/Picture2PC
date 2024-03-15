@@ -15,32 +15,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 
-class CameraController(context: Context, lifecycleOwner: LifecycleOwner) {
-    lateinit var viewFinder: PreviewView
-    private val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-
-    init {
-        cameraProviderFuture.addListener(Runnable {
-            val cameraProvider = cameraProviderFuture.get()
-
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(viewFinder.surfaceProvider)
-            }
-
-            cameraProvider.unbindAll()
-
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview
-            )
-        }, ContextCompat.getMainExecutor(context))
-    }
-}
-
 @Composable
-fun CameraPreview(modifier: Modifier) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraController = remember { CameraController(context, lifecycleOwner) }
+fun CameraPreview(cameraController: CameraController, modifier: Modifier, ) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
