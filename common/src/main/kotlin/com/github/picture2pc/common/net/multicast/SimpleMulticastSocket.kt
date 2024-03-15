@@ -2,7 +2,6 @@ package com.github.picture2pc.common.net.multicast
 
 import com.github.picture2pc.common.net.common.NetworkPacket
 import com.github.picture2pc.common.net.common.ReceivedMulticastPacket
-import com.github.picture2pc.common.net.tcpconnection.SimpleTcpClient
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
@@ -16,6 +15,7 @@ internal class SimpleMulticastSocket(
 ) {
     private val socketAddress = InetSocketAddress(address, port)
     private val jvmMulticastSocket = java.net.MulticastSocket(port)
+
 
     init {
         jvmMulticastSocket.networkInterface = networkInterface
@@ -42,6 +42,9 @@ internal class SimpleMulticastSocket(
             }
         }
 
+        if (jvmMulticastSocket.networkInterface.inetAddresses.asSequence()
+                .contains(packet.getAddress())
+        ) return null
         return ReceivedMulticastPacket(packet.getInputStream(), packet.getAddress())
     }
 

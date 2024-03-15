@@ -9,13 +9,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import kotlin.coroutines.CoroutineContext
 
 class MulticastAvailableServersCollector(
     private val multicastPaylaodTransceiver: MulticastPayloadTransceiver,
     override val coroutineContext: CoroutineContext,
+    private val tcpConnectionPayloadTransceiver: TcpConnectionPayloadTransceiver
 ) : AvailableServersCollector, CoroutineScope {
     override val availableServers = MutableSharedFlow<AvailableServersCollector.Server>()
 
@@ -30,7 +29,8 @@ class MulticastAvailableServersCollector(
 
     override fun requestServers() {
         launch {
-            NetworkDataPayloads.ListServers().emit(multicastPaylaodTransceiver)
+            NetworkDataPayloads.ListServers(tcpConnectionPayloadTransceiver.port)
+                .emit(multicastPaylaodTransceiver)
         }
     }
 

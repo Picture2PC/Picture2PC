@@ -15,7 +15,6 @@ import kotlinx.serialization.json.decodeFromStream
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.net.SocketTimeoutException
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -27,6 +26,9 @@ class SimpleTcpClient(override val coroutineContext: CoroutineContext, private v
 
     val inetAddress
         get() = jvmSocket.inetAddress
+
+    val isConnected
+        get() = jvmSocket.isConnected && !jvmSocket.isClosed
 
     init {
         launch {         outgoingPayloads
@@ -46,15 +48,17 @@ class SimpleTcpClient(override val coroutineContext: CoroutineContext, private v
 
     fun run(){
         launch {
-            while (isActive) {
-                val packet = receivePacket(timeoutMs = 50) ?: continue
+            while (isActive && isConnected) {
+                val packet = receivePacket() ?: continue
                 val payload = Json.decodeFromStream<NetworkDataPayload>(packet.content)
-                payload.newEvent(payload, packet.address);
+                payload.newEvent(payload, packet.address)
+
             }
         }
     }
 
     fun sendMessage(message: InputStream) {
+        if (!isConnected) return
         val packet = NetworkPacket(message, socketAddress)
         while (packet.available) {
             val dgPacket = packet.getDatagramPacket()!!
@@ -62,20 +66,25 @@ class SimpleTcpClient(override val coroutineContext: CoroutineContext, private v
         }
     }
 
-    fun receivePacket(timeoutMs: Int? = null): ReceivedMulticastPacket? {
-        jvmSocket.soTimeout = (timeoutMs ?: 0).coerceAtLeast(0)
+    fun close() {
+        jvmSocket.close()
+    }
 
+    fun receivePacket(): ReceivedMulticastPacket? {
         val packet = NetworkPacket()
         while (packet.available){
             try {
                 val dgPacket = packet.getDatagramPacket()!!
                 jvmSocket.getInputStream().read(dgPacket.data, dgPacket.offset, dgPacket.length )
-            }
-            catch (e: SocketTimeoutException) {
+            } catch (e: Exception) {
+                close()
                 return null
             }
         }
-
+        if (packet.totalSize == 0) {
+            close()
+            return null
+        }
         return ReceivedMulticastPacket(packet.getInputStream(), jvmSocket.inetAddress)
     }
 }

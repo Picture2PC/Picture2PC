@@ -1,14 +1,11 @@
 package com.github.picture2pc.common.net.tcpconnection
 
-import com.github.picture2pc.common.net.common.DefaultDataPayloadTransceiver
 import com.github.picture2pc.common.net.common.NetworkDataPayloads
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import kotlin.coroutines.CoroutineContext
 
@@ -17,15 +14,21 @@ class TcpConnectionPayloadTransceiver(private val tcpServer: SimpleTcpServer,
 ): CoroutineScope {
 
     val clients : HashMap<InetAddress, SimpleTcpClient> = HashMap()
+
+    val port: Int
+        get() = tcpServer.port
     init {
-        /*NetworkDataPayloads.Ping.incomingPayloads.onEach {
+        NetworkDataPayloads.Ping.incomingPayloads.onEach {
+            return@onEach
             val client = clients[it.senderAddress] ?: return@onEach
-            client.emit(it.payload)
+            client.emit(NetworkDataPayloads.Ping())
         }.launchIn(this)
         NetworkDataPayloads.ListServers.incomingPayloads.onEach {
+            if (clients.containsKey(it.senderAddress) && clients[it.senderAddress]!!.isConnected) return@onEach
             clients[it.senderAddress] = SimpleTcpClient(this.coroutineContext)
+            clients[it.senderAddress]!!.connect(it.stringAddress, it.payload.port)
             clients[it.senderAddress]!!.emit(NetworkDataPayloads.Ping())
-        }.launchIn(this)*/
+        }.launchIn(this)
         launch {
             while(isActive){
                 val client = tcpServer.accept()

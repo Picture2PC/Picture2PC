@@ -39,13 +39,15 @@ class ServersSectionViewModel(
 
             }
             .launchIn(this)
+
+        val tcpConnectionPayloadTransceiver: TcpConnectionPayloadTransceiver by inject()
+        tcpConnectionPayloadTransceiver.toString()
     }
 
     fun refreshServers() {
         _serverEntries.value = setOf()
         availableServersCollector.requestServers()
-        val tcpConnectionPayloadTransceiver: TcpConnectionPayloadTransceiver by inject()
-        tcpConnectionPayloadTransceiver.toString()
+
     }
 
     data class ServerEntryState(

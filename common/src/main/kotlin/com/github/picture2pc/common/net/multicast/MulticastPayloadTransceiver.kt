@@ -26,8 +26,10 @@ class MulticastPayloadTransceiver internal constructor(
             while (isActive) {
                 val packet = socket.receivePacket(timeoutMs = 50) ?: continue
                 val payload = Json.decodeFromStream<NetworkDataPayload>(packet.content)
-                payload.newEvent(payload, packet.address);
+                payload.newEvent(payload, packet.address)
             }
         }
     }
+
+
 }
