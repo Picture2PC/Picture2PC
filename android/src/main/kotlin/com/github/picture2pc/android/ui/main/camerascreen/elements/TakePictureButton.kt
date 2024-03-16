@@ -27,7 +27,7 @@ fun TakePictureButton(
     ){
     Row (
         verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)).padding(20.dp) // Add this line
+        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)).padding(20.dp)
     ) {
         Column( modifier = Modifier.weight(.5f, true), horizontalAlignment = Alignment.Start ){
             IconButton(onClick = onClickReturn) {

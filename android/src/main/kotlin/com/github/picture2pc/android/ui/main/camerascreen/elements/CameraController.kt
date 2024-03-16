@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import java.io.File
 
-
 class CameraController(context: Context, lifecycleOwner: LifecycleOwner) {
     lateinit var viewFinder: PreviewView
     private val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -36,11 +35,6 @@ class CameraController(context: Context, lifecycleOwner: LifecycleOwner) {
     }
 
     fun takePicture(context: Context) {
-        val imageDir = File(context.getExternalFilesDir(null), "tmp")
-        if (!imageDir.exists()) {
-            imageDir.mkdirs()
-        }
-
         val imageFile = File(context.externalCacheDir, "img.png")
         val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
         imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object : OnImageSavedCallback {

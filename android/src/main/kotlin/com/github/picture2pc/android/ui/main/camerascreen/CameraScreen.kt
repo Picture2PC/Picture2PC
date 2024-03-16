@@ -12,19 +12,18 @@ import com.github.picture2pc.android.ui.main.camerascreen.elements.cameraPreview
 @Composable
 fun CameraScreen(
     functionReturn: () -> Unit,
-    functionSend: () -> Unit
-) {
+    functionSend: () -> Unit ){
     val context = LocalContext.current
     val cameraController = cameraPreview(modifier = Modifier.fillMaxSize())
-    val takePicture = { cameraController.takePicture(context) }
 
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom
     ) {
         TakePictureButton(
             onClickReturn = { functionReturn() },
-            onClickPicture = takePicture,
+            onClickPicture = { cameraController.takePicture(context) },
             onClickSend = { functionSend() }
         )
     }
+    /*DisplayImage(context)*/
 }
