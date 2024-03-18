@@ -13,6 +13,6 @@ koin-compose = { module = "io.insert-koin:koin-compose", version = "1.0.3" } # V
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.8.20" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformPlugin" }
