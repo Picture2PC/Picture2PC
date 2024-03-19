@@ -5,25 +5,30 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
+import com.github.picture2pc.android.ui.main.camerascreen.elements.DisplayImage
 import com.github.picture2pc.android.ui.main.camerascreen.elements.TakePictureButton
-import com.github.picture2pc.android.ui.main.camerascreen.elements.cameraPreview
+import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
+import org.koin.compose.rememberKoinInject
 
 @Composable
 fun CameraScreen(
     functionReturn: () -> Unit,
-    functionSend: () -> Unit ){
-    val context = LocalContext.current
-    val cameraController = cameraPreview(modifier = Modifier.fillMaxSize())
-
+    functionSend: () -> Unit,
+    viewModel: CameraViewModel = rememberKoinInject()
+){
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom
     ) {
         TakePictureButton(
             onClickReturn = { functionReturn() },
-            onClickPicture = { cameraController.takePicture(context) },
+            onClickPicture = { viewModel.takeImage() },
             onClickSend = { functionSend() }
         )
+        CameraPreview(
+            modifier = Modifier.fillMaxSize(),
+            viewModel = viewModel
+        )
     }
-    /*DisplayImage(context)*/
+    DisplayImage(viewModel.getLastImage())
 }
