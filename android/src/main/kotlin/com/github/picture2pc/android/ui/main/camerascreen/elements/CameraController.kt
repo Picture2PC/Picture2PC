@@ -1,10 +1,8 @@
 package com.github.picture2pc.android.ui.main.camerascreen.elements
 
 import android.content.Context
-import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.OnImageSavedCallback
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -37,12 +35,13 @@ class CameraController(context: Context, lifecycleOwner: LifecycleOwner) {
     fun takePicture(context: Context) {
         val imageFile = File(context.externalCacheDir, "img.png")
         val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-        imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object : OnImageSavedCallback {
+        imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object :
+            ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
 
             }
             override fun onError(exception: ImageCaptureException) {
-                Log.e("CameraController", "Error saving image: ${exception.message}")
+
             }
         })
     }
