@@ -7,11 +7,11 @@ import java.util.UUID
 interface NetworkPayloadTransceiver {
     val receivedPayloads: SharedFlow<Payload>
 
-    fun sendPayload(payload: Payload)
+    suspend fun sendPayload(payload: Payload)
 
     companion object {
         val uuid = UUID.randomUUID().toString()
-        val name = "test"
+        var name = "test"
         fun getSelf(): Peer {
             return Peer(name, uuid, false)
         }

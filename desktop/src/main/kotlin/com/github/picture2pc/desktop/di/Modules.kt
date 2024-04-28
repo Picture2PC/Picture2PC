@@ -9,6 +9,6 @@ import org.koin.dsl.module
 val appModule = module {
     includes(commonAppModule)
 
-    single<AvailableServersCollector> { MulticastAvailableServersCollector(get(), get(), get()) }
+    single<AvailableServersCollector> { MulticastAvailableServersCollector(get(), get()) }
     single { ServersSectionViewModel(get(), get()) }
 }

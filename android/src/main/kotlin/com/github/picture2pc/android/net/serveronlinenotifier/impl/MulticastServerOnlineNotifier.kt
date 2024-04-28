@@ -2,7 +2,10 @@ package com.github.picture2pc.android.net.serveronlinenotifier.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
-import com.github.picture2pc.common.net.common.NetworkDataPayloads
+import com.github.picture2pc.common.net2.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net2.impl.multicast.MulticastPayloadTransceiver
+import com.github.picture2pc.common.net2.payloads.ListPeers
+import com.github.picture2pc.common.net2.payloads.PeerOnline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
@@ -28,38 +31,31 @@ class MulticastServerOnlineNotifier(
         initialValue = false
     )
 
-    private var loadedName = false
-
     init {
-        NetworkDataPayloads.ListServers.incomingPayloads
-            .onEach { payload ->
-                if (serverConnectable.value) {
-                    launch {
-                        emitServerOnline(serverName.value)
-                    }
-                }
-            }.launchIn(this)
+        multicastPaylaodTransceiver.receivedPayloads.onEach {
+            (it as? ListPeers)?.let {
+                if (serverConnectable.value)
+                    emitServerOnline(serverName.value)
+            }
+        }.launchIn(this)
 
         launch {
-
             serverName.onEach {
-                if (it == "<LOADING>")
-                    return@onEach
-                loadedName = true
                 if (serverConnectable.value)
                     emitServerOnline(it)
 
             }.launchIn(this)
 
-
             serverConnectable.onEach {
                 if (it)
                     emitServerOnline(serverName.value)
+
             }.launchIn(this)
         }
     }
 
     private suspend fun emitServerOnline(serverName: String) {
-        NetworkDataPayloads.ServerOnline(serverName).emit(multicastPaylaodTransceiver)
+        NetworkPayloadTransceiver.name = serverName
+        multicastPaylaodTransceiver.sendPayload(PeerOnline())
     }
 }

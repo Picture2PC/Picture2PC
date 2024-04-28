@@ -1,7 +1,9 @@
 package com.github.picture2pc.common.net2.impl.multicast
 
-import com.github.picture2pc.common.net.common.NetworkPacket
-import com.github.picture2pc.common.net.common.ReceivedMulticastPacket
+import com.github.picture2pc.common.net2.common.NetworkPacket
+import com.github.picture2pc.common.net2.common.ReceivedMulticastPacket
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
@@ -12,7 +14,6 @@ internal class SimpleMulticastSocket(
     val inetSocketAddress: InetSocketAddress
 ) {
     private val jvmMulticastSocket = java.net.MulticastSocket(inetSocketAddress.port)
-
 
     init {
         jvmMulticastSocket.networkInterface =
@@ -27,11 +28,15 @@ internal class SimpleMulticastSocket(
         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
     }
 
-    fun sendMessage(message: InputStream) {
+    suspend fun sendMessage(message: InputStream) {
         val packet = NetworkPacket(message, inetSocketAddress)
         while (packet.available) {
-            jvmMulticastSocket.send(packet.getDatagramPacket())
+            withContext(Dispatchers.IO) {
+                jvmMulticastSocket.send(packet.getDatagramPacket())
+            }
+            //delay(10) //TODO: check if this is necessary
         }
+
     }
 
     fun receivePacket(): ReceivedMulticastPacket? {
@@ -43,7 +48,7 @@ internal class SimpleMulticastSocket(
                 return null
             }
         }
-
+        //TODO Handle if multiple packages from different host are received at the same time
         return ReceivedMulticastPacket(packet.getInputStream(), packet.getAddress())
     }
 }

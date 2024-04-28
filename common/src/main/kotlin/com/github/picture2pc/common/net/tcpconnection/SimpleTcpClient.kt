@@ -1,12 +1,9 @@
 package com.github.picture2pc.common.net.tcpconnection
 
-import com.github.picture2pc.common.net.common.DefaultDataPayloadTransceiver
 import com.github.picture2pc.common.net.common.NetworkDataPayload
-import com.github.picture2pc.common.net.common.NetworkPacket
 import com.github.picture2pc.common.net.common.ReceivedMulticastPacket
+import com.github.picture2pc.common.net2.common.NetworkPacket
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -18,7 +15,10 @@ import java.net.Socket
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalSerializationApi::class)
-class SimpleTcpClient(override val coroutineContext: CoroutineContext, private val jvmSocket: Socket = Socket()): CoroutineScope, DefaultDataPayloadTransceiver()
+class SimpleTcpClient(
+    override val coroutineContext: CoroutineContext,
+    private val jvmSocket: Socket = Socket()
+) : CoroutineScope //, DefaultDataPayloadTransceiver()
 {
 
     private val socketAddress
@@ -31,12 +31,12 @@ class SimpleTcpClient(override val coroutineContext: CoroutineContext, private v
         get() = jvmSocket.isConnected && !jvmSocket.isClosed
 
     init {
-        launch {         outgoingPayloads
+        /*launch {         outgoingPayloads
             .onEach { sendMessage(it) }
             .launchIn(this) }
         if (jvmSocket.isConnected) {
             run()
-        }
+        }*/
     }
 
     fun connect(address: String, port: Int) {
@@ -51,7 +51,7 @@ class SimpleTcpClient(override val coroutineContext: CoroutineContext, private v
             while (isActive && isConnected) {
                 val packet = receivePacket() ?: continue
                 val payload = Json.decodeFromStream<NetworkDataPayload>(packet.content)
-                payload.newEvent(payload, packet.address)
+                // payload.newEvent(payload, packet.address)
 
             }
         }

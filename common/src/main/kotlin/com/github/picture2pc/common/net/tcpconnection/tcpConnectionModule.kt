@@ -5,5 +5,4 @@ import org.koin.dsl.module
 val tcpConnectionModule = module {
     factory { SimpleTcpClient(get()) }
     single { SimpleTcpServer(get()) }
-    single { TcpConnectionPayloadTransceiver(get(), get()) }
 }
