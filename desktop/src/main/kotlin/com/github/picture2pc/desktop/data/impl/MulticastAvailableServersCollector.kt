@@ -1,7 +1,6 @@
 package com.github.picture2pc.desktop.data.impl
 
 import com.github.picture2pc.common.net.common.NetworkDataPayloads
-import com.github.picture2pc.common.net.multicast.MulticastPayloadTransceiver
 import com.github.picture2pc.common.net.tcpconnection.TcpConnectionPayloadTransceiver
 import com.github.picture2pc.desktop.data.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope

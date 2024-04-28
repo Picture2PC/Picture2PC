@@ -3,7 +3,6 @@ package com.github.picture2pc.android.net.serveronlinenotifier.impl
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
 import com.github.picture2pc.common.net.common.NetworkDataPayloads
-import com.github.picture2pc.common.net.multicast.MulticastPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
