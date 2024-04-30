@@ -20,11 +20,12 @@ import java.io.File
 
 class CameraImageManager (
     private val context: Context,
-    private val lifecycleOwner: LifecycleOwner,
     private val imageCapture: ImageCapture = ImageCapture.Builder().build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
     ) : ImageManager
 {
+    private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
+
     init {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
