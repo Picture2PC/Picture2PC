@@ -3,6 +3,7 @@ package com.github.picture2pc.android.data.takeimage.impl
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -32,25 +33,24 @@ class CameraImageManager (
         imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object :
             ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-
+                    _takenImages.tryEmit(getImage())
                 }
                 override fun onError(exception: ImageCaptureException) {
-
+                    Log.e("CameraImageManager", "Error taking picture", exception)
                 }
             }
         )
-        _takenImages.tryEmit(getImage())
     }
 
     override fun getImage(): Bitmap {
         return BitmapFactory.decodeFile(File(context.externalCacheDir, "img.png").absolutePath)
     }
 
-    override fun setViewFinder(viewFinder:PreviewView){
+    override fun setViewFinder(previewView:PreviewView){
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(viewFinder.surfaceProvider)
+                it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
             cameraProvider.unbindAll()

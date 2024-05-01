@@ -8,5 +8,5 @@ interface ImageManager {
     val takenImages : SharedFlow<Bitmap>
     fun takeImage()
     fun getImage() : Bitmap
-    fun setViewFinder(viewFinder:PreviewView)
+    fun setViewFinder(previewView: PreviewView)
 }

@@ -10,6 +10,7 @@ import com.github.picture2pc.android.net.serveronlinenotifier.impl.MulticastServ
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
 import org.koin.dsl.module
 
@@ -28,6 +29,7 @@ val appModule = module {
             get()
         )
     }
+    single { ScreenSelectorViewModel() }
     single { SavedStateHandle() }
     single<ServerPreferencesRepository> { DataStoreServerPreferencesRepository(get(), get()) }
 }
