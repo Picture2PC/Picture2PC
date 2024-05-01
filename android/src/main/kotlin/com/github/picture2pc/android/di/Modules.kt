@@ -22,6 +22,7 @@ val appModule = module {
     single { BroadcastViewModel(get(), get()) }
     single<ImageManager> { CameraImageManager(get()) }
     single { CameraViewModel(get()) }
+    single { ScreenSelectorViewModel() }
     single<ServerOnlineNotifier>(createdAtStart = true) {
         MulticastServerOnlineNotifier(
             get(),
@@ -29,7 +30,6 @@ val appModule = module {
             get()
         )
     }
-    single { ScreenSelectorViewModel() }
     single { SavedStateHandle() }
     single<ServerPreferencesRepository> { DataStoreServerPreferencesRepository(get(), get()) }
 }
