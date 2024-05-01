@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun DisplayImage(bitmap: Bitmap){
     Image(
         painter = BitmapPainter(bitmap.asImageBitmap()),
-        contentDescription = "",
-        Modifier.wrapContentSize().rotate(90f).height(200.dp)
+        contentDescription = "current image",
+        modifier = Modifier.wrapContentSize().rotate(90f).height(200.dp)
     )
 }

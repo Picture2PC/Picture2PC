@@ -5,22 +5,26 @@ import androidx.camera.view.PreviewView
 import com.github.picture2pc.android.data.takeimage.ImageManager
 
 class CameraViewModel(
-    private val cameraImageManager: ImageManager
+    private val imageManager: ImageManager
 ) {
     fun getLastImage(): Bitmap {
-        return if (cameraImageManager.takenImages.replayCache.isNotEmpty()) {
-            cameraImageManager.takenImages.replayCache.last()
+        return if (imageManager.takenImages.replayCache.isNotEmpty()) {
+            imageManager.takenImages.replayCache.last()
         } else {
-            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            return imageManager.getImage()
         }
     }
 
     fun setViewFinder(previewView: PreviewView) {
-        cameraImageManager.setViewFinder(previewView)
+        imageManager.setViewFinder(previewView)
+    }
+
+    fun setTestImage(){
+        imageManager.setTestImage()
     }
 
     fun takeImage() {
-        cameraImageManager.takeImage()
+        imageManager.takeImage()
     }
     fun sendImage(){
         /*TODO*/

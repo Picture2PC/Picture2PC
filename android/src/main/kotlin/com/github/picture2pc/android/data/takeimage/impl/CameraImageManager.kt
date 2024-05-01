@@ -60,6 +60,11 @@ class CameraImageManager (
         }, ContextCompat.getMainExecutor(context))
     }
 
+    override fun setTestImage() {
+        _takenImages.tryEmit(getImage())
+    }
+
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
+
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
 }

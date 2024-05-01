@@ -9,4 +9,5 @@ interface ImageManager {
     fun takeImage()
     fun getImage() : Bitmap
     fun setViewFinder(previewView: PreviewView)
+    fun setTestImage()
 }
