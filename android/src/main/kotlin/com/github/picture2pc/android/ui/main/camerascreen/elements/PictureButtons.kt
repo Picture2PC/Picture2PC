@@ -16,29 +16,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
+import org.koin.compose.rememberKoinInject
 
 val shape = RoundedCornerShape(5.dp)
 
 @Composable
-fun TakePictureButton(
-    onClickReturn: () -> Unit,
-    onClickPicture: () -> Unit,
-    onClickSend: () -> Unit
-    ){
+fun PictureButtons(
+    cameraViewModel: CameraViewModel = rememberKoinInject(),
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
+    ) {
     Row (
         verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)).padding(20.dp)
+        modifier = Modifier
+            .background(Color.Black.copy(alpha = 0.5f))
+            .padding(20.dp)
     ) {
         Column( modifier = Modifier.weight(.5f, true), horizontalAlignment = Alignment.Start ){
-            IconButton(onClick = onClickReturn) {
+            IconButton(
+                onClick = { screenSelectorViewModel.toMain() }
+            ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
             }
         }
         Column(horizontalAlignment = Alignment.End ){
-            Button(onClick = onClickPicture, shape = shape) {
+            Button(onClick = { cameraViewModel.takeImage() }, shape = shape) {
                 Text(text = "Take Picture")
             }
-            Button(onClick = onClickSend, shape = shape) {
+            Button(onClick = { cameraViewModel.sendImage() }, shape = shape) {
                 Text(text = "Send")
             }
         }
