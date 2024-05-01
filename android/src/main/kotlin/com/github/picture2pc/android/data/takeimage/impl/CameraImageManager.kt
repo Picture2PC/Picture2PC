@@ -26,20 +26,6 @@ class CameraImageManager (
 {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
-    init {
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(viewFinder.surfaceProvider)
-            }
-
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageCapture
-            )
-        }, ContextCompat.getMainExecutor(context))
-    }
-
     override fun takeImage() {
         val imageFile = File(context.externalCacheDir, "img.png")
         val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
@@ -60,8 +46,20 @@ class CameraImageManager (
         return BitmapFactory.decodeFile(File(context.externalCacheDir, "img.png").absolutePath)
     }
 
+    override fun setViewFinder(viewFinder:PreviewView){
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(viewFinder.surfaceProvider)
+            }
+
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageCapture
+            )
+        }, ContextCompat.getMainExecutor(context))
+    }
+
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
-
-    override lateinit var viewFinder: PreviewView
 }
