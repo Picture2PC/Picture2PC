@@ -2,7 +2,7 @@ package com.github.picture2pc.android.ui.main.camerascreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
@@ -15,14 +15,13 @@ import org.koin.compose.rememberKoinInject
 fun CameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject()
 ){
-    Column(
-        modifier = Modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.Top
+
+    CameraPreview(cameraViewModel = cameraViewModel)
+    Column (
+        verticalArrangement = Arrangement.Bottom,
+        modifier = Modifier.fillMaxSize()
     ) {
-        CameraPreview(
-            viewModel = cameraViewModel,
-        )
+        PictureButtons()
     }
-    PictureButtons()
     DisplayImage(cameraViewModel.getLastImage())
 }

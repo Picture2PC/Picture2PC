@@ -15,8 +15,8 @@ class CameraViewModel(
         }
     }
 
-    fun setViewFinder(viewFinder: PreviewView) {
-        cameraImageManager.setViewFinder(viewFinder)
+    fun setViewFinder(previewView: PreviewView) {
+        cameraImageManager.setViewFinder(previewView)
     }
 
     fun takeImage() {

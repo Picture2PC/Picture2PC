@@ -9,16 +9,14 @@ import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraView
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    viewModel: CameraViewModel
+    cameraViewModel: CameraViewModel
 ) {
     AndroidView(
         modifier = modifier,
-        factory = { context ->
-            PreviewView(context).apply {
+        factory = {
+            PreviewView(it).apply {
+                cameraViewModel.setViewFinder(this)
             }
-        },
-        update = { view ->
-            viewModel.setViewFinder(view)
         }
     )
 }
