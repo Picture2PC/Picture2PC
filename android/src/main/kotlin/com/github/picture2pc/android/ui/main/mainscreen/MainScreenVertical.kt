@@ -18,7 +18,7 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionPro
 
 
 @Composable
-fun MainScreen() {
+fun MainScreenVertical() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))

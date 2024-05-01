@@ -1,9 +1,9 @@
-package com.github.picture2pc.common.net2.common
+package com.github.picture2pc.common.net2.impl.common
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.DatagramPacket
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import kotlin.math.min
@@ -25,8 +25,8 @@ data class NetworkPacket(
         return (inputStream ?: ByteArrayInputStream(lastByteArray))
     }
 
-    fun getAddress(): InetAddress {
-        return datagramPacket!!.address
+    fun getSocketAddress(): InetSocketAddress {
+        return InetSocketAddress(datagramPacket!!.address, datagramPacket!!.port)
     }
 
     fun getDatagramPacket(): DatagramPacket? {

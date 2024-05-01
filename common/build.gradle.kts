@@ -18,5 +18,5 @@ dependencies {
 
     api(libs.koin.core)
     api(libs.koin.compose)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation(libs.kotlinx.serialization.json)
 }

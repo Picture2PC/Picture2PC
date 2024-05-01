@@ -8,6 +8,7 @@ import androidx.compose.ui.window.launchApplication
 import com.github.picture2pc.desktop.ui.OpenExitTray
 import com.github.picture2pc.desktop.ui.main.MainWindow
 import kotlinx.coroutines.CoroutineScope
+import kotlin.system.exitProcess
 
 
 fun CoroutineScope.launchDesktopApp() = launchApplication {
@@ -15,7 +16,7 @@ fun CoroutineScope.launchDesktopApp() = launchApplication {
 
     OpenExitTray(
         openAction = { mainWindowVisible = true },
-        exitAction = this::exitApplication
+        exitAction = { exitApplication(); exitProcess(0) }
     )
 
     if (mainWindowVisible) {

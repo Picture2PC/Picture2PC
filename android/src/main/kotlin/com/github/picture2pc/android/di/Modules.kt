@@ -14,13 +14,14 @@ import org.koin.dsl.module
 val appModule = module {
     includes(commonAppModule)
 
-    single { ClientsViewModel() }
+    single { ClientsViewModel(get(), get()) }
     single { BroadcastViewModel(get(), get()) }
     single<ServerOnlineNotifier>(createdAtStart = true) {
         MulticastServerOnlineNotifier(
             get(),
             get(),
-            get()
+            get(),
+            get(),
         )
     }
     single { SavedStateHandle() }

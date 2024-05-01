@@ -19,5 +19,18 @@ class Peer {
             return Peer("Any", "0", true)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Peer) return false
+
+        if (uuid != other.uuid) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
 }
 
