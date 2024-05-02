@@ -19,26 +19,49 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import java.io.File
+import java.io.ByteArrayOutputStream
 
-class CameraImageManager (
+class CameraImageManager(
     private val context: Context,
-    private val imageCapture: ImageCapture = ImageCapture.Builder().build(),
+    private val imageCapture: ImageCapture = ImageCapture.Builder()
+        .setFlashMode(ImageCapture.FLASH_MODE_AUTO).build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
-    ) : ImageManager, ImageCapture.OnImageSavedCallback
+) : ImageManager
 {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
+
     override fun takeImage() {
-        val imageFile = File(context.externalCacheDir, "img.png")
-        val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-        imageCapture.takePicture(outFileOptions, {}, this
-        )
+        val outputStream = ByteArrayOutputStream()
+        val options = ImageCapture.OutputFileOptions.Builder(outputStream).build()
+        imageCapture.takePicture(
+            options,
+            ContextCompat.getMainExecutor(context),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e("CameraImageManager", "Error taking picture", exception)
+                }
+
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    Log.d("CameraImageManager", "Image saved")
+                    val image = BitmapFactory.decodeByteArray(
+                        outputStream.toByteArray(),
+                        0,
+                        outputStream.size()
+                    )
+                    Log.d("CameraImageManager", "Image size: ${image.byteCount}")
+                    lifecycleOwner.lifecycleScope.launch {
+                        Log.d("CameraImageManager", "Emitting image")
+                        _takenImages.emit(image)
+                    }
+                }
+            })
     }
 
     override fun getImage(): Bitmap {
-        return BitmapFactory.decodeFile(File(context.externalCacheDir, "img.png").absolutePath)
+        TODO("Not yet implemented")
     }
+
 
     override fun setViewFinder(previewView:PreviewView){
         cameraProviderFuture.addListener({
@@ -57,14 +80,6 @@ class CameraImageManager (
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
 
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
-    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-        Log.d("CameraImageManager", "Image saved")
-        lifecycleOwner.lifecycleScope.launch {
-            _takenImages.emit(getImage())
-        }
-    }
 
-    override fun onError(exception: ImageCaptureException) {
-        TODO("Not yet implemented")
-    }
 }
+
