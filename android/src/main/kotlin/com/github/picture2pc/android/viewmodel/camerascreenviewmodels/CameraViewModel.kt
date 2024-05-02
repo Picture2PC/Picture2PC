@@ -13,14 +13,6 @@ class CameraViewModel(
             return  imageManager.takenImages
         }
 
-    fun getLastImage(): Bitmap {
-        return if (imageManager.takenImages.replayCache.isNotEmpty()) {
-            imageManager.takenImages.replayCache.last()
-        } else {
-            return imageManager.getImage()
-        }
-    }
-
     fun setViewFinder(previewView: PreviewView) {
         imageManager.setViewFinder(previewView)
     }
@@ -29,7 +21,7 @@ class CameraViewModel(
         imageManager.takeImage()
     }
     fun sendImage(){
-        /*TODO*/
+        //TODO
     }
 
     fun getBlankImage(): Bitmap {

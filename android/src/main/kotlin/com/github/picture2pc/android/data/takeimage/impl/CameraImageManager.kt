@@ -20,11 +20,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class CameraImageManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
-        .setFlashMode(ImageCapture.FLASH_MODE_AUTO).build(),
+        .setFlashMode(ImageCapture.FLASH_MODE_OFF).build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : ImageManager
 {
@@ -58,11 +60,6 @@ class CameraImageManager(
             })
     }
 
-    override fun getImage(): Bitmap {
-        TODO("Not yet implemented")
-    }
-
-
     override fun setViewFinder(previewView:PreviewView){
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -78,7 +75,6 @@ class CameraImageManager(
     }
 
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
-
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
 
 }
