@@ -1,6 +1,5 @@
 package com.github.picture2pc.android.ui.main.camerascreen.elements
 
-import android.view.ViewGroup
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,21 +8,15 @@ import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraView
 
 @Composable
 fun CameraPreview(
-    modifier: Modifier,
-    viewModel: CameraViewModel
-){
+    modifier: Modifier = Modifier,
+    cameraViewModel: CameraViewModel
+) {
     AndroidView(
         modifier = modifier,
-        factory = { context ->
-            PreviewView(context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
+        factory = {
+            PreviewView(it).apply {
+                cameraViewModel.setViewFinder(this)
             }
-        },
-        update = { view ->
-            viewModel.setViewFinder(view)
         }
     )
 }
