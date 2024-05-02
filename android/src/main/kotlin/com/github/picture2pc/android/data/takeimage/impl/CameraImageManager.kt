@@ -25,25 +25,14 @@ class CameraImageManager (
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder().build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
-    ) : ImageManager
+    ) : ImageManager, ImageCapture.OnImageSavedCallback
 {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
     override fun takeImage() {
         val imageFile = File(context.externalCacheDir, "img.png")
         val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-        imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object :
-            ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Log.d("CameraImageManager", "Image saved")
-                                    lifecycleOwner.lifecycleScope.launch {
-                        _takenImages.emit(getImage())
-                    }
-                }
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraImageManager", "Error taking picture", exception)
-                }
-            }
+        imageCapture.takePicture(outFileOptions, {}, this
         )
     }
 
@@ -68,4 +57,14 @@ class CameraImageManager (
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
 
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
+    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+        Log.d("CameraImageManager", "Image saved")
+        lifecycleOwner.lifecycleScope.launch {
+            _takenImages.emit(getImage())
+        }
+    }
+
+    override fun onError(exception: ImageCaptureException) {
+        TODO("Not yet implemented")
+    }
 }
