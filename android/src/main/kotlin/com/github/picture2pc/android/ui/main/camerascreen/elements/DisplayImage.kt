@@ -19,13 +19,12 @@ fun DisplayImage(image: Bitmap, alpha: Float){
     val matrix = Matrix()
     matrix.postRotate(90f)
     val bitmap = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true)
-    Log.d("alpha", alpha.toString())
     Image(
         painter = BitmapPainter(bitmap.asImageBitmap()),
         contentDescription = "current image",
         modifier = Modifier
             .height(200.dp)
+            .background(color = Color.Black.copy(alpha))
             .padding(5.dp)
-            .background(Color.Black.copy(alpha))
     )
 }
