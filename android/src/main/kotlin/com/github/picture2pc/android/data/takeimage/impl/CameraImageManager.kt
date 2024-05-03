@@ -12,38 +12,52 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.github.picture2pc.android.data.takeimage.ImageManager
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 
-class CameraImageManager (
+class CameraImageManager(
     private val context: Context,
-    private val imageCapture: ImageCapture = ImageCapture.Builder().build(),
+    private val imageCapture: ImageCapture = ImageCapture.Builder()
+        .setFlashMode(ImageCapture.FLASH_MODE_OFF).build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
-    ) : ImageManager
+) : ImageManager
 {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
+
     override fun takeImage() {
-        val imageFile = File(context.externalCacheDir, "img.png")
-        val outFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-        imageCapture.takePicture(outFileOptions, {/* my place for your executor */}, object :
-            ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    _takenImages.tryEmit(getImage())
-                }
+        val outputStream = ByteArrayOutputStream()
+        val options = ImageCapture.OutputFileOptions.Builder(outputStream).build()
+        imageCapture.takePicture(
+            options,
+            ContextCompat.getMainExecutor(context),
+            object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("CameraImageManager", "Error taking picture", exception)
                 }
-            }
-        )
-    }
 
-    override fun getImage(): Bitmap {
-        return BitmapFactory.decodeFile(File(context.externalCacheDir, "img.png").absolutePath)
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    Log.d("CameraImageManager", "Image saved")
+                    val image = BitmapFactory.decodeByteArray(
+                        outputStream.toByteArray(),
+                        0,
+                        outputStream.size()
+                    )
+                    Log.d("CameraImageManager", "Image size: ${image.byteCount}")
+                    lifecycleOwner.lifecycleScope.launch {
+                        Log.d("CameraImageManager", "Emitting image")
+                        _takenImages.emit(image)
+                    }
+                }
+            })
     }
 
     override fun setViewFinder(previewView:PreviewView){
@@ -60,11 +74,8 @@ class CameraImageManager (
         }, ContextCompat.getMainExecutor(context))
     }
 
-    override fun setTestImage() {
-        _takenImages.tryEmit(getImage())
-    }
-
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
-
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
+
 }
+

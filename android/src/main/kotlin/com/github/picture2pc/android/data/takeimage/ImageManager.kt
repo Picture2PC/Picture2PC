@@ -7,7 +7,5 @@ import kotlinx.coroutines.flow.SharedFlow
 interface ImageManager {
     val takenImages : SharedFlow<Bitmap>
     fun takeImage()
-    fun getImage() : Bitmap
     fun setViewFinder(previewView: PreviewView)
-    fun setTestImage()
 }
