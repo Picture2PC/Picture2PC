@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.Surface.ROTATION_90
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
@@ -31,12 +31,13 @@ class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(FLASH_MODE_OFF)
-        .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
+        .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
         .setTargetRotation(ROTATION_90)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
+
 
     override fun takeImage() {
         val outputStream = ByteArrayOutputStream()
@@ -77,7 +78,8 @@ class CameraPictureManager(
     }
 
     override fun saveImageToCache() {
-        val image = _takenImages.replayCache.lastOrNull() ?: return
+        //TODO: Fix, takenImages is empty when calling the function from BigPicture send button
+        val image = takenImages.replayCache.lastOrNull() ?: return
 
         val fileUri = File(context.externalCacheDir, "img.png")
         try {
@@ -90,7 +92,6 @@ class CameraPictureManager(
         }
     }
 
-    private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
-    override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
+    private val _takenImages = MutableSharedFlow<Bitmap>()                      //listen and write
+    override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //listen only
 }
-
