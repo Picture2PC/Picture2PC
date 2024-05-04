@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.desktop.viewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
@@ -38,7 +38,5 @@ fun ServersSectionView(
                 Text("Refresh")
             }
         }
-
     }
-
 }

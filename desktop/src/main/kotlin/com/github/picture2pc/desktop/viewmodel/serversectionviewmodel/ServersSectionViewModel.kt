@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.viewmodel
+package com.github.picture2pc.desktop.viewmodel.serversectionviewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -32,8 +32,6 @@ class ServersSectionViewModel(
                     it.senderAddress,
                     ServerEntryConnectionState.DISCONNECTED //TODO
                 )
-
-
             }
             .launchIn(this)
     }
@@ -41,7 +39,6 @@ class ServersSectionViewModel(
     fun refreshServers() {
         _serverEntries.value = setOf()
         availableServersCollector.requestServers()
-
     }
 
     data class ServerEntryState(

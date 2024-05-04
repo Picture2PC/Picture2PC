@@ -21,10 +21,9 @@ fun BigPicture(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
-    val image = cameraViewModel.takenImages.replayCache.last()
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            bitmap = image.asImageBitmap(),
+            bitmap = cameraViewModel.getLastImage().asImageBitmap(),
             modifier = Modifier.align(Alignment.Center),
             contentDescription = "Big last picture"
         )

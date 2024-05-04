@@ -10,4 +10,7 @@ sealed class TcpPayload : Payload() {
 
     @Serializable
     data class Pong(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class Picture(val picture: ByteArray, override val targetPeer: Peer = Peer.any()) : TcpPayload()
 }
