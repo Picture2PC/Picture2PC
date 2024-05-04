@@ -1,7 +1,5 @@
 package com.github.picture2pc.android.ui.main.camerascreen
 
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -12,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.github.picture2pc.android.extentions.rotate
 import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
 import com.github.picture2pc.android.ui.main.camerascreen.elements.DisplayPicture
 import com.github.picture2pc.android.ui.main.camerascreen.elements.PictureButtons
@@ -24,11 +23,7 @@ fun CameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ){
-    var alpha = .5f
-    val image = cameraViewModel.takenImages.collectAsState(initial = cameraViewModel.getBlankImage()).value
-    val matrix = Matrix()
-    matrix.postRotate(90f)
-    val imageBitmap = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true)
+    val image = cameraViewModel.takenImages.collectAsState(initial = null).value?.rotate(90f)
     Box(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier
                 .height(IntrinsicSize.Max)
@@ -37,12 +32,13 @@ fun CameraScreen(
             ) {
                 CameraPreview(cameraViewModel = cameraViewModel)
             }
-            if (image.byteCount == 4){ alpha = .0f }
-            Box(modifier = Modifier
-                .align(Alignment.TopStart)
-                .clickable { screenSelectorViewModel.toBigPicture() }
-            ) {
-                DisplayPicture(image = imageBitmap, alpha)
+            if (image != null) {
+                Box(modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .clickable(onClick = screenSelectorViewModel::toBigPicture)
+                ) {
+                    DisplayPicture(image, .5f)
+                }
             }
             Box (modifier = Modifier
                 .align(Alignment.BottomCenter)

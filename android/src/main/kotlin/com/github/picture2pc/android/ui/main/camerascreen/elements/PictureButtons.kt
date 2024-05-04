@@ -35,13 +35,16 @@ fun PictureButtons(
     ) {
         Column( modifier = Modifier.weight(.5f, true), horizontalAlignment = Alignment.Start ){
             IconButton(
-                onClick = { screenSelectorViewModel.toMain() }
+                onClick = screenSelectorViewModel::toMain
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
             }
         }
         Column(horizontalAlignment = Alignment.End ){
-            Button(onClick = { cameraViewModel.takeImage() }, shape = shape) {
+            Button(
+                onClick = cameraViewModel::takeImage,
+                shape = shape
+            ) {
                 Text(text = "Take Picture")
             }
         }

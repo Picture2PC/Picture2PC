@@ -19,7 +19,6 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionPro
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import org.koin.compose.rememberKoinInject
 
-//@Preview
 @Composable
 fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -55,7 +54,7 @@ fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinIn
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(0.dp, 0.dp, 0.dp, 20.dp),
-            onClick = { screenSelectorViewModel.toCamera() }
+            onClick = screenSelectorViewModel::toCamera
         )
     }
 }
