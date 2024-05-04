@@ -4,8 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.view.Surface.ROTATION_90
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -26,7 +29,10 @@ import java.io.FileOutputStream
 class CameraImageManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
-        .setFlashMode(ImageCapture.FLASH_MODE_OFF).build(),
+        .setFlashMode(FLASH_MODE_OFF)
+        .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
+        .setTargetRotation(ROTATION_90)
+        .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : ImageManager
 {
@@ -74,8 +80,13 @@ class CameraImageManager(
         }, ContextCompat.getMainExecutor(context))
     }
 
+    override fun saveImageToCache() {
+        val outputStream = FileOutputStream(File.createTempFile("img", ".png", context.externalCacheDir))
+        takenImages.replayCache.last().compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.close()
+    }
+
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //Abhören
-
 }
 

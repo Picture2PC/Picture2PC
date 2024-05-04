@@ -7,11 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.github.picture2pc.android.ui.main.camerascreen.CameraScreen
 import com.github.picture2pc.android.ui.main.mainscreen.MainScreen
+import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreen
 import com.github.picture2pc.android.ui.theme.Picture2PcTheme
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import org.koin.compose.rememberKoinInject
 
-enum class Screens { MAIN, CAMERA }
+enum class Screens { MAIN, CAMERA, BIGPICTURE }
 
 @Composable
 fun Screen(screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
@@ -24,6 +25,7 @@ fun Screen(screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
             when (screenSelector.value) {
                 Screens.MAIN -> MainScreen()
                 Screens.CAMERA -> CameraScreen()
+                Screens.BIGPICTURE -> BigPictureScreen()
             }
         }
     }

@@ -2,8 +2,10 @@ package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
+import androidx.compose.runtime.Composable
 import com.github.picture2pc.android.data.takeimage.ImageManager
 import kotlinx.coroutines.flow.SharedFlow
+import org.koin.compose.rememberKoinInject
 
 class CameraViewModel(
     private val imageManager: ImageManager
@@ -21,7 +23,7 @@ class CameraViewModel(
         imageManager.takeImage()
     }
     fun sendImage(){
-        //TODO
+        imageManager.saveImageToCache()
     }
 
     fun getBlankImage(): Bitmap {

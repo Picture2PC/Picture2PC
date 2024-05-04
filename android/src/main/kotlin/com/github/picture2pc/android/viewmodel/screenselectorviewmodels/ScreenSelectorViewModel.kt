@@ -17,4 +17,7 @@ class ScreenSelectorViewModel {
     fun toMain() {
         currentScreen.value = Screens.MAIN
     }
+    fun toBigPicture(){
+        currentScreen.value = Screens.BIGPICTURE
+    }
 }

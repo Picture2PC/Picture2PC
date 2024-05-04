@@ -8,4 +8,5 @@ interface ImageManager {
     val takenImages : SharedFlow<Bitmap>
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)
+    fun saveImageToCache()
 }
