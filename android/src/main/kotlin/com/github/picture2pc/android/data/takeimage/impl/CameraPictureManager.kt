@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
@@ -16,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.github.picture2pc.android.data.takeimage.PictureManager
+import com.github.picture2pc.android.extentions.rotate
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,7 +30,7 @@ class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(FLASH_MODE_AUTO)
-        .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
+        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
@@ -54,7 +54,7 @@ class CameraPictureManager(
                         outputStream.size()
                     )
                     lifecycleOwner.lifecycleScope.launch {
-                        _takenImages.emit(image)
+                        _takenImages.emit(image.rotate(90f))
                     }
                 }
             }
@@ -78,10 +78,10 @@ class CameraPictureManager(
     override fun saveImageToCache() {
         val image = takenImages.replayCache.lastOrNull() ?: return
 
-        val fileUri = File(context.externalCacheDir, "img.png")
+        val fileUri = File.createTempFile("img.png", ".png", context.externalCacheDir)
         try {
             val outStream = FileOutputStream(fileUri)
-            image.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+            image.compress(Bitmap.CompressFormat.PNG, 50, outStream)
             outStream.flush()
             outStream.close()
         } catch (e: IOException) {

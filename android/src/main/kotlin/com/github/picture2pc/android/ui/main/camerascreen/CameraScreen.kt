@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.github.picture2pc.android.extentions.rotate
 import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
 import com.github.picture2pc.android.ui.main.camerascreen.elements.DisplayPicture
 import com.github.picture2pc.android.ui.main.camerascreen.elements.PictureButtons
@@ -23,7 +22,7 @@ fun CameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ){
-    val image = cameraViewModel.takenImages.collectAsState(initial = null).value?.rotate(90f)
+    val image = cameraViewModel.takenImages.collectAsState(initial = null).value
     Box(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier
                 .height(IntrinsicSize.Max)
