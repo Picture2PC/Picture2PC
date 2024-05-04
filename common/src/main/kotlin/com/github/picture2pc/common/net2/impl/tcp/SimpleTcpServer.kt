@@ -4,6 +4,7 @@ import com.github.picture2pc.common.net2.Peer
 import com.github.picture2pc.common.net2.payloads.Payload
 import com.github.picture2pc.common.net2.payloads.TcpPayload
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,6 +111,19 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
     }
 
     suspend fun sendPayload(payload: Payload): Boolean {
+        if (payload.targetPeer.isAny) {
+            return coroutineScope {
+                val jobs = peerToClientMap.values.map {
+                    async {
+                        it.sendMessage(payload.asInputStream())
+                    }
+                }
+                jobs.forEach {
+                    if (!it.await()) return@coroutineScope false
+                }
+                return@coroutineScope true
+            }
+        }
         val client = peerToClientMap.getOrDefault(payload.targetPeer, null) ?: return false
         return client.sendMessage(payload.asInputStream())
     }
