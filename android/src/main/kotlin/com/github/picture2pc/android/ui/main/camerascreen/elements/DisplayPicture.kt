@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DisplayPicture(
     image: Bitmap, alpha: Float
-){
+) {
     Image(
         bitmap = image.asImageBitmap(),
         contentDescription = "current image",

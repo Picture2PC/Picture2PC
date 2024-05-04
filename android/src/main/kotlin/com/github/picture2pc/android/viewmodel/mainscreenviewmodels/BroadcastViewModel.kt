@@ -19,7 +19,7 @@ class BroadcastViewModel(
     private val _serverNamePreference = serverPreferencesRepository.name.stateIn(
         scope = this,
         started = SharingStarted.Eagerly,
-        initialValue = "Loading"
+        initialValue = "<LOADING>"
     )
 
     val serverConnectable = serverPreferencesRepository.connectable.stateIn(

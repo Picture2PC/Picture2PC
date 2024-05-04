@@ -1,6 +1,7 @@
 package com.github.picture2pc.android
 
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,12 +41,19 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            Screen()
+            Screen(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setContent {
+            Screen(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
         }
     }
 
     private fun hasRequiredPermissions() = CAMERAX_PERMISSONS.all {
-        return CAMERAX_PERMISSONS.all{
+        return CAMERAX_PERMISSONS.all {
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 it
@@ -53,7 +61,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    companion object{
+    companion object {
         private val CAMERAX_PERMISSONS = arrayOf(
             android.Manifest.permission.CAMERA,
         )

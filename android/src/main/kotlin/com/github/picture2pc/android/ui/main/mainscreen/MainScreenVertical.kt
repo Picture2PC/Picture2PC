@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-//import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.ui.main.mainscreen.elements.BrandingTopBar
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
@@ -20,7 +19,8 @@ import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSe
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
+fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
+
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))
         BrandingTopBar(
@@ -56,5 +56,6 @@ fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinIn
                 .padding(0.dp, 0.dp, 0.dp, 20.dp),
             onClick = screenSelectorViewModel::toCamera
         )
+
     }
 }

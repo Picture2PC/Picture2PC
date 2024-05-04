@@ -30,14 +30,14 @@ fun BrandingTopBar(modifier: Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(0.6F)
         )
-       Image(
-           painter = painterResource(id = R.drawable.icon),
-           contentDescription = "ICON",
-           modifier = Modifier
-               .fillMaxWidth()
-               .scale(.8F)
-               .background(Color.White, RoundedCornerShape(20.dp))
-               .padding(8.dp)
-       )
+        Image(
+            painter = painterResource(id = R.drawable.icon),
+            contentDescription = "ICON",
+            modifier = Modifier
+                .fillMaxWidth()
+                .scale(.8F)
+                .background(Color.White, RoundedCornerShape(20.dp))
+                .padding(8.dp)
+        )
     }
 }

@@ -2,18 +2,21 @@ package com.github.picture2pc.android.net.serveronlinenotifier.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
-import com.github.picture2pc.common.net.common.NetworkDataPayloads
-import com.github.picture2pc.common.net.multicast.MulticastPayloadTransceiver
+import com.github.picture2pc.common.net2.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net2.Peer
+import com.github.picture2pc.common.net2.impl.multicast.MulticastPayloadTransceiver
+import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
+import com.github.picture2pc.common.net2.payloads.MulticastPayload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class MulticastServerOnlineNotifier(
     private val multicastPaylaodTransceiver: MulticastPayloadTransceiver,
+    private val tcpPayloadTransceiver: TcpPayloadTransceiver,
     override val coroutineContext: CoroutineContext,
     override val serverPreferencesRepository: ServerPreferencesRepository
 ) : ServerOnlineNotifier, CoroutineScope {
@@ -25,42 +28,29 @@ class MulticastServerOnlineNotifier(
 
     private val serverConnectable = serverPreferencesRepository.connectable.stateIn(
         scope = this,
-        started = SharingStarted.Lazily,
+        started = SharingStarted.Eagerly,
         initialValue = false
     )
 
-    private var loadedName = false
-
     init {
-        NetworkDataPayloads.ListServers.incomingPayloads
-            .onEach { payload ->
+        multicastPaylaodTransceiver.receivedPayloads.onEach { payload ->
+            (payload as? MulticastPayload.ListPeers)?.let {
                 if (serverConnectable.value) {
-                    launch {
-                        emitServerOnline(serverName.value)
-                    }
+                    emitServerOnline(serverName.value, it.sourcePeer)
+                    tcpPayloadTransceiver.connect(it.sourcePeer)
+
                 }
-            }.launchIn(this)
-
-        launch {
-
-            serverName.onEach {
-                if (it == "<LOADING>")
-                    return@onEach
-                loadedName = true
-                if (serverConnectable.value)
-                    emitServerOnline(it)
-
-            }.launchIn(this)
-
-
-            serverConnectable.onEach {
-                if (it)
-                    emitServerOnline(serverName.value)
-            }.launchIn(this)
-        }
+            }
+        }.launchIn(this)
     }
 
-    private suspend fun emitServerOnline(serverName: String) {
-        NetworkDataPayloads.ServerOnline(serverName).emit(multicastPaylaodTransceiver)
+    private suspend fun emitServerOnline(serverName: String, peer: Peer = Peer.any()) {
+        NetworkPayloadTransceiver.name = serverName
+        multicastPaylaodTransceiver.sendPayload(
+            MulticastPayload.PeerTcpOnline(
+                tcpPayloadTransceiver.inetSocketAddress.port,
+                peer
+            )
+        )
     }
 }

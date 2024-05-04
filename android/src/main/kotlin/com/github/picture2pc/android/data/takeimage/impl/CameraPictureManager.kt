@@ -32,7 +32,9 @@ class CameraPictureManager(
         .setFlashMode(FLASH_MODE_AUTO)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
-    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
+    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(
+        context
+    )
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
@@ -61,7 +63,7 @@ class CameraPictureManager(
         )
     }
 
-    override fun setViewFinder(previewView:PreviewView){
+    override fun setViewFinder(previewView: PreviewView) {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also {

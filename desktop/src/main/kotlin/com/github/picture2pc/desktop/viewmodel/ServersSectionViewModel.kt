@@ -2,21 +2,18 @@ package com.github.picture2pc.desktop.viewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.github.picture2pc.common.net.tcpconnection.TcpConnectionPayloadTransceiver
 import com.github.picture2pc.desktop.data.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import kotlin.coroutines.CoroutineContext
 
 class ServersSectionViewModel(
     private val availableServersCollector: AvailableServersCollector,
     override val coroutineContext: CoroutineContext,
-) : CoroutineScope, KoinComponent {
+) : CoroutineScope {
 
     private val _serverEntries = MutableStateFlow(setOf<ServerEntryState>())
     val serverEntries = _serverEntries.asStateFlow()
@@ -44,8 +41,7 @@ class ServersSectionViewModel(
     fun refreshServers() {
         _serverEntries.value = setOf()
         availableServersCollector.requestServers()
-        val tcpConnectionPayloadTransceiver: TcpConnectionPayloadTransceiver by inject()
-        tcpConnectionPayloadTransceiver.toString()
+
     }
 
     data class ServerEntryState(

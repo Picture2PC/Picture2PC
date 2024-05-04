@@ -20,7 +20,7 @@ import org.koin.compose.rememberKoinInject
 fun BigPicture(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
-){
+) {
     val image = cameraViewModel.takenImages.replayCache.last()
     Box(modifier = Modifier.fillMaxSize()) {
         Image(

@@ -5,7 +5,7 @@ import androidx.camera.view.PreviewView
 import kotlinx.coroutines.flow.SharedFlow
 
 interface PictureManager {
-    val takenImages : SharedFlow<Bitmap>
+    val takenImages: SharedFlow<Bitmap>
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)
     fun saveImageToCache()

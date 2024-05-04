@@ -7,9 +7,11 @@ import kotlinx.coroutines.flow.SharedFlow
 
 class CameraViewModel(
     private val pictureManager: PictureManager
-){
+) {
     val takenImages: SharedFlow<Bitmap>
-        get() { return  pictureManager.takenImages }
+        get() {
+            return pictureManager.takenImages
+        }
 
     fun setViewFinder(previewView: PreviewView) {
         pictureManager.setViewFinder(previewView)
@@ -18,11 +20,8 @@ class CameraViewModel(
     fun takeImage() {
         pictureManager.takeImage()
     }
-    fun sendImage(){
-        pictureManager.saveImageToCache()
-    }
 
-    fun getBlankImage(): Bitmap {
-        return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+    fun sendImage() {
+        pictureManager.saveImageToCache()
     }
 }

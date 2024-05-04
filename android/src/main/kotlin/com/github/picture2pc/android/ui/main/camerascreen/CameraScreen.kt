@@ -21,29 +21,32 @@ import org.koin.compose.rememberKoinInject
 fun CameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
-){
+) {
     val image = cameraViewModel.takenImages.collectAsState(initial = null).value
     Box(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier
+        Box(
+            modifier = Modifier
                 .height(IntrinsicSize.Max)
                 .width(IntrinsicSize.Max)
                 .align(Alignment.Center)
-            ) {
-                CameraPreview(cameraViewModel = cameraViewModel)
-            }
-            if (image != null) {
-                Box(modifier = Modifier
+        ) {
+            CameraPreview(cameraViewModel = cameraViewModel)
+        }
+        if (image != null) {
+            Box(
+                modifier = Modifier
                     .align(Alignment.TopStart)
                     .clickable(onClick = screenSelectorViewModel::toBigPicture)
-                ) {
-                    DisplayPicture(image, .5f)
-                }
-            }
-            Box (modifier = Modifier
-                .align(Alignment.BottomCenter)
             ) {
-                PictureButtons()
+                DisplayPicture(image, .5f)
             }
         }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+        ) {
+            PictureButtons()
+        }
     }
+}
 

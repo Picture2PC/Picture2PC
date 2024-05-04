@@ -7,16 +7,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
+import com.github.picture2pc.common.net2.Peer
 
 @Composable
-fun Client(clientData: ClientsViewModel.ClientData) {
+fun Client(clientData: Peer) {
     Row(
         Modifier
             .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = clientData.name, fontSize = 20.sp)
-        Text(text = clientData.address)
+        Text(text = "clientData.address")
 
     }
 }

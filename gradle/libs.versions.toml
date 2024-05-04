@@ -5,6 +5,7 @@ androidGradlePlugin = "8.0.2"
 composeMultiplatformPlugin = "1.4.0"
 
 koin = "3.4.3"
+kotlinxSerializationJson = "1.6.2"
 
 [libraries]
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVersion" }
@@ -14,6 +15,7 @@ camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVe
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version = "1.0.3" } # Version different for who knows what reason
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 
 [plugins]

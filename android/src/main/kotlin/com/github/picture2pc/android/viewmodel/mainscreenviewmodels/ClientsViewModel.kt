@@ -1,23 +1,19 @@
 package com.github.picture2pc.android.viewmodel.mainscreenviewmodels
 
+import com.github.picture2pc.common.net2.Peer
+import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.coroutines.CoroutineContext
 
-class ClientsViewModel {
-    private val _serverEntries = MutableStateFlow(listOf<ClientData>())
-    val serverEntries = _serverEntries.asStateFlow()
+class ClientsViewModel(
+    tcpPayloadTransceiver: TcpPayloadTransceiver,
+    override val coroutineContext: CoroutineContext
+) : CoroutineScope {
+    var serverEntries = MutableStateFlow<List<Peer>>(emptyList()).asStateFlow()
 
-    data class ClientData(
-        val name: String,
-        val address: String,
-    ) {
-        override fun hashCode(): Int {
-            return address.hashCode()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return super.equals(other)
-        }
-
+    init {
+        serverEntries = tcpPayloadTransceiver.connectedPeers.asStateFlow()
     }
 }

@@ -10,12 +10,14 @@ import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSe
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun BigPictureScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
+fun BigPictureScreen(
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
-    Box(Modifier
-        .fillMaxSize()
-        .clickable ( onClick =  screenSelectorViewModel::toCamera )
-    ){
+    Box(
+        Modifier
+            .fillMaxSize()
+            .clickable(onClick = screenSelectorViewModel::toCamera)
+    ) {
         BigPicture()
     }
 }
