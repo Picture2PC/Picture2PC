@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun StateInfoPictureButton(modifier: Modifier) {
+fun StateInfoPictureButton(modifier: Modifier, onClick: () -> Unit) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
@@ -27,8 +27,8 @@ fun StateInfoPictureButton(modifier: Modifier) {
             Spacer(modifier = Modifier.width(10.dp))
             Text(fontSize = 20.sp, text = "Idle")
         }
-        Button(onClick = { /*TODO*/ }, shape = RoundedCornerShape(5.dp)) {
-            Text(text = "TakePicture")
+        Button(onClick = onClick, shape = RoundedCornerShape(5.dp)) {
+            Text(text = "Take Picture")
         }
     }
 }

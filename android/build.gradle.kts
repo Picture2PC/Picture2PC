@@ -12,6 +12,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
     implementation(libs.koin.android)
 
@@ -29,6 +30,11 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
 }
 
 android {

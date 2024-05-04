@@ -15,10 +15,11 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClient
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
 import com.github.picture2pc.android.ui.main.mainscreen.elements.StateInfoPictureButton
 import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionProgressbar
-
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreenVertical() {
+fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))
@@ -52,7 +53,8 @@ fun MainScreenVertical() {
         StateInfoPictureButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                .padding(0.dp, 0.dp, 0.dp, 20.dp),
+            onClick = screenSelectorViewModel::toCamera
         )
 
     }
