@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -29,13 +29,12 @@ import java.io.IOException
 class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
-        .setFlashMode(FLASH_MODE_OFF)
+        .setFlashMode(FLASH_MODE_AUTO)
         .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
-
 
     override fun takeImage() {
         val outputStream = ByteArrayOutputStream()

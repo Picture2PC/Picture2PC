@@ -12,8 +12,6 @@ import com.github.picture2pc.android.ui.theme.Picture2PcTheme
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import org.koin.compose.rememberKoinInject
 
-enum class Screens { MAIN, CAMERA, BIG_PICTURE}
-
 @Composable
 fun Screen(screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
     Picture2PcTheme {
@@ -23,9 +21,9 @@ fun Screen(screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
             color = MaterialTheme.colorScheme.background
         ) {
             when (screenSelector.value) {
-                Screens.MAIN -> MainScreen()
-                Screens.CAMERA -> CameraScreen()
-                Screens.BIG_PICTURE -> BigPictureScreen()
+                ScreenSelectorViewModel.Screens.MAIN -> MainScreen()
+                ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen()
+                ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
             }
         }
     }

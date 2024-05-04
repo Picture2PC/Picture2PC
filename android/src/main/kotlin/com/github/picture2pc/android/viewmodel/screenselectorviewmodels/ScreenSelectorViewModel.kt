@@ -1,10 +1,10 @@
 package com.github.picture2pc.android.viewmodel.screenselectorviewmodels
 
 import androidx.compose.runtime.mutableStateOf
-import com.github.picture2pc.android.ui.main.Screens
 
 class ScreenSelectorViewModel {
     private val currentScreen =  mutableStateOf(Screens.MAIN)
+    enum class Screens { MAIN, CAMERA, BIG_PICTURE}
 
     var value: Screens
             get() = currentScreen.value
