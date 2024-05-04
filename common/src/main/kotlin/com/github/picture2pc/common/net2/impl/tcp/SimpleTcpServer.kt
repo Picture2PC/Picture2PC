@@ -22,7 +22,8 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
     val _receivedNetworkPackets = MutableSharedFlow<Payload>()
     val receivedNetworkPackets: SharedFlow<Payload> = _receivedNetworkPackets.asSharedFlow()
 
-    val connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
+    private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
+    val connectedPeers: SharedFlow<List<Peer>> = _connectedPeers.asSharedFlow()
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
@@ -82,12 +83,12 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     private fun addPeer(peer: Peer, client: SimpleTcpClient) {
         peerToClientMap[peer] = client
-        connectedPeers.value = peerToClientMap.keys.toList()
+        _connectedPeers.value = peerToClientMap.keys.toList()
     }
 
     private fun removePeer(peer: Peer) {
         peerToClientMap.remove(peer)
-        connectedPeers.value = peerToClientMap.keys.toList()
+        _connectedPeers.value = peerToClientMap.keys.toList()
     }
 
     private suspend fun checkPeer(peer: Peer): Boolean {

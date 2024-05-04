@@ -38,7 +38,6 @@ class MulticastServerOnlineNotifier(
                 if (serverConnectable.value) {
                     emitServerOnline(serverName.value, it.sourcePeer)
                     tcpPayloadTransceiver.connect(it.sourcePeer)
-
                 }
             }
         }.launchIn(this)
