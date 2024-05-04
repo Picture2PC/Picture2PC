@@ -3,8 +3,8 @@ package com.github.picture2pc.android.di
 import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
-import com.github.picture2pc.android.data.takeimage.ImageManager
-import com.github.picture2pc.android.data.takeimage.impl.CameraImageManager
+import com.github.picture2pc.android.data.takeimage.PictureManager
+import com.github.picture2pc.android.data.takeimage.impl.CameraPictureManager
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
 import com.github.picture2pc.android.net.serveronlinenotifier.impl.MulticastServerOnlineNotifier
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
@@ -20,7 +20,7 @@ val appModule = module {
 
     single { ClientsViewModel() }
     single { BroadcastViewModel(get(), get()) }
-    single<ImageManager> { CameraImageManager(get()) }
+    single<PictureManager> { CameraPictureManager(get()) }
     single { CameraViewModel(get()) }
     single { ScreenSelectorViewModel() }
     single<ServerOnlineNotifier>(createdAtStart = true) {

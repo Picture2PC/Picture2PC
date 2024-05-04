@@ -16,7 +16,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.github.picture2pc.android.data.takeimage.ImageManager
+import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,8 +25,9 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
-class CameraImageManager(
+class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(FLASH_MODE_OFF)
@@ -34,10 +35,8 @@ class CameraImageManager(
         .setTargetRotation(ROTATION_90)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
-) : ImageManager
-{
+) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
-
 
     override fun takeImage() {
         val outputStream = ByteArrayOutputStream()
@@ -51,15 +50,12 @@ class CameraImageManager(
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Log.d("CameraImageManager", "Image saved")
                     val image = BitmapFactory.decodeByteArray(
                         outputStream.toByteArray(),
                         0,
                         outputStream.size()
                     )
-                    Log.d("CameraImageManager", "Image size: ${image.byteCount}")
                     lifecycleOwner.lifecycleScope.launch {
-                        Log.d("CameraImageManager", "Emitting image")
                         _takenImages.emit(image)
                     }
                 }
@@ -81,9 +77,17 @@ class CameraImageManager(
     }
 
     override fun saveImageToCache() {
-        val outputStream = FileOutputStream(File.createTempFile("img", ".png", context.externalCacheDir))
-        takenImages.replayCache.last().compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.close()
+        val image = _takenImages.replayCache.lastOrNull() ?: return
+
+        val fileUri = File(context.externalCacheDir, "img.png")
+        try {
+            val outStream = FileOutputStream(fileUri)
+            image.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+            outStream.flush()
+            outStream.close()
+        } catch (e: IOException) {
+            Log.e("CameraImageManager", "Error saving image to cache", e)
+        }
     }
 
     private val _takenImages = MutableSharedFlow<Bitmap>()                      //Abhören + Schreiben

@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import kotlinx.coroutines.flow.SharedFlow
 
-interface ImageManager {
+interface PictureManager {
     val takenImages : SharedFlow<Bitmap>
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)

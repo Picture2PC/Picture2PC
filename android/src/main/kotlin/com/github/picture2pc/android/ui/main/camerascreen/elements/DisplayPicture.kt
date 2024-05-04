@@ -1,11 +1,8 @@
 package com.github.picture2pc.android.ui.main.camerascreen.elements
 
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -14,24 +11,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
-import org.koin.compose.rememberKoinInject
 
 @Composable
-fun DisplayImage(image: Bitmap, alpha: Float){
-    val matrix = Matrix()
-    matrix.postRotate(90f)
-    val bitmap = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true)
-    val screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
+fun DisplayPicture(
+    image: Bitmap, alpha: Float
+){
     Image(
-        painter = BitmapPainter(bitmap.asImageBitmap()),
+        painter = BitmapPainter(image.asImageBitmap()),
         contentDescription = "current image",
         modifier = Modifier
             .height(200.dp)
             .background(color = Color.Black.copy(alpha))
             .padding(5.dp)
-            .clickable {
-                screenSelectorViewModel.toBigPicture()
-            }
     )
 }

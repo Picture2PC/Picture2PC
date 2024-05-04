@@ -2,28 +2,24 @@ package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
-import androidx.compose.runtime.Composable
-import com.github.picture2pc.android.data.takeimage.ImageManager
+import com.github.picture2pc.android.data.takeimage.PictureManager
 import kotlinx.coroutines.flow.SharedFlow
-import org.koin.compose.rememberKoinInject
 
 class CameraViewModel(
-    private val imageManager: ImageManager
-) {
+    private val pictureManager: PictureManager
+){
     val takenImages: SharedFlow<Bitmap>
-        get() {
-            return  imageManager.takenImages
-        }
+        get() { return  pictureManager.takenImages }
 
     fun setViewFinder(previewView: PreviewView) {
-        imageManager.setViewFinder(previewView)
+        pictureManager.setViewFinder(previewView)
     }
 
     fun takeImage() {
-        imageManager.takeImage()
+        pictureManager.takeImage()
     }
     fun sendImage(){
-        imageManager.saveImageToCache()
+        pictureManager.saveImageToCache()
     }
 
     fun getBlankImage(): Bitmap {

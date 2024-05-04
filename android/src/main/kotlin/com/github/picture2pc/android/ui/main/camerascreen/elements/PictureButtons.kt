@@ -44,9 +44,6 @@ fun PictureButtons(
             Button(onClick = { cameraViewModel.takeImage() }, shape = shape) {
                 Text(text = "Take Picture")
             }
-            Button(onClick = { cameraViewModel.sendImage() }, shape = shape) {
-                Text(text = "Send")
-            }
         }
     }
 }
