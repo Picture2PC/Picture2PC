@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import com.github.picture2pc.desktop.viewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 
 @Composable
 fun ServerList(viewModel: ServersSectionViewModel) {
