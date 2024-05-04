@@ -3,12 +3,15 @@ package com.github.picture2pc.android.di
 import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
+import com.github.picture2pc.android.data.takeimage.PictureManager
+import com.github.picture2pc.android.data.takeimage.impl.CameraPictureManager
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
 import com.github.picture2pc.android.net.serveronlinenotifier.impl.MulticastServerOnlineNotifier
+import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
-import com.github.picture2pc.common.net.multicast.multicastModule
 import org.koin.dsl.module
 
 
@@ -17,6 +20,9 @@ val appModule = module {
 
     single { ClientsViewModel() }
     single { BroadcastViewModel(get(), get()) }
+    single<PictureManager> { CameraPictureManager(get()) }
+    single { CameraViewModel(get()) }
+    single { ScreenSelectorViewModel() }
     single<ServerOnlineNotifier>(createdAtStart = true) {
         MulticastServerOnlineNotifier(
             get(),
