@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import android.view.Surface.ROTATION_90
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -32,7 +31,6 @@ class CameraPictureManager(
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(FLASH_MODE_OFF)
         .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-        .setTargetRotation(ROTATION_90)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
@@ -60,7 +58,8 @@ class CameraPictureManager(
                         _takenImages.emit(image)
                     }
                 }
-            })
+            }
+        )
     }
 
     override fun setViewFinder(previewView:PreviewView){
@@ -78,7 +77,6 @@ class CameraPictureManager(
     }
 
     override fun saveImageToCache() {
-        //TODO: Fix, takenImages is empty when calling the function from BigPicture send button
         val image = takenImages.replayCache.lastOrNull() ?: return
 
         val fileUri = File(context.externalCacheDir, "img.png")
@@ -92,6 +90,6 @@ class CameraPictureManager(
         }
     }
 
-    private val _takenImages = MutableSharedFlow<Bitmap>()                      //listen and write
+    private val _takenImages = MutableSharedFlow<Bitmap>(replay = 3)            //listen and write
     override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //listen only
 }

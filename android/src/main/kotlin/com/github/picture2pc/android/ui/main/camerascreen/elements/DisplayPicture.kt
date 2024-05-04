@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -17,7 +16,7 @@ fun DisplayPicture(
     image: Bitmap, alpha: Float
 ){
     Image(
-        painter = BitmapPainter(image.asImageBitmap()),
+        bitmap = image.asImageBitmap(),
         contentDescription = "current image",
         modifier = Modifier
             .height(200.dp)
