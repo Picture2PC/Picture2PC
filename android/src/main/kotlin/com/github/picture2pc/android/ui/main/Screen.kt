@@ -6,8 +6,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreen
-import com.github.picture2pc.android.ui.main.camerascreen.CameraScreen
+import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreenHorizontal
+import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreenVertical
+import com.github.picture2pc.android.ui.main.camerascreen.CameraScreenHorizontal
+import com.github.picture2pc.android.ui.main.camerascreen.CameraScreenVertical
 import com.github.picture2pc.android.ui.main.mainscreen.MainScreenHorizontal
 import com.github.picture2pc.android.ui.main.mainscreen.MainScreenVertical
 import com.github.picture2pc.android.ui.theme.Picture2PcTheme
@@ -26,14 +28,14 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
             if (vertical) {
                 when (screenSelector.value) {
                     ScreenSelectorViewModel.Screens.MAIN -> MainScreenVertical()
-                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen()
-                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
+                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreenVertical()
+                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreenVertical()
                 }
             } else {
                 when (screenSelector.value) {
                     ScreenSelectorViewModel.Screens.MAIN -> MainScreenHorizontal()
-                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen()
-                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
+                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreenHorizontal()
+                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreenHorizontal()
                 }
             }
         }
