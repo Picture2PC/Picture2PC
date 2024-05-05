@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
-import com.github.picture2pc.desktop.ui.main.serversSection.ServersSectionView
+import com.github.picture2pc.desktop.ui.main.picture.Picture
+import com.github.picture2pc.desktop.ui.main.serverssection.ServersSectionView
 
 @Composable
 fun MainScreen() {

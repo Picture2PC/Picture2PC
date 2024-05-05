@@ -2,6 +2,8 @@ package com.github.picture2pc.android.extentions
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.io.ByteArrayOutputStream
 import java.util.Base64
 
@@ -16,6 +18,7 @@ fun Bitmap.toByteArray(): ByteArray {
     return stream.toByteArray()
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun Bitmap.toBase64(): String {
     return String(Base64.getEncoder().encode(toByteArray()))
 }
