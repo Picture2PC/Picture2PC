@@ -1,7 +1,6 @@
 package com.github.picture2pc.common.net2.impl.tcp
 
 import com.github.picture2pc.common.net2.Peer
-import com.github.picture2pc.common.net2.impl.common.NetworkPacket
 import com.github.picture2pc.common.net2.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +10,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -50,13 +50,11 @@ class SimpleTcpClient(
     }
 
     suspend fun sendMessage(message: InputStream): Boolean {
-        if (!isConnected) return false
-        val packet = NetworkPacket(message, socketAddress)
-        while (packet.available) {
-            val dgPacket = packet.getDatagramPacket()!!
-            withContext(Dispatchers.IO) {
-                jvmSocket.getOutputStream().write(dgPacket.data, dgPacket.offset, dgPacket.length)
-            }
+        withContext(Dispatchers.IO) {
+            jvmSocket.getOutputStream()
+                .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
+            message.copyTo(jvmSocket.getOutputStream())
+            message.close()
         }
         return true
     }
@@ -68,25 +66,29 @@ class SimpleTcpClient(
     }
 
     suspend fun receivePacket(): Payload? {
-        val packet = NetworkPacket()
-        while (packet.available){
-            try {
-                val dgPacket = packet.getDatagramPacket()!!
-                withContext(Dispatchers.IO) {
-                    jvmSocket.getInputStream().read(dgPacket.data, dgPacket.offset, dgPacket.length)
-                }
-            } catch (e: Exception) {
-                close()
-                return null
+        try {
+            val sizeBuff = ByteArray(Int.SIZE_BYTES)
+            withContext(Dispatchers.IO) {
+                jvmSocket.getInputStream().read(sizeBuff, 0, Int.SIZE_BYTES)
             }
-        }
-        if (packet.totalSize == 0) {
+            val size = ByteBuffer.wrap(sizeBuff).int
+            assert(size >= 0) { "Size is negative" }
+            return withContext(Dispatchers.IO) {
+                val byteArray = ByteArray(size)
+                var copied = 0
+                while (copied < size) {
+                    copied += jvmSocket.getInputStream()
+                        .read(byteArray, copied, size - copied)
+                }
+
+                return@withContext Payload.fromInputStream(
+                    byteArray.inputStream(),
+                    InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
+                )
+            }
+        } catch (e: Exception) {
             close()
             return null
         }
-        return Payload.fromInputStream(
-            packet.getInputStream(),
-            InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
-        )
     }
 }
