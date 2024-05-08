@@ -11,6 +11,7 @@ version = "${rootProject.version}.0"
 dependencies {
     implementation(compose.desktop.common)
     implementation(compose.desktop.currentOs)
+    implementation(project(":common"))
 }
 
 compose.desktop {
