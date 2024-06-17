@@ -7,11 +7,15 @@ import kotlinx.serialization.cbor.ByteString
 
 @Serializable
 sealed class TcpPayload : Payload() {
+
+    // ------------Internal--------------
     @Serializable
     class Ping(override val targetPeer: Peer) : TcpPayload()
 
     @Serializable
     data class Pong(override val targetPeer: Peer) : TcpPayload()
+
+    // ------------Internal--------------
 
     @Serializable
     data class Picture @OptIn(ExperimentalSerializationApi::class) constructor(

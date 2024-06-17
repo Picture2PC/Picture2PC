@@ -26,7 +26,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
     val connectedPeers: SharedFlow<List<Peer>> = _connectedPeers.asSharedFlow()
-    val CONNECION_TIMEOUT = 2L
+    val CONNECION_TIMEOUT = 2000L
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
@@ -46,7 +46,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
                 return false
             }
         val client = SimpleTcpClient(get(), peer, this, jvmSocket)
-        client.clientState = ClientState.PENDING
+        client.clientState.value = ClientState.PENDING
         addPeer(peer, client)
         val packet = client.receivePacket()
         if (packet == null || packet !is TcpPayload.Ping) {
@@ -57,7 +57,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             disconnect(peer)
             return false
         }
-        client.clientState = ClientState.CONNECTED
+        client.clientState.value = ClientState.CONNECTED
         client.startReceiving()
         return true
     }
@@ -68,7 +68,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
         if (!coroutineScope {
                 return@coroutineScope client.connect(inetSocketAddress)
             }) return false
-        client.clientState = ClientState.PENDING
+        client.clientState.value = ClientState.PENDING
         addPeer(peer, client)
 
         if (!sendPayload(TcpPayload.Ping(peer))) {
@@ -81,7 +81,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             disconnect(peer)
             return false
         }
-        client.clientState = ClientState.CONNECTED
+        client.clientState.value = ClientState.CONNECTED
         client.startReceiving()
         return true
     }
@@ -109,7 +109,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     suspend fun disconnect(peer: Peer) {
         val client = peerToClientMap.getOrDefault(peer, null) ?: return
-        client.clientState = ClientState.DISCONNECTED
+        client.clientState.value = ClientState.DISCONNECTED
         client.close()
         removePeer(peer)
     }
