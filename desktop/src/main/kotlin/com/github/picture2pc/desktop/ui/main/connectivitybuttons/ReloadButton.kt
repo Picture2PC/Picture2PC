@@ -3,6 +3,7 @@ package com.github.picture2pc.desktop.ui.main.connectivitybuttons
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.github.picture2pc.desktop.ui.main.shape
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -10,6 +11,6 @@ import org.koin.compose.rememberKoinInject
 fun ReloadButton(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
 ) {
-    Button( onClick = serversSectionViewModel::refreshServers )
+    Button( onClick = serversSectionViewModel::refreshServers, shape = shape)
     { Text("Reload") }
 }

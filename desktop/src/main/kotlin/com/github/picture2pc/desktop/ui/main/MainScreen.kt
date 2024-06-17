@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,26 +18,22 @@ import com.github.picture2pc.desktop.ui.main.connectivitybuttons.ReloadButton
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 
+val shape = RoundedCornerShape(20)
+
 @Composable
 fun MainScreen() {
-    Row {
-        Column(
-            Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(0.8f)
-                .padding(10.dp)
-                .background(Color.Green)
-        ) {
-            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) { Picture() }
+    Box(Modifier.fillMaxSize()){
+        Column(Modifier.fillMaxWidth(1f)) {
+            Picture()
         }
-        Column(
-            Modifier
-                .wrapContentSize()
-                .padding(10.dp)
-                .background(Color.Blue)
+        Column(Modifier
+            .fillMaxHeight()
+            .background(Color.LightGray)
+            .align(Alignment.TopEnd)
+            .padding(10.dp)
         ) {
-            Box(Modifier.fillMaxHeight(.3f).background(Color.Red)) { ImageManipulationButtons() }
-            Box(Modifier.fillMaxHeight(.3f).background(Color.Yellow)) { ReloadButton() }
-        }
+            Row { ImageManipulationButtons() }
+            Row { ReloadButton() }
+       }
     }
 }
