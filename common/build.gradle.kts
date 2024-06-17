@@ -19,4 +19,5 @@ dependencies {
     api(libs.koin.core)
     api(libs.koin.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.cbor)
 }

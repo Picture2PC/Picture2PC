@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.net.InetSocketAddress
@@ -25,22 +26,25 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
     val connectedPeers: SharedFlow<List<Peer>> = _connectedPeers.asSharedFlow()
+    val CONNECION_TIMEOUT = 2L
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
     init {
         jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
+        jvmServerSocket.soTimeout = 1000
     }
 
     suspend fun accept(peer: Peer): Boolean {
         if (checkPeer(peer)) return false
-        val jvmSocket = coroutineScope {
+        val jvmSocket =
             try {
-                jvmServerSocket.accept()
+                withTimeout(CONNECION_TIMEOUT) {
+                    jvmServerSocket.accept()
+                }
             } catch (e: Exception) {
-                return@coroutineScope null
+                return false
             }
-        } ?: return false
         val client = SimpleTcpClient(get(), peer, this, jvmSocket)
         client.clientState = ClientState.PENDING
         addPeer(peer, client)
@@ -61,9 +65,9 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         if (checkPeer(peer)) return false
         val client = SimpleTcpClient(get(), peer, this)
-        coroutineScope {
-            client.connect(inetSocketAddress)
-        }
+        if (!coroutineScope {
+                return@coroutineScope client.connect(inetSocketAddress)
+            }) return false
         client.clientState = ClientState.PENDING
         addPeer(peer, client)
 

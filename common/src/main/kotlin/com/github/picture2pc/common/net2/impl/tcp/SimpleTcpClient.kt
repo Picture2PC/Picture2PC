@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -43,10 +44,15 @@ class SimpleTcpClient(
         }
     }
 
-    suspend fun connect(inetSocketAddress: InetSocketAddress) {
+    suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
         withContext(Dispatchers.IO) {
-            jvmSocket.connect(inetSocketAddress)
-        }
+            return@withContext withTimeoutOrNull(simpleTcpServer.CONNECION_TIMEOUT)
+            {
+                jvmSocket.connect(inetSocketAddress)
+                return@withTimeoutOrNull true
+            }
+        } ?: return false
+        return true
     }
 
     suspend fun sendMessage(message: InputStream): Boolean {
@@ -61,7 +67,11 @@ class SimpleTcpClient(
 
     suspend fun close() {
         withContext(Dispatchers.IO) {
-            jvmSocket.close()
+            try {
+                jvmSocket.close()
+            } catch (_: Exception) {
+
+            }
         }
     }
 
@@ -87,7 +97,6 @@ class SimpleTcpClient(
                 )
             }
         } catch (e: Exception) {
-            close()
             return null
         }
     }
