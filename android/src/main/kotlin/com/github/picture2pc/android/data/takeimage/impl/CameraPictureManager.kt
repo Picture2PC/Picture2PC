@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -29,7 +28,7 @@ import java.io.IOException
 class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
-        .setFlashMode(FLASH_MODE_AUTO)
+        .setFlashMode(ImageCapture.FLASH_MODE_OFF) //TODO: Add flash mode setting
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(

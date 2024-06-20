@@ -3,15 +3,15 @@ package com.github.picture2pc.desktop
 import com.github.picture2pc.desktop.di.appModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.newCoroutineContext
-import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-@OptIn(ExperimentalCoroutinesApi::class)
-fun main(): Unit = runBlocking {
+@OptIn(ExperimentalCoroutinesApi::class, InternalCoroutinesApi::class)
+fun main() {
     val coroutineContextProviderModule = module {
-        factory { newCoroutineContext(Dispatchers.IO) }
+        factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
     }
 
     startKoin {
@@ -19,5 +19,5 @@ fun main(): Unit = runBlocking {
         modules(appModule, coroutineContextProviderModule)
     }
 
-    launchDesktopApp()
+    runDesktopApp()
 }

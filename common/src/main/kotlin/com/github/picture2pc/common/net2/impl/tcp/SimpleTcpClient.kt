@@ -94,13 +94,20 @@ class SimpleTcpClient(
     }
 
     suspend fun sendMessage(message: InputStream): Boolean {
-        withContext(Dispatchers.IO) {
-            jvmSocket.getOutputStream()
-                .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
-            message.copyTo(jvmSocket.getOutputStream())
+        return withContext(Dispatchers.IO) {
+            try {
+                jvmSocket.getOutputStream()
+                    .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
+                message.copyTo(jvmSocket.getOutputStream())
+            } catch (e: Exception) {
+                clientState.value = ClientState.ERRORWHILESENDING
+                simpleTcpServer.disconnect(targetPeer)
+                message.close()
+                return@withContext false
+            }
             message.close()
+            return@withContext true
         }
-        return true
     }
 
     suspend fun close() {

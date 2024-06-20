@@ -13,10 +13,11 @@ import kotlin.coroutines.CoroutineContext
 class MulticastPayloadTransceiver internal constructor(
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope, KoinComponent, NetworkPayloadTransceiver() {
-    private val multicastSocket: SimpleMulticastSocket = get()
+    private var multicastSocket: SimpleMulticastSocket = get()
 
     init {
         launch {
+            multicastSocket.updateNetworkInterface()
             while (isActive) {
                 multicastSocket.receivePacket()?.let { packet ->
                     receivedPayload(packet)
