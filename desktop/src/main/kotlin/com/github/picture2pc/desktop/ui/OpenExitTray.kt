@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
-import com.github.picture2pc.common.ui.Picture2PcIcon
 
 @Composable
 fun ApplicationScope.OpenExitTray(openAction: () -> Unit, exitAction: () -> Unit) {

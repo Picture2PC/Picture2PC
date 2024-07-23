@@ -16,18 +16,18 @@ repositories {
 dependencies {
     implementation(libs.koin.android)
 
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation(libs.core.ktx)
 
     val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.material3)
+    implementation(libs.ui.tooling.preview)
+    debugImplementation(libs.ui.tooling)
+    androidTestImplementation(libs.ui.test.junit4)
+    debugImplementation(libs.ui.test.manifest)
+    implementation(libs.activity.compose)
+    implementation(libs.datastore.preferences)
 
     implementation(libs.camera.core)
     implementation(libs.camera.camera2)
