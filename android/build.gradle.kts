@@ -49,9 +49,7 @@ android {
         }
     }
     buildTypes {
-        getByName("release") {
-
-        }
+        getByName("release") { }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
