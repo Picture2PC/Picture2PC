@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreenHorizontal
 import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreenVertical
 import com.github.picture2pc.android.ui.main.camerascreen.CameraScreenHorizontal

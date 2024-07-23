@@ -12,7 +12,7 @@ val usingAndroidStudio = System.getProperty("idea.platform.prefix") == "AndroidS
 
 include(":desktop")
 include(":common")
-if (usingAndroidStudio) {
+if (true /*usingAndroidStudio*/) {
     include(":android")
 }
 else {

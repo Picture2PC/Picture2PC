@@ -10,7 +10,6 @@ import com.github.picture2pc.desktop.ui.main.MainWindow
 import kotlinx.coroutines.CoroutineScope
 import kotlin.system.exitProcess
 
-
 fun CoroutineScope.launchDesktopApp() = launchApplication {
     var mainWindowVisible by remember { mutableStateOf(true) }
 
