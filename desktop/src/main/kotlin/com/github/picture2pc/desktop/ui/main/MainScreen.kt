@@ -9,25 +9,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.desktop.ui.main.connectivitybuttons.ReloadButton
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.QualitySelector
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 val shape = RoundedCornerShape(20)
 
 @Composable
 fun MainScreen(
-    pictureViewModel: PictureViewModel = rememberKoinInject()
+    pictureViewModel: PictureViewModel = rememberKoinInject(),
+    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
 ) {
     Box(Modifier.fillMaxSize()){
         Column {
@@ -42,7 +43,7 @@ fun MainScreen(
         ) {
             Row { QualitySelector() }
             Row { ImageManipulationButtons() }
-            Row { ReloadButton() }
+            Row { Button(onClick = serversSectionViewModel::refreshServers){ Text("Refresh Servers") }}
             Row { Button(onClick = pictureViewModel::testAction){ Text("Test Button") } }
         }
     }

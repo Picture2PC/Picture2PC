@@ -29,11 +29,11 @@ fun ImageManipulationButtons(
             ManipulationButton({}, shape, "icons/reset.svg", "reset")
             spacer()
             ManipulationButton(
-                {pictureViewModel.ajustCurrentPictureIndex(false)},
+                {pictureViewModel.adjustCurrentPictureIndex(false)},
                 shape, "icons/previousPicture.svg", "previousPicture")
             spacer()
             ManipulationButton(
-                {pictureViewModel.ajustCurrentPictureIndex(true)},
+                {pictureViewModel.adjustCurrentPictureIndex(true)},
                 shape, "icons/nextPicture.svg", "nextPicture")
             spacer()
         }
