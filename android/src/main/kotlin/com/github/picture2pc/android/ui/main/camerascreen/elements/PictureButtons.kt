@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
@@ -34,10 +35,16 @@ fun PictureButtons(
             .padding(20.dp)
     ) {
         Column(modifier = Modifier.weight(.5f, true), horizontalAlignment = Alignment.Start) {
-            IconButton(
-                onClick = screenSelectorViewModel::toMain
-            ) {
+            IconButton( onClick = screenSelectorViewModel::toMain ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+            }
+        }
+        Column {
+            IconButton(onClick = cameraViewModel::switchFlashMode) {
+                Icon(
+                    painter = painterResource(id = cameraViewModel.flashMode),
+                    contentDescription = "Flash Mode On"
+                )
             }
         }
         Column(horizontalAlignment = Alignment.End) {

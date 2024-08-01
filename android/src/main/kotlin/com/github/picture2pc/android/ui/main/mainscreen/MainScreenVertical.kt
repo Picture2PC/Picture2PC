@@ -20,7 +20,6 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
-
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))
         BrandingTopBar(
@@ -56,6 +55,5 @@ fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememb
                 .padding(0.dp, 0.dp, 0.dp, 20.dp),
             onClick = screenSelectorViewModel::toCamera
         )
-
     }
 }

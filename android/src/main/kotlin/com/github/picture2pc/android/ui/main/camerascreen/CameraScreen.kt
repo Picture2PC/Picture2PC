@@ -18,7 +18,8 @@ import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSe
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun CameraScreenVertical(
+fun CameraScreen(
+    vertical: Boolean = false,
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
@@ -38,7 +39,7 @@ fun CameraScreenVertical(
                     .align(Alignment.TopStart)
                     .clickable(onClick = screenSelectorViewModel::toBigPicture)
             ) {
-                DisplayPicture(image)
+                DisplayPicture(image, vertical)
             }
         }
         Box(

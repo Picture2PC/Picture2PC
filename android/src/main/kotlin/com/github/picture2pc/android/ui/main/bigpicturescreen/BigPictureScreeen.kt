@@ -12,7 +12,7 @@ import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSe
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun BigPictureScreenHorizontal(
+fun BigPictureScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     Box(
@@ -23,7 +23,7 @@ fun BigPictureScreenHorizontal(
         Box(
             Modifier.align(Alignment.Center)
         ){
-            BigPicture(-90f)
+            BigPicture()
         }
         Box(
             Modifier.align(Alignment.BottomEnd)
