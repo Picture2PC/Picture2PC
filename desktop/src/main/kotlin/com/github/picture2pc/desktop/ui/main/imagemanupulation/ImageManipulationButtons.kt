@@ -6,41 +6,50 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
 import com.github.picture2pc.desktop.ui.main.shape
+import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun ImageManipulationButtons() {
+fun spacer() {
+    Spacer(Modifier.size(5.dp))
+}
+
+@Composable
+fun ImageManipulationButtons(
+    pictureViewModel: PictureViewModel = rememberKoinInject()
+) {
     Column {
         Row {
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/reset.svg"), "reset") }
-            Spacer(Modifier.size(5.dp))
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/previousPicture.svg"), "previousPicture") }
-            Spacer(Modifier.size(5.dp))
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/nextPicture.svg"), "nextPicture") }
-            Spacer(Modifier.size(5.dp))
+            ManipulationButton({}, shape, "icons/reset.svg", "reset")
+            spacer()
+            ManipulationButton(
+                {pictureViewModel.ajustCurrentPictureIndex(false)},
+                shape, "icons/previousPicture.svg", "previousPicture")
+            spacer()
+            ManipulationButton(
+                {pictureViewModel.ajustCurrentPictureIndex(true)},
+                shape, "icons/nextPicture.svg", "nextPicture")
+            spacer()
         }
         Row {
             Button(onClick = {}, shape = shape, modifier = Modifier.fillMaxWidth())
             { Text("Do All") }
         }
         Row {
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/contrast.svg"), "contrast") }
-            Spacer(Modifier.size(5.dp))
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/copy.svg"), "copy") }
-            Spacer(Modifier.size(5.dp))
-            Button(onClick = {}, shape = shape)
-            { Icon(painterResource("icons/crop.svg"), "copy") }
+            ManipulationButton({}, shape, "icons/contrast.svg", "contrast")
+            spacer()
+            ManipulationButton(
+                {pictureViewModel.addPictureToClipboard()},
+                shape, "icons/copy.svg", "copy"
+            )
+            spacer()
+            ManipulationButton({}, shape, "icons/crop.svg", "crop")
         }
     }
 }

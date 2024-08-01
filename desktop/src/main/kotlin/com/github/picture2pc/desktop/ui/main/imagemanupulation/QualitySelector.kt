@@ -1,3 +1,4 @@
+package com.github.picture2pc.desktop.ui.main.imagemanupulation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
