@@ -11,48 +11,75 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.desktop.ui.main.buttonShape
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
-import com.github.picture2pc.desktop.ui.main.shape
 import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
 import org.koin.compose.rememberKoinInject
-
-@Composable
-fun spacer() {
-    Spacer(Modifier.size(5.dp))
-}
 
 @Composable
 fun ImageManipulationButtons(
     pictureViewModel: PictureViewModel = rememberKoinInject()
 ) {
+    val spacerSize: Modifier = Modifier.size(5.dp)
+
+    //TODO: Do the icon loading properly
+
     Column {
         Row {
-            ManipulationButton({}, shape, "icons/reset.svg", "reset")
-            spacer()
+            ManipulationButton(
+                {},
+                "icons/reset.svg",
+                "reset"
+            )
+
+            Spacer(spacerSize)
+
             ManipulationButton(
                 {pictureViewModel.adjustCurrentPictureIndex(false)},
-                shape, "icons/previousPicture.svg", "previousPicture"
+                "icons/previousPicture.svg",
+                "previousPicture"
             )
-            spacer()
+
+            Spacer(spacerSize)
+
             ManipulationButton(
                 {pictureViewModel.adjustCurrentPictureIndex(true)},
-                shape, "icons/nextPicture.svg", "nextPicture")
-            spacer()
+                "icons/nextPicture.svg",
+                "nextPicture"
+            )
+
+            Spacer(spacerSize)
         }
+
         Row { Spacer(modifier = Modifier.height(10.dp)) }
+
         Row {
-            Button(onClick = {}, shape = shape, modifier = Modifier.fillMaxWidth())
+            Button(onClick = {}, shape = buttonShape, modifier = Modifier.fillMaxWidth())
             { Text("Do All") }
         }
+
         Row {
-            ManipulationButton({}, shape, "icons/contrast.svg", "contrast")
-            spacer()
+            ManipulationButton(
+                {},
+                "icons/contrast.svg",
+                "contrast"
+            )
+
+            Spacer(spacerSize)
+
             ManipulationButton(
                 {pictureViewModel.addPictureToClipboard()},
-                shape, "icons/copy.svg", "copy"
+                "icons/copy.svg",
+                "copy"
             )
-            spacer()
-            ManipulationButton({}, shape, "icons/crop.svg", "crop")
+
+            Spacer(spacerSize)
+
+            ManipulationButton(
+                {},
+                "icons/crop.svg",
+                "crop"
+            )
         }
     }
 }

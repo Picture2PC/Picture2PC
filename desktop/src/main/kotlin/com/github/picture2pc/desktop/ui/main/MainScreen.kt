@@ -26,7 +26,8 @@ import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
-val shape = RoundedCornerShape(20)
+val windowShape = RoundedCornerShape(12.dp)
+val buttonShape = RoundedCornerShape(8.dp)
 
 @Preview
 @Composable
@@ -34,7 +35,6 @@ fun MainScreen(
     pictureViewModel: PictureViewModel = rememberKoinInject(),
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
 ) {
-    val windowShape = RoundedCornerShape(12.dp)
     serversSectionViewModel.refreshServers()
 
     //TODO: Add tooltips to buttons
@@ -56,6 +56,7 @@ fun MainScreen(
                     }
                 }
             }
+
             Column { Spacer(Modifier.width(5.dp)) }
 
             Column(

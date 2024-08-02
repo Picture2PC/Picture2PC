@@ -18,8 +18,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 }
 
-sourceSets {
+sourceSets{
     main {
-        resources.setSrcDirs(listOf("src/main/resources"))
+        resources {
+            srcDir("src/main/res")
+        }
     }
 }
