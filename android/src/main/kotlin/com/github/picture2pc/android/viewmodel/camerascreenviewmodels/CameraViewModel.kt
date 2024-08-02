@@ -40,10 +40,10 @@ class CameraViewModel(
 
     fun switchFlashMode() {
         pictureManager.switchFlashMode()
-        flashMode = if (flashMode == R.drawable.flash_on) {
+        flashMode = if (flashMode == R.drawable.flash_auto) {
             R.drawable.flash_off
         } else {
-            R.drawable.flash_on
+            R.drawable.flash_auto
         }
     }
 }
