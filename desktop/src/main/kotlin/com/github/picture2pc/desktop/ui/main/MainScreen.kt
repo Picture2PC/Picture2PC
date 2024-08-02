@@ -1,9 +1,12 @@
 package com.github.picture2pc.desktop.ui.main
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,26 +28,48 @@ import org.koin.compose.rememberKoinInject
 
 val shape = RoundedCornerShape(20)
 
+@Preview
 @Composable
 fun MainScreen(
     pictureViewModel: PictureViewModel = rememberKoinInject(),
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
 ) {
-    Box(Modifier.fillMaxSize()){
-        Column {
-            Picture()
-        }
-        Column(Modifier
-            .fillMaxHeight()
-            .background(Color.LightGray)
-            .align(Alignment.TopEnd)
-            .padding(10.dp)
-            .width(228.dp)
-        ) {
-            Row { QualitySelector() }
-            Row { ImageManipulationButtons() }
-            Row { Button(onClick = serversSectionViewModel::refreshServers){ Text("Refresh Servers") }}
-            Row { Button(onClick = pictureViewModel::testAction){ Text("Test Button") } }
+    val windowShape = RoundedCornerShape(12.dp)
+    serversSectionViewModel.refreshServers()
+
+    //TODO: Add tooltips to buttons
+
+    Box(Modifier.background(Color.DarkGray).fillMaxSize()) {
+        Row(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .width(246.dp)
+                    .background(Color.LightGray, windowShape)
+            ) {
+                Box(Modifier.padding(10.dp)) {
+                    Column {
+                        Row { QualitySelector() }
+                        Row { ImageManipulationButtons() }
+                        Row { Button(onClick = serversSectionViewModel::refreshServers){ Text("Refresh Servers") } }
+                        Row { Button(onClick = pictureViewModel::testAction){ Text("Test Button") } }
+                    }
+                }
+            }
+            Column { Spacer(Modifier.width(5.dp)) }
+
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .border(2.dp, Color.Black, windowShape)
+            ) {
+                Box(
+                    Modifier
+                        .padding(10.dp)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) { Picture() }
+            }
         }
     }
 }

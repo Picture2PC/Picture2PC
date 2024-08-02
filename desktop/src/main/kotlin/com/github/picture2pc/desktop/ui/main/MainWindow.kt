@@ -10,7 +10,7 @@ fun MainWindow(onCloseRequest: () -> Unit) {
     Window(
         onCloseRequest = onCloseRequest,
         icon = Picture2PCIcon(),
-        title = "Picture2PC"
+        title = "Picture2PC",
     ) {
         window.minimumSize = Dimension(1200, 800)
         MainScreen()

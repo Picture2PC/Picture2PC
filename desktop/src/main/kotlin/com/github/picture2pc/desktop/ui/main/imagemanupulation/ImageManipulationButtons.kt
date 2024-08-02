@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -30,13 +31,15 @@ fun ImageManipulationButtons(
             spacer()
             ManipulationButton(
                 {pictureViewModel.adjustCurrentPictureIndex(false)},
-                shape, "icons/previousPicture.svg", "previousPicture")
+                shape, "icons/previousPicture.svg", "previousPicture"
+            )
             spacer()
             ManipulationButton(
                 {pictureViewModel.adjustCurrentPictureIndex(true)},
                 shape, "icons/nextPicture.svg", "nextPicture")
             spacer()
         }
+        Row { Spacer(modifier = Modifier.height(10.dp)) }
         Row {
             Button(onClick = {}, shape = shape, modifier = Modifier.fillMaxWidth())
             { Text("Do All") }

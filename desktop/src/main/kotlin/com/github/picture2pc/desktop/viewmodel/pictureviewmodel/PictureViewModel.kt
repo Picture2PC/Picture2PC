@@ -26,6 +26,7 @@ class PictureViewModel(
     }
 
     fun adjustCurrentPictureIndex(increase:Boolean) {
+        if (pictures.replayCache.isEmpty()) return
         if (increase && currentPictureIndex < pictures.replayCache.size - 1) {
             currentPictureIndex++
         } else if (!increase && currentPictureIndex > 0) {
@@ -35,6 +36,7 @@ class PictureViewModel(
     }
 
     fun addPictureToClipboard() {
+        if (currentPicture.value == null) return
         val bufferedImage = currentPicture.value?.toBufferedImage()
         val transferableImage = bufferedImage?.let { TransferableImage(it) }
         val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard

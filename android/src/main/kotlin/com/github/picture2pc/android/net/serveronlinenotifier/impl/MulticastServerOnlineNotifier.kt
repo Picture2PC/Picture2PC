@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlin.coroutines.CoroutineContext
 
 class MulticastServerOnlineNotifier(
-    private val multicastPaylaodTransceiver: MulticastPayloadTransceiver,
+    private val multicastPayloadTransceiver: MulticastPayloadTransceiver,
     private val tcpPayloadTransceiver: TcpPayloadTransceiver,
     override val coroutineContext: CoroutineContext,
     override val serverPreferencesRepository: ServerPreferencesRepository
@@ -33,7 +33,7 @@ class MulticastServerOnlineNotifier(
     )
 
     init {
-        multicastPaylaodTransceiver.receivedPayloads.onEach { payload ->
+        multicastPayloadTransceiver.receivedPayloads.onEach { payload ->
             (payload as? MulticastPayload.ListPeers)?.let {
                 if (serverConnectable.value) {
                     emitServerOnline(serverName.value, it.sourcePeer)
@@ -45,7 +45,7 @@ class MulticastServerOnlineNotifier(
 
     private suspend fun emitServerOnline(serverName: String, peer: Peer = Peer.any()) {
         NetworkPayloadTransceiver.name = serverName
-        multicastPaylaodTransceiver.sendPayload(
+        multicastPayloadTransceiver.sendPayload(
             MulticastPayload.PeerTcpOnline(
                 tcpPayloadTransceiver.inetSocketAddress.port,
                 peer

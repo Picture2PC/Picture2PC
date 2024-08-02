@@ -3,26 +3,36 @@ activityCompose = "1.9.0"
 cameraxVersion = "1.4.0-beta02"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
+desktopJvm = "1.4.0"
+desktopJvmVersion = "1.2.0"
 kotlin = "1.8.20"
 androidGradlePlugin = "8.5.1"
 composeMultiplatformPlugin = "1.4.0"
 
 koin = "3.4.3"
 kotlinxSerializationJson = "1.6.2"
+tooltips = "1.0.10"
+uiTooling = "1.0.0"
+uiToolingPreview = "1.6.8"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVersion" }
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraxVersion" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraxVersion" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVersion" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+desktop-jvm = { module = "org.jetbrains.compose.desktop:desktop-jvm", version.ref = "desktopJvm" }
+desktop-jvm-v120 = { module = "org.jetbrains.compose.desktop:desktop-jvm", version.ref = "desktopJvmVersion" }
+jetbrains-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "uiTooling" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version = "1.0.3" } # Version different for who knows what reason
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material3 = { module = "androidx.compose.material3:material3" }
+tooltips = { module = "com.tomergoldst.android:tooltips", version.ref = "tooltips" }
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
