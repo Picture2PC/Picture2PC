@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.QualitySelector
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -30,8 +29,8 @@ val buttonShape = RoundedCornerShape(8.dp)
 
 @Composable
 fun MainScreen(
-    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject(),
-    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
+    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
+    //pictureEditorViewModel: PictureEditorViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers()
 
@@ -55,9 +54,9 @@ fun MainScreen(
                             }
                         }
                         Row {
-                            Button(onClick = pictureDisplayViewModel::testAction){
-                                Text("Test Button")
-                            }
+//                            Button(onClick = pictureEditorViewModel::testAction){
+//                                Text("Test Button")
+//                            }
                         }
                     }
                 }
@@ -68,7 +67,7 @@ fun MainScreen(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .border(2.dp, Color.Black, windowShape)
+                    .border(2.dp, Color.LightGray, windowShape)
             ) {
                 Box(
                     Modifier

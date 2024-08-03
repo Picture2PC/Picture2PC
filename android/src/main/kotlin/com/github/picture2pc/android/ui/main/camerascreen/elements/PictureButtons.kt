@@ -1,5 +1,6 @@
 package com.github.picture2pc.android.ui.main.camerascreen.elements
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -13,10 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.android.R
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
-import com.github.picture2pc.common.ui.getIcon
 import org.koin.compose.rememberKoinInject
 
 val shape = RoundedCornerShape(5.dp)
@@ -39,8 +41,8 @@ fun PictureButtons(
         Column {
             IconButton(onClick = cameraViewModel::switchFlashMode) {
                 Icon(
-                    painter = getIcon(cameraViewModel.flashMode),
-                    contentDescription = "Flash Mode On"
+                    painterResource(R.drawable.app_icon_standard),
+                    "Flash Mode On"
                 )
             }
         }
