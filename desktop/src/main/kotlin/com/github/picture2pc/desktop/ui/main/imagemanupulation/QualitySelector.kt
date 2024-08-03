@@ -1,5 +1,7 @@
 package com.github.picture2pc.desktop.ui.main.imagemanupulation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,9 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.desktop.ui.main.buttonShape
+import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.common.ui.TextStyles
 
 @Composable
 fun QualitySelector() {
@@ -34,37 +37,41 @@ fun QualitySelector() {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             "Output Quality",
-            fontWeight = FontWeight.Bold
+            style = TextStyles.NORMAL,
         )
-
         Spacer(Modifier.size(5.dp))
 
         Box {
             Button(
                 onClick = { isClicked = !isClicked },
-                shape = buttonShape,
+                shape = Shapes.BUTTON,
+                colors = Colors.BUTTON,
                 modifier = Modifier
                     .fillMaxWidth()
                     .onGloballyPositioned { coordinates ->
                         buttonWidthPx = coordinates.size.width
                     }
             ) {
-                Text(selectedQuality)
+                Text(selectedQuality, style = TextStyles.NORMAL,)
             }
 
             DropdownMenu(
                 expanded = isClicked,
-                onDismissRequest = {},
+                onDismissRequest = { },
                 modifier = Modifier
                     .width(with(LocalDensity.current) { buttonWidthPx.toDp() })
+                    .background(Colors.BACKGROUND)
+                    .border(2.dp, Colors.ACCENT)
             ) {
                 qualityOptions.forEach { option ->
                     DropdownMenuItem(
                         onClick = {
                             isClicked = false
                             selectedQuality = option },
-                        text = { Text(option) },
-                        modifier = Modifier.height(25.dp)
+                        text = { Text(option, style = TextStyles.SMALL) },
+                        modifier = Modifier
+                            .height(25.dp)
+                            .background(Colors.BACKGROUND)
                     )
                 }
             }

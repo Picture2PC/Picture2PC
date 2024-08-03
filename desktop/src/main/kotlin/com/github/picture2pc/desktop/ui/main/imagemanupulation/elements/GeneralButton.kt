@@ -3,11 +3,10 @@ package com.github.picture2pc.desktop.ui.main.imagemanupulation.elements
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.painterResource
-import com.github.picture2pc.desktop.ui.main.buttonShape
+import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Shapes
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ManipulationButton(
     onClick: () -> Unit,
@@ -16,7 +15,8 @@ fun ManipulationButton(
 ) {
     Button(
         onClick = onClick,
-        shape = buttonShape,
+        shape = Shapes.BUTTON,
+        colors = Colors.BUTTON
     ) {
         Icon(painterResource(resourcePath), name)
     }

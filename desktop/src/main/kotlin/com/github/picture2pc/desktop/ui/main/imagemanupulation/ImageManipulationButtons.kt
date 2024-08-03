@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Icons
-import com.github.picture2pc.desktop.ui.main.buttonShape
+import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
@@ -30,7 +32,6 @@ fun ImageManipulationButtons(
                 Icons.Desktop.RESET,
                 "reset"
             )
-
             Spacer(spacerSize)
 
             ManipulationButton(
@@ -38,7 +39,6 @@ fun ImageManipulationButtons(
                 Icons.Desktop.PREVIOUS_PICTURE,
                 "previousPicture"
             )
-
             Spacer(spacerSize)
 
             ManipulationButton(
@@ -46,15 +46,14 @@ fun ImageManipulationButtons(
                 Icons.Desktop.NEXT_PICTURE,
                 "nextPicture"
             )
-
             Spacer(spacerSize)
         }
 
-        Row { Spacer(modifier = Modifier.height(10.dp)) }
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row {
-            Button(onClick = {}, shape = buttonShape, modifier = Modifier.fillMaxWidth())
-            { Text("Do All") }
+            Button(onClick = {}, shape = Shapes.BUTTON, colors = Colors.BUTTON ,modifier = Modifier.fillMaxWidth())
+            { Text("Do All", style = TextStyles.NORMAL) }
         }
 
         Row {
@@ -63,7 +62,6 @@ fun ImageManipulationButtons(
                 Icons.Desktop.CONTRAST,
                 "contrast"
             )
-
             Spacer(spacerSize)
 
             ManipulationButton(
@@ -71,7 +69,6 @@ fun ImageManipulationButtons(
                 Icons.Desktop.COPY,
                 "copy"
             )
-
             Spacer(spacerSize)
 
             ManipulationButton(

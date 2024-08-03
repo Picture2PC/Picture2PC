@@ -1,8 +1,5 @@
 package com.github.picture2pc.common.ui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.painterResource
-
 object Icons {
     object Desktop {
         const val CONTRAST = "icons/desktop/contrast.svg"
@@ -27,6 +24,3 @@ object Icons {
         const val FILLED_SMALL = "icons/logo/app_icon_filled_s.svg"
     }
 }
-
-@Composable
-fun getIcon(path: String) = painterResource(path)

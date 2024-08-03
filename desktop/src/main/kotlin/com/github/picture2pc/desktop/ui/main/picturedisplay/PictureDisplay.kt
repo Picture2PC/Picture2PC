@@ -15,6 +15,7 @@ fun Picture(
     pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
 ) {
     val picture = pictureDisplayViewModel.currentPicture.collectAsState().value
+
     picture?.let {
         println("${it.height}, ${it.width}")
         Image(
