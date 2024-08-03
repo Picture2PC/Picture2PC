@@ -11,40 +11,39 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.desktop.ui.main.buttonShape
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
-import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
+import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun ImageManipulationButtons(
-    pictureViewModel: PictureViewModel = rememberKoinInject()
+    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
 ) {
     val spacerSize: Modifier = Modifier.size(5.dp)
-
-    //TODO: Do the icon loading properly
 
     Column {
         Row {
             ManipulationButton(
                 {},
-                "icons/reset.svg",
+                Icons.Desktop.RESET,
                 "reset"
             )
 
             Spacer(spacerSize)
 
             ManipulationButton(
-                {pictureViewModel.adjustCurrentPictureIndex(false)},
-                "icons/previousPicture.svg",
+                {pictureDisplayViewModel.adjustCurrentPictureIndex(false)},
+                Icons.Desktop.PREVIOUS_PICTURE,
                 "previousPicture"
             )
 
             Spacer(spacerSize)
 
             ManipulationButton(
-                {pictureViewModel.adjustCurrentPictureIndex(true)},
-                "icons/nextPicture.svg",
+                {pictureDisplayViewModel.adjustCurrentPictureIndex(true)},
+                Icons.Desktop.NEXT_PICTURE,
                 "nextPicture"
             )
 
@@ -61,15 +60,15 @@ fun ImageManipulationButtons(
         Row {
             ManipulationButton(
                 {},
-                "icons/contrast.svg",
+                Icons.Desktop.CONTRAST,
                 "contrast"
             )
 
             Spacer(spacerSize)
 
             ManipulationButton(
-                {pictureViewModel.addPictureToClipboard()},
-                "icons/copy.svg",
+                {pictureDisplayViewModel.addPictureToClipboard()},
+                Icons.Desktop.COPY,
                 "copy"
             )
 
@@ -77,7 +76,7 @@ fun ImageManipulationButtons(
 
             ManipulationButton(
                 {},
-                "icons/crop.svg",
+                Icons.Desktop.CROP,
                 "crop"
             )
         }

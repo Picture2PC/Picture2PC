@@ -1,6 +1,5 @@
 package com.github.picture2pc.desktop.ui.main
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -22,17 +21,16 @@ import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.QualitySelector
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
-import com.github.picture2pc.desktop.viewmodel.pictureviewmodel.PictureViewModel
+import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 val windowShape = RoundedCornerShape(12.dp)
 val buttonShape = RoundedCornerShape(8.dp)
 
-@Preview
 @Composable
 fun MainScreen(
-    pictureViewModel: PictureViewModel = rememberKoinInject(),
+    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject(),
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers()
@@ -51,8 +49,16 @@ fun MainScreen(
                     Column {
                         Row { QualitySelector() }
                         Row { ImageManipulationButtons() }
-                        Row { Button(onClick = serversSectionViewModel::refreshServers){ Text("Refresh Servers") } }
-                        Row { Button(onClick = pictureViewModel::testAction){ Text("Test Button") } }
+                        Row {
+                            Button(onClick = serversSectionViewModel::refreshServers) {
+                                Text("Refresh Servers")
+                            }
+                        }
+                        Row {
+                            Button(onClick = pictureDisplayViewModel::testAction){
+                                Text("Test Button")
+                            }
+                        }
                     }
                 }
             }

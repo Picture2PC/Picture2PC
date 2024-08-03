@@ -14,7 +14,6 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStat
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
 import com.github.picture2pc.android.ui.main.mainscreen.elements.StateInfoPictureButton
-import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionProgressbar
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -33,11 +32,6 @@ fun MainScreenHorizontal(screenSelectorViewModel: ScreenSelectorViewModel = reme
                         .padding(40.dp)
                         .fillMaxWidth()
                 )
-                TransmissionProgressbar(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(50.dp, 0.dp, 50.dp, 30.dp)
-                )
                 StateInfoPictureButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -54,10 +48,7 @@ fun MainScreenHorizontal(screenSelectorViewModel: ScreenSelectorViewModel = reme
                 ConnectedClientsList(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(60.dp, 20.dp)
-                        .weight(1F, false)
                 )
-
             }
         }
     }

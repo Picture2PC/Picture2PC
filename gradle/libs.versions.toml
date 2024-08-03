@@ -4,6 +4,7 @@ activityCompose = "1.9.0"
 cameraxVersion = "1.4.0-beta02"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
+#noinspection GradleDependency
 kotlin = "1.8.20"
 androidGradlePlugin = "8.5.1"
 composeMultiplatformPlugin = "1.4.0"
@@ -28,7 +29,6 @@ ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version = "1.7
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.7.0-beta06" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling", version = "1.7.0-beta06" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version = "1.7.0-beta06" }
-
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

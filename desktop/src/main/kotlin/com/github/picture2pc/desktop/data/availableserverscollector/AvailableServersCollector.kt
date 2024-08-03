@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.data
+package com.github.picture2pc.desktop.data.availableserverscollector
 
 import kotlinx.coroutines.flow.Flow
 

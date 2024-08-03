@@ -1,16 +1,17 @@
 package com.github.picture2pc.desktop.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
+import com.github.picture2pc.common.ui.Icons
+import com.github.picture2pc.common.ui.getIcon
 
 @Composable
 fun ApplicationScope.OpenExitTray(openAction: () -> Unit, exitAction: () -> Unit) {
     Tray(
-        icon = painterResource("icons/icon.svg"),
+        icon = getIcon(Icons.Logo.STANDARD),
         onAction = openAction,
-        tooltip = "Picture2Pc",
+        tooltip = "Picture2PC",
         menu = {
             Item(
                 text = "Open",

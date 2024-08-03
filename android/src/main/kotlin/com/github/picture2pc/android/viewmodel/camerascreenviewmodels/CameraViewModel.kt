@@ -4,10 +4,9 @@ import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import com.github.picture2pc.android.R
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.common.ui.Icons
 import kotlinx.coroutines.flow.SharedFlow
 
 class CameraViewModel(
@@ -19,8 +18,8 @@ class CameraViewModel(
             return pictureManager.takenImages
         }
 
-    var flashMode by mutableStateOf(R.drawable.flash_off)
-        private set
+    private var flashState = Icons.Mobile.FLASH_OFF
+    val flashMode by mutableStateOf(flashState)
 
     fun getLastImage(): Bitmap {
         return pictureManager.takenImages.replayCache.last()
@@ -40,10 +39,10 @@ class CameraViewModel(
 
     fun switchFlashMode() {
         pictureManager.switchFlashMode()
-        flashMode = if (flashMode == R.drawable.flash_auto) {
-            R.drawable.flash_off
+        flashState = if (flashMode == Icons.Mobile.FLASH_AUTO) {
+            Icons.Mobile.FLASH_OFF
         } else {
-            R.drawable.flash_auto
+            Icons.Mobile.FLASH_AUTO
         }
     }
 }

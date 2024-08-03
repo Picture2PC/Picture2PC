@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.viewmodel.pictureviewmodel
+package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
-class PictureViewModel(
+class PictureDisplayViewModel(
     dataReceiver: DataReceiver
 ) {
     private val pictures = dataReceiver.pictures

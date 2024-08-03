@@ -1,9 +1,9 @@
-package com.github.picture2pc.desktop.data.impl
+package com.github.picture2pc.desktop.data.availableserverscollector.impl
 
 import com.github.picture2pc.common.net2.impl.multicast.MulticastPayloadTransceiver
 import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
 import com.github.picture2pc.common.net2.payloads.MulticastPayload
-import com.github.picture2pc.desktop.data.AvailableServersCollector
+import com.github.picture2pc.desktop.data.availableserverscollector.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
