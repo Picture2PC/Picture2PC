@@ -99,13 +99,4 @@ class PictureDisplayViewModel(
         val skiaImage = makeFromEncoded(imageBytes)
         _currentPicture.value = skiaImage
     }
-
-    fun getSelectedInfo(): String {
-        if (pictures.replayCache.isEmpty()) return "0 / 0"
-        return "${currentPictureIndex.value + 1} / ${pictures.replayCache.size}"
-    }
-
-    fun testAction() {
-        println(pictures.replayCache.size)
-    }
 }
