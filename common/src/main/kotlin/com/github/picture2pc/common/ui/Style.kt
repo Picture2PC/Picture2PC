@@ -13,8 +13,6 @@ import androidx.compose.ui.unit.sp
 
 object Style {
     object Colors{
-
-
         val TEXT = Color(0xFFe9e7ff)
         val BACKGROUND = Color(0xFF161616)
         val PRIMARY = Color(0xFF642bcf)
@@ -22,18 +20,25 @@ object Style {
         val ACCENT = Color(0xFF372469)
 
         @Composable
-        fun provideButtonColors(): ButtonColors {
+        fun provideButtonColors(
+            containerColor: Color,
+            contentColor: Color,
+            disabledContentColor: Color,
+            disabledContainerColor: Color
+        ): ButtonColors {
             return ButtonDefaults.buttonColors(
-                containerColor = PRIMARY,
-                contentColor = TEXT,
-                disabledContentColor = SECONDARY,
-                disabledContainerColor = TEXT,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContentColor = disabledContentColor,
+                disabledContainerColor = disabledContainerColor,
             )
         }
 
-        val BUTTON: ButtonColors
-            @Composable
-            get() = provideButtonColors()
+        val BUTTON_PRIMARY: ButtonColors
+        @Composable get() = provideButtonColors( PRIMARY, TEXT, ACCENT, TEXT )
+
+        val BUTTON_SECONDARY: ButtonColors
+        @Composable get() = provideButtonColors( PRIMARY, TEXT, ACCENT, TEXT )
     }
 
     object Shapes{
@@ -45,5 +50,25 @@ object Style {
         val HEADER = TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
         val NORMAL = TextStyle(fontSize = 16.sp, color = Colors.TEXT)
         val SMALL = TextStyle(fontSize = 14.sp, color = Colors.TEXT)
+    }
+
+    object Dimensions{
+        object Spacers{
+            val SMALL = 5.dp
+            val MEDIUM = 8.dp
+            val NORMAL = 10.dp
+            val LARGE = 15.dp
+        }
+
+        object Heights{
+            val DIVIDER = 3.dp
+            val BUTTON = 40.dp
+        }
+
+        object Borders{
+            val STANDARD = 2.dp
+            val MEDIUM = 3.dp
+            val THICK = 4.dp
+        }
     }
 }

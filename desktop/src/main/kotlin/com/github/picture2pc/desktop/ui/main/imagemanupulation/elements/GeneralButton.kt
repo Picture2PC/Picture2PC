@@ -16,7 +16,7 @@ fun ManipulationButton(
     Button(
         onClick = onClick,
         shape = Shapes.BUTTON,
-        colors = Colors.BUTTON
+        colors = Colors.BUTTON_PRIMARY
     ) {
         Icon(painterResource(resourcePath), name)
     }

@@ -41,6 +41,7 @@ android {
     defaultConfig {
         applicationId = "com.github.picture2pc.android"
         minSdk = 26
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

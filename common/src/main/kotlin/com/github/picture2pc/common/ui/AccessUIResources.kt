@@ -6,6 +6,9 @@ import androidx.compose.ui.res.painterResource
 val Colors = Style.Colors
 val Shapes = Style.Shapes
 val TextStyles = Style.TextStyles
+val Spacers = Style.Dimensions.Spacers
+val Heights = Style.Dimensions.Heights
+val Borders = Style.Dimensions.Borders
 
 @Composable
 fun getIcon(path: String) = painterResource(path)

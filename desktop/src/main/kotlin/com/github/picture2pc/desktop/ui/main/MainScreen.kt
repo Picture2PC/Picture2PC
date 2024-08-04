@@ -18,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.common.ui.getIcon
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
@@ -38,6 +40,7 @@ fun MainScreen(
     serversSectionViewModel.refreshServers()
 
     //TODO: Add tooltips to buttons
+    //TODO: Implement the PictureEditorViewModel
 
     Box( Modifier
         .background(Colors.BACKGROUND)
@@ -45,38 +48,48 @@ fun MainScreen(
     ) {
         Row( Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(Spacers.NORMAL)
         ) {
             Column( Modifier
                 .fillMaxHeight()
                 .width(246.dp)
                 .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
-                Column( Modifier
-                    .padding(10.dp)
-                ) {
+                Column( Modifier.padding(Spacers.NORMAL) ) {
                     Row {
-                        Image(getIcon(Icons.Logo.STANDARD), "Logo", modifier = Modifier.width(75.dp))
-                        Text("  " + Data.APP_NAME, style = TextStyles.HEADER, modifier = Modifier.align(Alignment.CenterVertically))
+                        Image(
+                            getIcon(Icons.Logo.STANDARD),
+                            "Logo",
+                            Modifier.width(75.dp)
+                        )
+                        Spacer( Modifier.width(Spacers.LARGE) )
+
+                        Text(
+                            Data.APP_NAME,
+                            Modifier.align(Alignment.CenterVertically),
+                            style = TextStyles.HEADER
+                        )
                     }
-                    Spacer(Modifier.height(15.dp))
+                    Spacer( Modifier.height(Spacers.LARGE) )
+
                     Row { QualitySelector() }
+
                     Row { ImageManipulationButtons() }
+
                     Row { Button(serversSectionViewModel::refreshServers) {
                         Text("Refresh Servers") }
                     }
                 }
             }
-
-            Spacer( Modifier.width(5.dp) )
+            Spacer( Modifier.width(Spacers.NORMAL) )
 
             Column( Modifier
                 .fillMaxSize()
-                .border(2.dp, Colors.PRIMARY, Shapes.WINDOW)
+                .border(Borders.STANDARD, Colors.PRIMARY, Shapes.WINDOW)
             ) {
                 Box(
                     Modifier
-                        .padding(10.dp)
+                        .padding(Spacers.NORMAL)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) { Picture() }
