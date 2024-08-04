@@ -26,7 +26,7 @@ import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDi
 import org.koin.compose.rememberKoinInject
 
 fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
-    if (totalPictures == 0) return "0 | 0"
+    if (totalPictures == 0) return "0 / 0"
     return "${currentIndex + 1} / $totalPictures"
 }
 
