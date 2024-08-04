@@ -21,7 +21,7 @@ dependencies {
 sourceSets{
     main {
         resources {
-            srcDir("src/main/res")
+            srcDir("src/main/resources")
         }
     }
 }

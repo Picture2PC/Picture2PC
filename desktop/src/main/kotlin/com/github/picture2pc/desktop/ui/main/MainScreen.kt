@@ -29,12 +29,14 @@ import com.github.picture2pc.common.ui.getIcon
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.QualitySelector
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
+import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
+    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
     //pictureEditorViewModel: PictureEditorViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers()
@@ -42,27 +44,30 @@ fun MainScreen(
     //TODO: Add tooltips to buttons
     //TODO: Implement the PictureEditorViewModel
 
-    Box( Modifier
-        .background(Colors.BACKGROUND)
-        .fillMaxSize()
-    ) {
-        Row( Modifier
+    Box(
+        Modifier
+            .background(Colors.BACKGROUND)
             .fillMaxSize()
-            .padding(Spacers.NORMAL)
+    ) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(Spacers.NORMAL)
         ) {
-            Column( Modifier
-                .fillMaxHeight()
-                .width(246.dp)
-                .background(Colors.SECONDARY, Shapes.WINDOW)
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .width(246.dp)
+                    .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
-                Column( Modifier.padding(Spacers.NORMAL) ) {
+                Column(Modifier.padding(Spacers.NORMAL)) {
                     Row {
                         Image(
                             getIcon(Icons.Logo.STANDARD),
                             "Logo",
                             Modifier.width(75.dp)
                         )
-                        Spacer( Modifier.width(Spacers.LARGE) )
+                        Spacer(Modifier.width(Spacers.LARGE))
 
                         Text(
                             Data.APP_NAME,
@@ -70,22 +75,28 @@ fun MainScreen(
                             style = TextStyles.HEADER
                         )
                     }
-                    Spacer( Modifier.height(Spacers.LARGE) )
+                    Spacer(Modifier.height(Spacers.LARGE))
 
                     Row { QualitySelector() }
 
+                    Spacer(Modifier.height(Spacers.SMALL))
+
                     Row { ImageManipulationButtons() }
 
-                    Row { Button(serversSectionViewModel::refreshServers) {
-                        Text("Refresh Servers") }
+                    Button(serversSectionViewModel::refreshServers) {
+                        Text("Refresh Servers")
+                    }
+                    Button({ pictureDisplayViewModel.loadTestImage() }) {
+                        Text("Load Test Image")
                     }
                 }
             }
-            Spacer( Modifier.width(Spacers.NORMAL) )
+            Spacer(Modifier.width(Spacers.NORMAL))
 
-            Column( Modifier
-                .fillMaxSize()
-                .border(Borders.STANDARD, Colors.PRIMARY, Shapes.WINDOW)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
             ) {
                 Box(
                     Modifier

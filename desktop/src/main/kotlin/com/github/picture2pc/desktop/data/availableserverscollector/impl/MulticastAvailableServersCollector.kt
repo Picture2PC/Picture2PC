@@ -41,5 +41,4 @@ class MulticastAvailableServersCollector(
             multicastPaylaodTransceiver.sendPayload(MulticastPayload.ListPeers())
         }
     }
-
-}
+}   

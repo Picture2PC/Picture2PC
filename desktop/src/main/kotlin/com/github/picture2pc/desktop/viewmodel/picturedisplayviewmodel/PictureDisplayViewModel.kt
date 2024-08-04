@@ -6,12 +6,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Image
+import org.jetbrains.skia.Image.Companion.makeFromEncoded
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+import java.io.File
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 
@@ -19,8 +22,10 @@ class PictureDisplayViewModel(
     dataReceiver: DataReceiver,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
-    private val pictures = dataReceiver.pictures
-    private var currentPictureIndex : Int = 0
+    val pictures = dataReceiver.pictures
+
+    val totalPictures = MutableStateFlow<Int>(0)
+    val currentPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
 
     private val _currentPicture = MutableStateFlow<Image?>(null)
     val currentPicture: StateFlow<Image?> = _currentPicture
@@ -28,6 +33,7 @@ class PictureDisplayViewModel(
     init {
         CoroutineScope(coroutineContext).launch {
             pictures.collect { pictureList ->
+                totalPictures.value = pictures.replayCache.size
                 if (!pictureList.isEmpty && _currentPicture.value == null) {
                     updateCurrentPicture()
                 }
@@ -36,7 +42,7 @@ class PictureDisplayViewModel(
     }
 
     private fun updateCurrentPicture() {
-        _currentPicture.value = pictures.replayCache[currentPictureIndex]
+        _currentPicture.value = pictures.replayCache[currentPictureIndex.value]
     }
 
     private fun Image.toBufferedImage(): BufferedImage {
@@ -64,10 +70,10 @@ class PictureDisplayViewModel(
 
     fun adjustCurrentPictureIndex(increase:Boolean) {
         if (pictures.replayCache.isEmpty()) return
-        if (increase && currentPictureIndex < pictures.replayCache.size - 1) {
-            currentPictureIndex++
-        } else if (!increase && currentPictureIndex > 0) {
-            currentPictureIndex--
+        if (increase && currentPictureIndex.value < pictures.replayCache.size - 1) {
+            currentPictureIndex.value++
+        } else if (!increase && currentPictureIndex.value > 0) {
+            currentPictureIndex.value--
         }
         updateCurrentPicture()
     }
@@ -82,6 +88,21 @@ class PictureDisplayViewModel(
 
     fun getPictureDimensions(): Pair<Int, Int> {
         return Pair(currentPicture.value?.width ?: 0, currentPicture.value?.height ?: 0)
+    }
+
+    fun loadTestImage() {
+        val file = File("common/src/main/resources/icons/test.png")
+        val bufferedImage = ImageIO.read(file)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
+        val imageBytes = byteArrayOutputStream.toByteArray()
+        val skiaImage = makeFromEncoded(imageBytes)
+        _currentPicture.value = skiaImage
+    }
+
+    fun getSelectedInfo(): String {
+        if (pictures.replayCache.isEmpty()) return "0 / 0"
+        return "${currentPictureIndex.value + 1} / ${pictures.replayCache.size}"
     }
 
     fun testAction() {

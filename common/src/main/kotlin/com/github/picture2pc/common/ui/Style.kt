@@ -66,9 +66,7 @@ object Style {
         }
 
         object Borders{
-            val STANDARD = 2.dp
-            val MEDIUM = 3.dp
-            val THICK = 4.dp
+            val BORDER_STANDARD = 2.dp
         }
     }
 }

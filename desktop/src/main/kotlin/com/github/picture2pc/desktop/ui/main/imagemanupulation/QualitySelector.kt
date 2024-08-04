@@ -63,7 +63,7 @@ fun QualitySelector() {
                     modifier = Modifier
                         .width(with(LocalDensity.current) { buttonWidthPx.toDp() })
                         .background(Colors.BACKGROUND)
-                        .border(Borders.STANDARD, Colors.ACCENT)
+                        .border(Borders.BORDER_STANDARD, Colors.ACCENT)
                 ) {
                     qualityOptions.forEach { option ->
                         DropdownMenuItem(
