@@ -41,7 +41,7 @@ fun ImageManipulationButtons(
     Column {
         Row {
             ManipulationButton(
-                {pictureDisplayViewModel.currentPictureEditor?.resetCanvas()},
+                {pictureDisplayViewModel.currentPictureEditor?.resetCanvas(true)},
                 Icons.Desktop.RESET,
                 "reset"
             )
