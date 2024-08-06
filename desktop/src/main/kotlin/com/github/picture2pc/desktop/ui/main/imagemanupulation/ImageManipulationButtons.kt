@@ -36,12 +36,12 @@ fun ImageManipulationButtons(
 ) {
     val spacerSize: Modifier = Modifier.size(Spacers.SMALL)
     val currentIndex = pictureDisplayViewModel.currentPictureIndex.collectAsState().value
-val totalPictures = pictureDisplayViewModel.totalPictures.collectAsState().value
+    val totalPictures = pictureDisplayViewModel.totalPictures.collectAsState().value
 
     Column {
         Row {
             ManipulationButton(
-                {},
+                {pictureDisplayViewModel.currentPictureEditor?.resetCanvas()},
                 Icons.Desktop.RESET,
                 "reset"
             )
@@ -88,7 +88,7 @@ val totalPictures = pictureDisplayViewModel.totalPictures.collectAsState().value
 
             Row {
                 ManipulationButton(
-                    {},
+                    { pictureDisplayViewModel.currentPictureEditor?.contrast() },
                     Icons.Desktop.CONTRAST,
                     "contrast"
                 )
@@ -102,7 +102,7 @@ val totalPictures = pictureDisplayViewModel.totalPictures.collectAsState().value
                 Spacer(spacerSize)
 
                 ManipulationButton(
-                    {},
+                    { pictureDisplayViewModel.currentPictureEditor?.crop() },
                     Icons.Desktop.CROP,
                     "crop"
                 )

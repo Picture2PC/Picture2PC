@@ -37,12 +37,10 @@ import org.koin.compose.rememberKoinInject
 fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
     pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
-    //pictureEditorViewModel: PictureEditorViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers()
 
     //TODO: Add tooltips to buttons
-    //TODO: Implement the PictureEditorViewModel
 
     Box(
         Modifier

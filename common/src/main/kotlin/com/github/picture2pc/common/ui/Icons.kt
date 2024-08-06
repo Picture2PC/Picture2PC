@@ -11,16 +11,11 @@ object Icons {
     }
 
     object Mobile {
-        const val FLASH_ON = "icons/mobile/flash_on.svg"
         const val FLASH_AUTO = "icons/mobile/flash_auto.svg"
         const val FLASH_OFF = "icons/mobile/flash_off.svg"
     }
 
     object Logo {
         const val STANDARD = "icons/logo/app_icon_standard.svg"
-        const val NO_BACKGROUND = "icons/logo/app_icon_no_bg.svg"
-        const val FILLED = "icons/logo/app_icon_filled.svg"
-        const val FILLED_DESKTOP_SMALL = "icons/logo/app_icon_filled_desktop_s.svg"
-        const val FILLED_SMALL = "icons/logo/app_icon_filled_s.svg"
     }
 }
