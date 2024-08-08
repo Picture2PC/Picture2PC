@@ -1,38 +1,13 @@
 package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.graphics.asSkiaBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Canvas
-import org.jetbrains.skia.Color
-import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ColorFilter
-import org.jetbrains.skia.ColorMatrix
-import org.jetbrains.skia.Image
-import org.jetbrains.skia.Image.Companion.makeFromBitmap
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
-import org.jetbrains.skia.ImageInfo
-import org.jetbrains.skia.Paint
-import org.jetbrains.skia.PaintMode
-import org.jetbrains.skia.Point
-import org.jetbrains.skia.Rect
-import java.awt.Toolkit
-import java.awt.Transparency
-import java.awt.color.ColorSpace
-import java.awt.datatransfer.Clipboard
-import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.Transferable
-import java.awt.datatransfer.UnsupportedFlavorException
-import java.awt.image.BufferedImage
-import java.awt.image.ComponentColorModel
-import java.awt.image.DataBuffer
-import java.awt.image.DataBufferByte
-import java.awt.image.Raster
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
@@ -40,117 +15,41 @@ import kotlin.coroutines.CoroutineContext
 
 class PictureDisplayViewModel(
     dataReceiver: DataReceiver,
+    val picturePreparation: PicturePreparation,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
     private val pictures = dataReceiver.pictures
 
+    //MutableStateFlow because needs to be updated for Screen
     val totalPictures = MutableStateFlow(0)
-    val currentPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
+    val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
 
-    private val _currentPicture = MutableStateFlow<Image?>(null)
-    val currentPicture: StateFlow<Image?> = _currentPicture
-
-    var currentPictureEditor = currentPicture.value?.let { PictureEditor(this, it) }
+    val currentPicture = picturePreparation.editedPicture
+    val overlayPicture = picturePreparation.overlayBitmap
 
     init {
         CoroutineScope(coroutineContext).launch {
-            pictures.collect { pictureList ->
+            pictures.collect {
                 totalPictures.value = pictures.replayCache.size
-                if (!pictureList.isEmpty && _currentPicture.value == null) {
-                    updateCurrentPicture()
-                }
             }
         }
     }
 
-    fun getOriginalImage(): Image{
-        return try {
-            pictures.replayCache[currentPictureIndex.value]
-        } catch (e: IndexOutOfBoundsException) {
-            getTestImage()
-        }
-    }
-
-    private fun updateCurrentPictureEditor() {
-        currentPictureEditor = currentPicture.value?.let { PictureEditor(this, it) }
-    }
-
-    private fun updateCurrentPicture() {
-        _currentPicture.value = pictures.replayCache[currentPictureIndex.value]
-        updateCurrentPictureEditor()
-    }
-
-    private fun Image.toBufferedImage(): BufferedImage {
-        val storage = Bitmap()
-        storage.allocPixelsFlags(ImageInfo.makeS32(this.width, this.height, ColorAlphaType.PREMUL), false)
-        Canvas(storage).drawImage(this, 0f, 0f)
-
-        val bytes = storage.readPixels(storage.imageInfo, ((this.width * 4L).toInt()), 0, 0)!!
-        val buffer = DataBufferByte(bytes, bytes.size)
-        val raster = Raster.createInterleavedRaster(
-            buffer,
-            this.width,
-            this.height,
-            this.width * 4, 4,
-            intArrayOf(2, 1, 0, 3),     // BGRA order
-            null
+    fun setPicture(){
+        if (pictures.replayCache.isEmpty()) return
+        picturePreparation.setOriginalPicture(
+            pictures.replayCache[selectedPictureIndex.value]
+                .toComposeImageBitmap().asSkiaBitmap()
         )
-        val colorModel = ComponentColorModel(
-            ColorSpace.getInstance(ColorSpace.CS_sRGB),
-            true,
-            false,
-            Transparency.TRANSLUCENT,
-            DataBuffer.TYPE_BYTE
-        )
-
-        return BufferedImage(colorModel, raster!!, false, null)
-    }
-
-    private class TransferableImage(private val image: BufferedImage) : Transferable {
-        override fun getTransferData(flavor: DataFlavor?): Any {
-            return if (flavor == DataFlavor.imageFlavor) {
-                image
-            } else {
-                throw UnsupportedFlavorException(flavor)
-            }
-        }
-
-        override fun getTransferDataFlavors(): Array<DataFlavor> {
-            return arrayOf(DataFlavor.imageFlavor)
-        }
-
-        override fun isDataFlavorSupported(flavor: DataFlavor?): Boolean {
-            return flavor == DataFlavor.imageFlavor
-        }
     }
 
     fun adjustCurrentPictureIndex(increase:Boolean) {
         if (pictures.replayCache.isEmpty()) return
-        if (increase && currentPictureIndex.value < pictures.replayCache.size - 1) {
-            currentPictureIndex.value++
-        } else if (!increase && currentPictureIndex.value > 0) {
-            currentPictureIndex.value--
+        if (increase && selectedPictureIndex.value < pictures.replayCache.size - 1) {
+            selectedPictureIndex.value++
+        } else if (!increase && selectedPictureIndex.value > 0) {
+            selectedPictureIndex.value--
         }
-        updateCurrentPicture()
-    }
-
-    fun addPictureToClipboard() {
-        if (currentPicture.value == null) return
-        CoroutineScope(coroutineContext).launch {
-            val bufferedImage = currentPicture.value?.toBufferedImage()
-            val transferableImage = bufferedImage?.let { TransferableImage(it) }
-            val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-            clipboard.setContents(transferableImage, null)
-        }
-    }
-
-    private fun getTestImage(): Image {
-        val file = File("common/src/main/res/icons/test.png")
-        val bufferedImage = ImageIO.read(file)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
-        val imageBytes = byteArrayOutputStream.toByteArray()
-        return makeFromEncoded(imageBytes)
     }
 
     fun loadTestImage() {
@@ -165,12 +64,12 @@ class PictureDisplayViewModel(
         CoroutineScope(coroutineContext).launch {
             val currentPictures = pictures.replayCache.toMutableList()
             currentPictures.add(testImage)
-            _currentPicture.value = testImage
+            picturePreparation.setOriginalPicture(testImage.toComposeImageBitmap().asSkiaBitmap())
             totalPictures.value = currentPictures.size
-            updateCurrentPictureEditor()
         }
     }
 
+    /*
     class PictureEditor(private val picDisVM: PictureDisplayViewModel, image: Image) {
         private val bitmap = Bitmap.makeFromImage(image)
         private val canvas: Canvas = Canvas(bitmap)
@@ -268,5 +167,5 @@ class PictureDisplayViewModel(
             canvas.drawRect(Rect.makeWH(bitmap.width.toFloat(), bitmap.height.toFloat()), paint)
             updateDisplayImage()
         }
-    }
+        */
 }

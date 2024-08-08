@@ -5,7 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
@@ -15,22 +15,33 @@ import org.koin.compose.rememberKoinInject
 fun Picture(
     pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject(),
 ) {
-    val picture = pictureDisplayViewModel.currentPicture.collectAsState().value
+    val pictureBitmap = pictureDisplayViewModel.currentPicture.collectAsState().value
+    val overlayBitmap = pictureDisplayViewModel.overlayPicture.collectAsState().value
 
-    picture?.let {
-        Image(
-            bitmap = it.toComposeImageBitmap(),
-            contentDescription = "Picture",
-            modifier = Modifier.pointerInput(Unit) {
+    val picture = pictureBitmap.asComposeImageBitmap()
+    val overlay = overlayBitmap.asComposeImageBitmap()
+
+    if (pictureBitmap.isEmpty) return
+    Image(
+        bitmap = picture,
+        contentDescription = "Picture",
+        modifier = Modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                pictureDisplayViewModel.setPicture()
+                pictureDisplayViewModel.picturePreparation.calculateRatio(
+                    layoutCoordinates.size
+                )
+            }
+    )
+    if (overlayBitmap.isEmpty) return
+    Image(
+        bitmap = overlay,
+        contentDescription = "Overlay",
+        modifier = Modifier
+            .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    pictureDisplayViewModel.currentPictureEditor?.clicked(offset)
-                } }
-                .onGloballyPositioned { layoutCoordinates ->
-                    pictureDisplayViewModel.currentPictureEditor?.setDisplaySize(
-                        layoutCoordinates.size
-                    )
+                    pictureDisplayViewModel.picturePreparation.addClick(offset)
                 }
-
-        )
-    }
+            }
+    )
 }
