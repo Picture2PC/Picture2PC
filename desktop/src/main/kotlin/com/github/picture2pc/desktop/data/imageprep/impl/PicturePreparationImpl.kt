@@ -9,8 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
+import org.jetbrains.skia.Color
+import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorInfo
+import org.jetbrains.skia.ColorSpace
+import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.ImageInfo
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Point
 import org.jetbrains.skiko.toBufferedImage
 import java.awt.Toolkit
@@ -50,8 +56,13 @@ class PicturePreparationImpl(
         get() = _ratio
         set(value) { _ratio = value }
 
-    override val clicks: MutableList<Point>
-        get() = mutableListOf()
+    override val clicks: MutableList<Point> = mutableListOf()
+
+    private val bluePaint = Paint().apply {
+        color = Color.BLACK
+        mode = PaintMode.STROKE
+        strokeWidth = 5f
+    }
 
     private class TransferableImage(private val image: BufferedImage) : Transferable {
         override fun getTransferData(flavor: DataFlavor?): Any {
@@ -72,11 +83,12 @@ class PicturePreparationImpl(
     }
 
     private fun clearCanvasBitmap(): Bitmap{
-        val imageInfo = ImageInfo(ColorInfo.DEFAULT, originalBitmap.width, originalBitmap.height)
+        val colorInfo = ColorInfo(ColorType.ARGB_4444, ColorAlphaType.OPAQUE, ColorSpace.sRGB)
+        val imageInfo = ImageInfo(colorInfo, originalBitmap.width, originalBitmap.height)
         return Bitmap().apply {
             setImageInfo(imageInfo)
             allocPixels()
-        }.erase(0)
+        }
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
@@ -92,19 +104,19 @@ class PicturePreparationImpl(
     }
 
     override fun copyToClipboard() {
-        if (editedPicture.value.isEmpty) return
+        if (overlayBitmap.value.isEmpty) return
         CoroutineScope(coroutineContext).launch {
-            val transferableImage = TransferableImage(editedPicture.value.toBufferedImage())
+            val transferableImage = TransferableImage(overlayBitmap.value.toBufferedImage())
             val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
             clipboard.setContents(transferableImage, null)
         }
     }
 
-    override fun reset() {
+    override fun reset(clearClicks: Boolean) {
         _editedBitmap.value = originalBitmap
         _overlayBitmap.value = clearCanvasBitmap()
-        _overlayCanvas = Canvas(_overlayBitmap.value)
-        clicks.clear()
+        _overlayCanvas = Canvas(overlayBitmap.value)
+        if (clearClicks) clicks.clear()
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
@@ -120,6 +132,7 @@ class PicturePreparationImpl(
 
     override fun addClick(offset: Offset) {
         clicks.add(Point(offset.x, offset.y))
-        println(offset)
+        print(clicks) //TODO: Figure out why tf this always prints empty
+        overlayCanvas.drawCircle(offset.x, offset.y, 10f, bluePaint)
     }
 }

@@ -21,7 +21,8 @@ interface PicturePreparation {
     fun applyContrast()
     fun crop()
     fun copyToClipboard()
-    fun reset()
+
+    fun reset(clearClicks: Boolean = false)
 
     fun setOriginalPicture(picture: Bitmap)
     fun addClick(offset: Offset)
