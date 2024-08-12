@@ -1,10 +1,11 @@
 package com.github.picture2pc.desktop.ui.main.picturedisplay
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -13,31 +14,47 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun Picture(
-    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject(),
+    picDisVM: PictureDisplayViewModel = rememberKoinInject(),
 ) {
-    val pictureBitmap = pictureDisplayViewModel.currentPicture.collectAsState().value
-    val overlayBitmap = pictureDisplayViewModel.overlayPicture.collectAsState().value
+    val pictureBitmap = picDisVM.currentPicture.value
+    val overlayBitmap = picDisVM.overlayPicture.value
+    val dragOverlayBitmap = picDisVM.dragOverlayPicture.value
 
-    if (pictureBitmap.isEmpty) return
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
         modifier = Modifier
             .onGloballyPositioned { layoutCoordinates ->
-                pictureDisplayViewModel.setPicture()
-                pictureDisplayViewModel.picturePreparation.calculateRatio(
+                picDisVM.picturePreparation.calculateRatio(
                     layoutCoordinates.size
                 )
             }
     )
-    if (overlayBitmap.isEmpty) return
+
+    Image(
+        bitmap = dragOverlayBitmap.asComposeImageBitmap(),
+        contentDescription = "DragOverlay",
+    )
+
     Image(
         bitmap = overlayBitmap.asComposeImageBitmap(),
         contentDescription = "Overlay",
         modifier = Modifier
             .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        dragStart: Offset -> picDisVM.picturePreparation.setDragStart(dragStart)
+                    },
+                    onDrag = {
+                             change, dragAmount -> picDisVM.picturePreparation
+                                 .handleDrag(change, dragAmount)
+                    },
+                    onDragEnd = { picDisVM.picturePreparation.resetDrag() }
+                )
+            }
+            .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    pictureDisplayViewModel.picturePreparation.addClick(offset)
+                    picDisVM.picturePreparation.addClick(offset)
                 }
             }
     )

@@ -6,6 +6,8 @@ import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
 import java.io.ByteArrayOutputStream
@@ -26,21 +28,13 @@ class PictureDisplayViewModel(
 
     val currentPicture = picturePreparation.editedBitmap
     val overlayPicture = picturePreparation.overlayBitmap
+    val dragOverlayPicture = picturePreparation.dragOverlayBitmap
 
     init {
-        CoroutineScope(coroutineContext).launch {
-            pictures.collect {
-                totalPictures.value = pictures.replayCache.size
-            }
-        }
-    }
-
-    fun setPicture(){
-        if (pictures.replayCache.isEmpty()) return
-        picturePreparation.setOriginalPicture(
-            pictures.replayCache[selectedPictureIndex.value]
-                .toComposeImageBitmap().asSkiaBitmap()
-        )
+        pictures.onEach {
+            picturePreparation.setOriginalPicture(it.toComposeImageBitmap().asSkiaBitmap())
+            totalPictures.value = pictures.replayCache.size
+        }.launchIn(this)
     }
 
     fun adjustCurrentPictureIndex(increase:Boolean) {
