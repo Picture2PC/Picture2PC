@@ -18,12 +18,9 @@ fun Picture(
     val pictureBitmap = pictureDisplayViewModel.currentPicture.collectAsState().value
     val overlayBitmap = pictureDisplayViewModel.overlayPicture.collectAsState().value
 
-    val picture = pictureBitmap.asComposeImageBitmap()
-    val overlay = overlayBitmap.asComposeImageBitmap()
-
     if (pictureBitmap.isEmpty) return
     Image(
-        bitmap = picture,
+        bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
         modifier = Modifier
             .onGloballyPositioned { layoutCoordinates ->
@@ -35,7 +32,7 @@ fun Picture(
     )
     if (overlayBitmap.isEmpty) return
     Image(
-        bitmap = overlay,
+        bitmap = overlayBitmap.asComposeImageBitmap(),
         contentDescription = "Overlay",
         modifier = Modifier
             .pointerInput(Unit) {

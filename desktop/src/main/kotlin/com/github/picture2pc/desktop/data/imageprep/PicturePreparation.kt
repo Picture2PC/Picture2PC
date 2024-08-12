@@ -8,10 +8,9 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Point
 
 interface PicturePreparation {
-    val originalBitmap: Bitmap
-    val editedPicture: StateFlow<Bitmap>
-    val overlayBitmap: StateFlow<Bitmap>
-    val overlayCanvas: Canvas
+    var originalBitmap: Bitmap
+    var editedBitmap: StateFlow<Bitmap>
+    var overlayBitmap: StateFlow<Bitmap>
 
     val ratio: Float
     val clicks: MutableList<Point>
@@ -22,7 +21,10 @@ interface PicturePreparation {
     fun crop()
     fun copyToClipboard()
 
-    fun reset(clearClicks: Boolean = false)
+    fun reset(
+        clearClicks: Boolean = true,
+        clearOverlay: Boolean = true
+    )
 
     fun setOriginalPicture(picture: Bitmap)
     fun addClick(offset: Offset)

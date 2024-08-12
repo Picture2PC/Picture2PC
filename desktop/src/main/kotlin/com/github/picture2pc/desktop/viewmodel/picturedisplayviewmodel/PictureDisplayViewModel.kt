@@ -24,7 +24,7 @@ class PictureDisplayViewModel(
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
 
-    val currentPicture = picturePreparation.editedPicture
+    val currentPicture = picturePreparation.editedBitmap
     val overlayPicture = picturePreparation.overlayBitmap
 
     init {

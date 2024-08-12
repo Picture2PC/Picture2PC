@@ -11,9 +11,6 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ColorInfo
-import org.jetbrains.skia.ColorSpace
-import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -30,36 +27,19 @@ import kotlin.coroutines.CoroutineContext
 class PicturePreparationImpl(
     override val coroutineContext: CoroutineContext
 ) : PicturePreparation, CoroutineScope {
-    private var _originalBitmap: Bitmap = Bitmap()
+    override var originalBitmap: Bitmap = Bitmap()
+
     private var _editedBitmap: MutableStateFlow<Bitmap> = MutableStateFlow(Bitmap())
+    override var editedBitmap: StateFlow<Bitmap> = _editedBitmap
+
     private var _overlayBitmap: MutableStateFlow<Bitmap> = MutableStateFlow(clearCanvasBitmap())
-    private var _overlayCanvas: Canvas = Canvas(_overlayBitmap.value)
+    override var overlayBitmap: StateFlow<Bitmap> = _overlayBitmap
 
-    private var _ratio: Float = 1f
-
-    override var originalBitmap: Bitmap
-        get() = _originalBitmap
-        set(value) { _originalBitmap = value }
-
-    override var editedPicture: StateFlow<Bitmap>
-        get() = _editedBitmap
-        set(value) { _editedBitmap.value = value.value }
-
-    override var overlayBitmap: StateFlow<Bitmap>
-        get() = _overlayBitmap
-        set(value) { _overlayBitmap.value = value.value }
-
-    override val overlayCanvas: Canvas
-        get() = _overlayCanvas
-
-    override var ratio: Float
-        get() = _ratio
-        set(value) { _ratio = value }
-
+    override var ratio: Float = 1f
     override val clicks: MutableList<Point> = mutableListOf()
 
-    private val bluePaint = Paint().apply {
-        color = Color.BLACK
+    private val blueStroke = Paint().apply {
+        color = Color.BLUE
         mode = PaintMode.STROKE
         strokeWidth = 5f
     }
@@ -83,12 +63,14 @@ class PicturePreparationImpl(
     }
 
     private fun clearCanvasBitmap(): Bitmap{
-        val colorInfo = ColorInfo(ColorType.ARGB_4444, ColorAlphaType.OPAQUE, ColorSpace.sRGB)
-        val imageInfo = ImageInfo(colorInfo, originalBitmap.width, originalBitmap.height)
-        return Bitmap().apply {
-            setImageInfo(imageInfo)
-            allocPixels()
-        }
+        val imageInfo = ImageInfo.makeN32(
+            originalBitmap.width, originalBitmap.height, ColorAlphaType.UNPREMUL
+        )
+        val bitmap = Bitmap()
+        bitmap.allocPixels(imageInfo)
+        bitmap.erase(Color.TRANSPARENT)
+
+        return bitmap
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
@@ -112,27 +94,23 @@ class PicturePreparationImpl(
         }
     }
 
-    override fun reset(clearClicks: Boolean) {
+    override fun reset(clearClicks: Boolean, clearOverlay: Boolean) {
         _editedBitmap.value = originalBitmap
-        _overlayBitmap.value = clearCanvasBitmap()
-        _overlayCanvas = Canvas(overlayBitmap.value)
+        if (clearOverlay) _overlayBitmap.value = clearCanvasBitmap()
         if (clearClicks) clicks.clear()
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        val imageInfo = ImageInfo(ColorInfo.DEFAULT, originalBitmap.width, originalBitmap.height)
-        _overlayBitmap.value = Bitmap().apply {
-            setImageInfo(imageInfo)
-            allocPixels()
-            erase(0)
-        }
+        _overlayBitmap.value = clearCanvasBitmap()
         reset()
     }
 
     override fun addClick(offset: Offset) {
+        println(offset)
         clicks.add(Point(offset.x, offset.y))
-        print(clicks) //TODO: Figure out why tf this always prints empty
-        overlayCanvas.drawCircle(offset.x, offset.y, 10f, bluePaint)
+        Canvas(_overlayBitmap.value).drawCircle(
+            offset.x * ratio,offset.y * ratio, 10f, blueStroke
+        )
     }
 }
