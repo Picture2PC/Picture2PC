@@ -67,6 +67,7 @@ object Style {
 
         object Borders{
             val BORDER_STANDARD = 2.dp
+            val BORDER_THICK = 3.dp
         }
     }
 }

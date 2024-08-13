@@ -29,6 +29,8 @@ class PictureDisplayViewModel(
     val currentPicture = picturePreparation.editedBitmap
     val overlayPicture = picturePreparation.overlayBitmap
     val dragOverlayPicture = picturePreparation.dragOverlayBitmap
+    val updateBitmap = picturePreparation.updateBitmap
+    val zoomedBitmap = picturePreparation.zoomedBitmap
 
     init {
         pictures.onEach {

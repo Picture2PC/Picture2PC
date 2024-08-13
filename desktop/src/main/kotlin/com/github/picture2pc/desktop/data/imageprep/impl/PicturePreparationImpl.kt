@@ -7,17 +7,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.unit.IntSize
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
-import com.github.picture2pc.desktop.extention.distanceTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Point
+import org.jetbrains.skia.Rect
 import org.jetbrains.skiko.toBufferedImage
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
@@ -43,12 +44,13 @@ class PicturePreparationImpl(
     private var _dragOverlayBitmap: MutableState<Bitmap> = mutableStateOf(clearCanvasBitmap())
     override var dragOverlayBitmap: State<Bitmap> = _dragOverlayBitmap
 
+    override var updateBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
+    override var zoomedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
 
     //Variables for drag handling
     private var dragStartPoint = Point(0f, 0f)
-    private var currentDragPoint = Point(0f, 0f)
-    private var previousPoint = Point(0f, 0f)
-    private var totalDrag = 0f
+    override var currentDragPoint: MutableState<Point> = mutableStateOf(Point(0f, 0f))
+    override var dragActive: MutableState<Boolean> = mutableStateOf(false)
 
     //Paints for drawing
     private val blueStroke = Paint().apply {
@@ -89,13 +91,7 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun updateOverlayBitmaps(
-        updateOverlay: Boolean = true,
-        updateDragOverlay: Boolean = false
-    ){
-        if (updateOverlay) _overlayBitmap.value = _overlayBitmap.value.makeClone()
-        if (updateDragOverlay) _dragOverlayBitmap.value = _dragOverlayBitmap.value.makeClone()
-    }
+    private fun updateBitmaps(){ updateBitmap.value = Bitmap() }
 
     private fun clearCanvasBitmap(): Bitmap{
         val imageInfo = ImageInfo.makeN32(
@@ -133,6 +129,29 @@ class PicturePreparationImpl(
         }
     }
 
+    private fun setZoomedBitmap(point: Point){
+        val x = point.x.toInt()
+        val y = point.y.toInt()
+        val radius = 75f
+        val diameter = (radius * 2).toInt()
+
+        val croppedBitmap = Bitmap().apply { allocN32Pixels(diameter, diameter) }
+        val croppedCanvas = Canvas(croppedBitmap)
+
+        croppedCanvas.drawImageRect(
+            Image.makeFromBitmap(editedBitmap.value),
+            Rect.makeLTRB(
+                (x - radius),
+                (y - radius),
+                (x + radius),
+                (y + radius)
+            ),
+            Rect.makeWH(diameter.toFloat(), diameter.toFloat())
+        ).drawCircle(radius, radius, 10f, blueStroke)
+
+        zoomedBitmap.value = croppedBitmap
+    }
+
     override fun reset(
         resetEditedBitmap: Boolean,
         clearClicks: Boolean,
@@ -146,14 +165,11 @@ class PicturePreparationImpl(
     }
 
     override fun resetDrag() {
-        if (totalDrag < 23f) {
-            addClick(Offset(currentDragPoint.x / ratio, currentDragPoint.y / ratio))
-        }
+        addClick(Offset(currentDragPoint.value.x / ratio, currentDragPoint.value.y / ratio))
         reset(clearOverlay = false, clearClicks = false, resetEditedBitmap = false)
         dragStartPoint = Point(0f, 0f)
-        currentDragPoint = Point(0f, 0f)
-        previousPoint = Point(0f, 0f)
-        totalDrag = 0f
+        currentDragPoint.value = Point(0f, 0f)
+        dragActive.value = false
     }
 
     override fun setDragStart(dragStart: Offset) {
@@ -161,23 +177,22 @@ class PicturePreparationImpl(
             dragStart.x * ratio,
             dragStart.y * ratio
         )
+        setZoomedBitmap(dragStartPoint)
+        dragActive.value = true
     }
 
     override fun handleDrag(change: PointerInputChange, dragAmount: Offset){
-        val canvas = Canvas(_dragOverlayBitmap.value)
-        if (currentDragPoint == Point(0f, 0f)) currentDragPoint = dragStartPoint
+        if (currentDragPoint.value == Point(0f, 0f)) currentDragPoint.value = dragStartPoint
 
-        currentDragPoint = Point(
-            currentDragPoint.x + dragAmount.x * ratio,
-            currentDragPoint.y + dragAmount.y * ratio
+        currentDragPoint.value = Point(
+            currentDragPoint.value.x + dragAmount.x * ratio,
+            currentDragPoint.value.y + dragAmount.y * ratio
         )
-        if (previousPoint != Point(0f, 0f)) {
-            totalDrag += currentDragPoint.distanceTo(previousPoint)
-        }
-        previousPoint = currentDragPoint
+        setZoomedBitmap(currentDragPoint.value)
 
-        canvas.drawCircle(currentDragPoint.x, currentDragPoint.y, 3f, redStroke)
-        updateOverlayBitmaps(updateOverlay = false, updateDragOverlay = true)
+        //val canvas = Canvas(_dragOverlayBitmap.value)
+        //canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, redStroke)
+        updateBitmaps()
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
@@ -245,6 +260,6 @@ class PicturePreparationImpl(
             drawRectangle(canvas)
         }
         //TODO: Notify observers without cloning, possibly use LiveData?
-        updateOverlayBitmaps()
+        updateBitmaps()
     }
 }
