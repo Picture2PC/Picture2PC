@@ -22,9 +22,6 @@ sealed class Payload {
 
     @OptIn(ExperimentalSerializationApi::class)
     fun asInputStream(): ByteArrayInputStream {
-        val format = Cbor {
-            encodeDefaults = true
-        }
         return ByteArrayInputStream(format.encodeToByteArray(serializer(), this))
     }
 
@@ -37,6 +34,11 @@ sealed class Payload {
             val packet: Payload = Cbor.decodeFromByteArray(serializer(), inputStream.readBytes())
             packet.receivedFromInetSocketAddress = inetSocketAddress
             return packet
+        }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        private val format = Cbor {
+            encodeDefaults = true
         }
     }
 }

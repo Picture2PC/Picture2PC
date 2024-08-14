@@ -30,6 +30,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
+
     init {
         jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
         jvmServerSocket.soTimeout = 1000

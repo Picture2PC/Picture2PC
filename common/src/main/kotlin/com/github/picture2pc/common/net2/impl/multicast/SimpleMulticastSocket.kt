@@ -5,6 +5,7 @@ import com.github.picture2pc.common.net2.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.net.DatagramPacket
 import java.net.InetSocketAddress
@@ -20,19 +21,17 @@ internal class SimpleMulticastSocket(
     init {
         // get networkinterface for local dns
         jvmMulticastSocket.loopbackMode = true
-        jvmMulticastSocket.soTimeout = 0
+        jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
+        jvmMulticastSocket.networkInterface = NetworkHelper.getDefaultNetworkInterface()
         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
     }
 
-    suspend fun updateNetworkInterface() {
-        return
-        jvmMulticastSocket.networkInterface =
-            coroutineScope { NetworkHelper.getDefaultNetworkInterface() } ?: return
-    }
+    val isAvailable
+        get() = jvmMulticastSocket.isBound && !jvmMulticastSocket.isClosed
 
     suspend fun sendMessage(message: InputStream): Boolean {
-        // Currently only supports Messagesize < 1024*16
-        if (!jvmMulticastSocket.isBound) {
+        // Currently only supports Messagesize < PACKET_SIZE
+        if (!isAvailable) {
             return false
         }
         return coroutineScope {
@@ -40,25 +39,41 @@ internal class SimpleMulticastSocket(
                 return@coroutineScope false
             }
             val len = message.available()
-            assert(len < 1024 * 16)
+            require(len < MulticastConstants.PACKET_SIZE) { "Must be less than PACKET_SIZE" }
             val datagramPacket = DatagramPacket(message.readBytes(), len, inetSocketAddress)
-            jvmMulticastSocket.send(datagramPacket)
-            return@coroutineScope true
+            return@coroutineScope kotlin.runCatching { jvmMulticastSocket.send(datagramPacket) }.isSuccess
         }
     }
 
+    fun close() {
+        jvmMulticastSocket.close()
+    }
+
     suspend fun receivePacket(): Payload? {
-        val byteArray = ByteArray(1024 * 16)
+        if (!isAvailable)
+            return null
+        val byteArray = ByteArray(MulticastConstants.PACKET_SIZE)
         val datagramPacket = DatagramPacket(byteArray, byteArray.size)
         try {
             coroutineScope {
                 jvmMulticastSocket.receive(datagramPacket)
             }
         } catch (e: SocketTimeoutException) {
+            coroutineScope {
+                kotlin.runCatching {
+                    val new = NetworkHelper.getDefaultNetworkInterface()
+                    if (new != jvmMulticastSocket.networkInterface) {
+                        jvmMulticastSocket.networkInterface = new
+                        jvmMulticastSocket.joinGroup(inetSocketAddress, null)
+                    }
+                }
+            }
+            return null
+        } catch (e: IOException) {
+            close()
             return null
         }
 
-        //TODO Handle if multiple packages from different host are received at the same time
         return Payload.fromInputStream(
             ByteArrayInputStream(datagramPacket.data),
             InetSocketAddress(datagramPacket.address, datagramPacket.port)

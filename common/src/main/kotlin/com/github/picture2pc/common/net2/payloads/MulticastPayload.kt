@@ -6,6 +6,14 @@ import java.net.InetSocketAddress
 
 @Serializable
 sealed class MulticastPayload : Payload() {
+    // ------------Internal--------------
+    @Serializable
+    data class Ping(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class Pong(override val targetPeer: Peer) : TcpPayload()
+
+    // ------------Internal--------------
 
     @Serializable
     data class PeerTcpOnline(val port: Int, override val targetPeer: Peer) : MulticastPayload() {

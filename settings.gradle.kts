@@ -8,11 +8,12 @@ pluginManagement {
 
 rootProject.name = "Picture2PC"
 
-val usingAndroidStudio = System.getProperty("idea.platform.prefix") == "AndroidStudio"
+val usingAndroidStudio =
+    (System.getProperty("idea.paths.selector") ?: "").startsWith("AndroidStudio")
 
 include(":desktop")
 include(":common")
-if (usingAndroidStudio) {
+if (true) {
     include(":android")
 }
 else {
