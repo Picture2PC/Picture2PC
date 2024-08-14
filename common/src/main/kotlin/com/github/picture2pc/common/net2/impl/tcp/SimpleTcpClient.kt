@@ -50,7 +50,7 @@ class SimpleTcpClient(
                     break
                 }
                 if (packet is TcpPayload.Ping) {
-                    handlePing(packet)
+                    handlePing()
                     continue
                 }
                 simpleTcpServer._receivedNetworkPackets.emit(packet)
