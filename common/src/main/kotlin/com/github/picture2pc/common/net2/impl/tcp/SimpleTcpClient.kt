@@ -88,7 +88,7 @@ class SimpleTcpClient(
         return true
     }
 
-    suspend fun handlePing(payload: TcpPayload.Ping) {
+    private suspend fun handlePing() {
         if (!sendMessage(TcpPayload.Pong(targetPeer).asInputStream())) {
             simpleTcpServer.disconnect(targetPeer)
         }

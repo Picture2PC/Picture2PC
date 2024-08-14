@@ -12,7 +12,7 @@ import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import kotlin.coroutines.CoroutineContext
 
-
+@SuppressWarnings
 internal class SimpleMulticastSocket(
     val inetSocketAddress: InetSocketAddress, override val coroutineContext: CoroutineContext,
 ) : CoroutineScope {
