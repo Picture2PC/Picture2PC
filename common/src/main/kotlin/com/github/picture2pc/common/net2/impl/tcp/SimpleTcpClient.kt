@@ -58,7 +58,6 @@ class SimpleTcpClient(
         }
 
         clientState.onEach {
-            println(it)
             if (it == ClientState.RECEIVING) {
                 timeoutJob!!.cancelAndJoin()
                 timeoutJob = getTimeoutJob()
