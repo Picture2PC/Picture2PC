@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSONS, 0)
         }
         val coroutineContextProviderModule = module {
-            factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
+            factory { Dispatchers.IO.newCoroutineContext(Dispatchers.Main) }
         }
         startKoin {
             // Log Koin into Android logger

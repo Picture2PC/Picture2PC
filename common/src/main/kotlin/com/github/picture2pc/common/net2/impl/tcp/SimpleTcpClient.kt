@@ -4,16 +4,17 @@ import com.github.picture2pc.common.net2.Peer
 import com.github.picture2pc.common.net2.payloads.Payload
 import com.github.picture2pc.common.net2.payloads.TcpPayload
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -41,9 +42,8 @@ class SimpleTcpClient(
 
     fun startReceiving() {
         timeoutJob = getTimeoutJob()
-
         launch {
-            while (true) {
+            while (isActive) {
                 val packet = receivePacket()
                 if (packet == null) {
                     simpleTcpServer.disconnect(targetPeer)
@@ -58,6 +58,7 @@ class SimpleTcpClient(
         }
 
         clientState.onEach {
+            println(it)
             if (it == ClientState.RECEIVING) {
                 timeoutJob!!.cancelAndJoin()
                 timeoutJob = getTimeoutJob()
@@ -78,8 +79,8 @@ class SimpleTcpClient(
     }
 
     suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
-        withContext(Dispatchers.IO) {
-            return@withContext withTimeoutOrNull(simpleTcpServer.CONNECION_TIMEOUT)
+        coroutineScope {
+            return@coroutineScope withTimeoutOrNull(simpleTcpServer.CONNECION_TIMEOUT)
             {
                 jvmSocket.connect(inetSocketAddress)
                 return@withTimeoutOrNull true
@@ -95,7 +96,7 @@ class SimpleTcpClient(
     }
 
     suspend fun sendMessage(message: InputStream): Boolean {
-        return withContext(Dispatchers.IO) {
+        return coroutineScope {
             try {
                 jvmSocket.getOutputStream()
                     .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
@@ -104,15 +105,15 @@ class SimpleTcpClient(
                 clientState.value = ClientState.ERRORWHILESENDING
                 simpleTcpServer.disconnect(targetPeer)
                 message.close()
-                return@withContext false
+                return@coroutineScope false
             }
             message.close()
-            return@withContext true
+            return@coroutineScope true
         }
     }
 
     suspend fun close() {
-        withContext(Dispatchers.IO) {
+        coroutineScope {
             try {
                 jvmSocket.close()
             } catch (_: Exception) {
@@ -124,28 +125,30 @@ class SimpleTcpClient(
     suspend fun receivePacket(): Payload? {
         try {
             val sizeBuff = ByteArray(Int.SIZE_BYTES)
-            clientState.value = ClientState.WAITINGFORDATA
-            withContext(Dispatchers.IO) {
+            clientState.emit(ClientState.WAITINGFORDATA)
+            coroutineScope {
                 jvmSocket.getInputStream().read(sizeBuff, 0, Int.SIZE_BYTES)
             }
-            clientState.value = ClientState.RECEIVING
+            clientState.emit(ClientState.RECEIVING)
+            yield()
             val size = ByteBuffer.wrap(sizeBuff).int
-            assert(size >= 0) { "Size is negative" }
-            return withContext(Dispatchers.IO) {
-                val byteArray = ByteArray(size)
-                var copied = 0
+            check(size > 0) { "Size is not positive" }
+            val byteArray = ByteArray(size)
+            var copied = 0
+            coroutineScope {
                 while (copied < size) {
                     copied += jvmSocket.getInputStream()
                         .read(byteArray, copied, size - copied)
                 }
-                clientState.value = ClientState.CONNECTED
-                return@withContext Payload.fromInputStream(
-                    byteArray.inputStream(),
-                    InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
-                )
             }
+            clientState.emit(ClientState.CONNECTED)
+            yield()
+            return Payload.fromInputStream(
+                byteArray.inputStream(),
+                InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
+            )
         } catch (e: Exception) {
-            clientState.value = ClientState.ERRORWHILERECEIVING
+            clientState.emit(ClientState.ERRORWHILERECEIVING)
             return null
         }
     }
