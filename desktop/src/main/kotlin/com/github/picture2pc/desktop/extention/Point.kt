@@ -1,9 +1,19 @@
 package com.github.picture2pc.desktop.extention
 
+import androidx.compose.ui.geometry.Rect
 import org.jetbrains.skia.Point
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun Point.distanceTo(other: Point): Float {
-    return sqrt((other.x - this.x).pow(2) + (other.y - this.y).pow(2))
+fun Point.distanceTo(secondPoint: Point): Float {
+    return sqrt((secondPoint.x - this.x).pow(2) + (secondPoint.y - this.y).pow(2))
+}
+
+fun Point.isInBounds(rectangle: Rect): Boolean {
+    return !(
+        this.x < rectangle.left  ||
+        this.x > rectangle.right ||
+        this.y < rectangle.top   ||
+        this.y > rectangle.bottom
+    )
 }

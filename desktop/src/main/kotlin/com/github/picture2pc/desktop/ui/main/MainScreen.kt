@@ -27,7 +27,6 @@ import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.common.ui.getIcon
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.QualitySelector
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
@@ -73,8 +72,10 @@ fun MainScreen(
                     ) }
                     Spacer(Modifier.height(Spacers.LARGE))
 
+                    /*
                     Row { QualitySelector() }
                     Spacer(Modifier.height(Spacers.SMALL))
+                    */
 
                     Row { ImageManipulationButtons() }
 

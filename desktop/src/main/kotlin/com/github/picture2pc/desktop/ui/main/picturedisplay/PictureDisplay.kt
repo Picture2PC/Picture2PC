@@ -60,7 +60,7 @@ fun Picture(
             }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    picDisVM.picturePreparation.addClick(offset)
+                    picDisVM.picturePreparation.handleClick(offset)
                 }
             }
     )

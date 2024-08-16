@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.extention.isInBounds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
@@ -20,6 +21,7 @@ import org.jetbrains.skia.Image.Companion.makeFromBitmap
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
+import org.jetbrains.skia.Path
 import org.jetbrains.skia.Point
 import org.jetbrains.skia.Rect
 import org.jetbrains.skiko.toBufferedImage
@@ -70,7 +72,8 @@ class PicturePreparationImpl(
     //Important other variables
     override var ratio: Float = 1f
     override val clicks: MutableList<Point> = mutableListOf()
-    private var originalBitmapBorderRectangle = MathRect(Offset(0f, 0f), 0f)
+    private var originalBitmapBounds = MathRect(Offset(0f, 0f), 0f)
+
 
     private class TransferableImage(val image: BufferedImage): Transferable {
         override fun getTransferData(flavor: DataFlavor?): Any {
@@ -90,6 +93,17 @@ class PicturePreparationImpl(
         }
     }
 
+    override fun calculateRatio(displayPictureSize: IntSize) {
+        ratio = originalBitmap.width.toFloat() / displayPictureSize.width.toFloat()
+    }
+
+    override fun calculateOffset(): Pair<Dp, Dp> {
+        return Pair(
+            (currentDragPoint.value.x / ratio).dp - 200.dp,
+            (currentDragPoint.value.y / ratio).dp - 450.dp
+        )
+    }
+
     private fun updateBitmaps(){
         _editedBitmap.value = editedBitmap.value.makeClone()
     }
@@ -103,26 +117,6 @@ class PicturePreparationImpl(
         bitmap.erase(Color.TRANSPARENT)
 
         return bitmap
-    }
-
-    override fun calculateRatio(displayPictureSize: IntSize) {
-        ratio = originalBitmap.width.toFloat() / displayPictureSize.width.toFloat()
-    }
-
-    override fun calculateOffset(): Pair<Dp, Dp> {
-        return Pair(
-            (currentDragPoint.value.x / ratio).dp - 200.dp,
-            (currentDragPoint.value.y / ratio).dp - 450.dp
-        )
-    }
-
-    private fun isInRect(point: Point): Boolean {
-        return !(
-            point.x < originalBitmapBorderRectangle.left ||
-            point.x > originalBitmapBorderRectangle.right ||
-            point.y < originalBitmapBorderRectangle.top ||
-            point.y > originalBitmapBorderRectangle.bottom
-        )
     }
 
     override fun applyContrast() {
@@ -160,7 +154,7 @@ class PicturePreparationImpl(
         _editedBitmap.value = croppedBitmap
         updateBitmaps()
 
-        reset(resetEditedBitmap = false, clearClicks = false)
+        reset(resetEditedBitmap = false, resetClicks = false)
     }
 
     override fun copyToClipboard() {
@@ -187,21 +181,30 @@ class PicturePreparationImpl(
         //Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
     }
 
+    override fun setOriginalPicture(picture: Bitmap) {
+        originalBitmap = picture
+        originalBitmapBounds = MathRect(
+            Offset(0f, 0f),
+            Offset(picture.width.toFloat(), picture.height.toFloat())
+        )
+        reset()
+    }
+
     override fun reset(
         resetEditedBitmap: Boolean,
-        clearClicks: Boolean,
-        clearOverlay: Boolean,
-        clearDragOverlay: Boolean
+        resetClicks: Boolean,
+        resetOverlay: Boolean,
+        resetDragOverlay: Boolean
     ) {
         if (resetEditedBitmap) _editedBitmap.value = originalBitmap
-        if (clearClicks) clicks.clear()
-        if (clearOverlay) _overlayBitmap.value = clearCanvasBitmap()
-        if (clearDragOverlay) _dragOverlayBitmap.value = clearCanvasBitmap()
+        if (resetClicks) clicks.clear()
+        if (resetOverlay) _overlayBitmap.value = clearCanvasBitmap()
+        if (resetDragOverlay) _dragOverlayBitmap.value = clearCanvasBitmap()
     }
 
     override fun resetDrag() {
-        addClick(Offset(currentDragPoint.value.x / ratio, currentDragPoint.value.y / ratio))
-        reset(clearOverlay = false, clearClicks = false, resetEditedBitmap = false)
+        handleClick(Offset(currentDragPoint.value.x / ratio, currentDragPoint.value.y / ratio))
+        reset(resetOverlay = false, resetClicks = false, resetEditedBitmap = false)
         dragStartPoint = Point(0f, 0f)
         currentDragPoint.value = Point(0f, 0f)
         dragActive.value = false
@@ -223,7 +226,7 @@ class PicturePreparationImpl(
             currentDragPoint.value.x + dragAmount.x * ratio,
             currentDragPoint.value.y + dragAmount.y * ratio
         )
-        dragActive.value = isInRect(currentDragPoint.value)
+        dragActive.value = currentDragPoint.value.isInBounds(originalBitmapBounds)
         setZoomBitmap(currentDragPoint.value)
 
         /*
@@ -234,17 +237,7 @@ class PicturePreparationImpl(
         updateBitmaps()
     }
 
-    override fun setOriginalPicture(picture: Bitmap) {
-        originalBitmap = picture
-
-        originalBitmapBorderRectangle = MathRect(
-            Offset(0f, 0f),
-            Offset(picture.width.toFloat(), picture.height.toFloat())
-        )
-        reset()
-    }
-
-    private fun sortToRectangle() {
+    private fun sortClicksToRectangle() {
         if (clicks.size != 4) return
 
         // Calculate the centroid of the four points
@@ -259,52 +252,40 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun drawRectangle(canvas: Canvas){
-        canvas.drawLines(
-            floatArrayOf(
-                clicks[0].x, clicks[0].y,
-                clicks[1].x, clicks[1].y,
+    private fun drawPolygon(canvas: Canvas, points: List<Point>, paint: Paint) {
+        if (points.isEmpty()) throw IllegalArgumentException("At least one point is required")
 
-                clicks[1].x, clicks[1].y,
-                clicks[2].x, clicks[2].y,
-
-                clicks[2].x, clicks[2].y,
-                clicks[3].x, clicks[3].y,
-
-                clicks[3].x, clicks[3].y,
-                clicks[0].x, clicks[0].y
-            ), blueStroke
-        )
-    }
-
-    private fun drawCircle(canvas: Canvas, point: Point){
-        canvas.drawCircle( point.x, point.y, 10f, blueStroke )
-    }
-
-    private fun drawFullCircle(canvas: Canvas){
-        clicks.last().let { point ->
-            canvas.drawCircle( point.x, point.y, 10f, blueFill )
+        val path = Path().apply {
+            moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                lineTo(points[i].x, points[i].y)
+            }
+            closePath()
         }
+
+        canvas.drawPath(path, paint)
     }
 
-    override fun addClick(offset: Offset) {
-        val point = Point(offset.x * ratio, offset.y * ratio)
-        val canvas = Canvas(_overlayBitmap.value)
+    private fun drawCircle(canvas: Canvas, point: Point, filled: Boolean = false) {
+        println("Drawing circle")
+        canvas.drawCircle( point.x, point.y, 10f, if (filled) blueFill else blueStroke )
+    }
 
-        if (!isInRect(point)) return
-        if (clicks.size == 4) reset(resetEditedBitmap = false)
-        if (clicks.isNotEmpty()) drawFullCircle(canvas)
+    override fun handleClick(offset: Offset) {
+        val point = Point(offset.x * ratio, offset.y * ratio)
+        if (!point.isInBounds(originalBitmapBounds)) return
+
+        if (clicks.size == 4) reset(resetEditedBitmap = false, resetDragOverlay = false)
+        val canvas = Canvas(_overlayBitmap.value)
+        if (clicks.isNotEmpty()) drawCircle(canvas, clicks.last(), filled = true)
 
         clicks.add(point)
-        drawCircle(canvas, point)
+        drawCircle(canvas, point, clicks.size >= 4)
 
-        if (clicks.size == 4){
-            drawFullCircle(canvas)
-            sortToRectangle()
-            reset(clearClicks = false, clearOverlay = false)
-            drawRectangle(canvas)
+        if (clicks.size == 4) {
+            sortClicksToRectangle()
+            drawPolygon(canvas, clicks, blueStroke)
         }
-
         updateBitmaps()
     }
 }

@@ -31,15 +31,15 @@ interface PicturePreparation {
 
     fun reset(
         resetEditedBitmap: Boolean = true,
-        clearClicks: Boolean = true,
-        clearOverlay: Boolean = true,
-        clearDragOverlay: Boolean = true
+        resetClicks: Boolean = true,
+        resetOverlay: Boolean = true,
+        resetDragOverlay: Boolean = true
     )
 
     fun setDragStart(dragStart: Offset)
     fun resetDrag()
 
     fun setOriginalPicture(picture: Bitmap)
-    fun addClick(offset: Offset)
+    fun handleClick(offset: Offset)
     fun handleDrag(change: PointerInputChange, dragAmount: Offset)
 }
