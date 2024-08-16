@@ -58,25 +58,22 @@ fun MainScreen(
                     .width(246.dp)
                     .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
-                Column(Modifier.padding(Spacers.NORMAL)) {
-                    Row {
-                        Image(
-                            getIcon(Icons.Logo.STANDARD),
-                            "Logo",
-                            Modifier.width(75.dp)
-                        )
-                        Spacer(Modifier.width(Spacers.LARGE))
+                Column(Modifier.padding(Spacers.NORMAL)) { Row {
+                    Image(
+                        getIcon(Icons.Logo.STANDARD),
+                        "Logo",
+                        Modifier.width(75.dp)
+                    )
+                    Spacer(Modifier.width(Spacers.LARGE))
 
-                        Text(
-                            Data.APP_NAME,
-                            Modifier.align(Alignment.CenterVertically),
-                            style = TextStyles.HEADER
-                        )
-                    }
+                    Text(
+                        Data.APP_NAME,
+                        Modifier.align(Alignment.CenterVertically),
+                        style = TextStyles.HEADER
+                    ) }
                     Spacer(Modifier.height(Spacers.LARGE))
 
                     Row { QualitySelector() }
-
                     Spacer(Modifier.height(Spacers.SMALL))
 
                     Row { ImageManipulationButtons() }

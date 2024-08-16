@@ -29,7 +29,6 @@ class PictureDisplayViewModel(
     val currentPicture = picturePreparation.editedBitmap
     val overlayPicture = picturePreparation.overlayBitmap
     val dragOverlayPicture = picturePreparation.dragOverlayBitmap
-    val updateBitmap = picturePreparation.updateBitmap
     val zoomedBitmap = picturePreparation.zoomedBitmap
 
     init {
@@ -65,7 +64,7 @@ class PictureDisplayViewModel(
         }
     }
 
-    /*
+    /* OLD PICTURE PREPARATION CODE
     class PictureEditor(private val picDisVM: PictureDisplayViewModel, image: Image) {
         private val bitmap = Bitmap.makeFromImage(image)
         private val canvas: Canvas = Canvas(bitmap)

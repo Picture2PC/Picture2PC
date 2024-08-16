@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Point
@@ -13,7 +14,6 @@ interface PicturePreparation {
     var editedBitmap: State<Bitmap>
     var overlayBitmap: State<Bitmap>
     var dragOverlayBitmap: State<Bitmap>
-    val updateBitmap: MutableState<Bitmap>
     var zoomedBitmap: MutableState<Bitmap>
 
     var ratio: Float
@@ -23,6 +23,7 @@ interface PicturePreparation {
     var dragActive: MutableState<Boolean>
 
     fun calculateRatio(displayPictureSize: IntSize)
+    fun calculateOffset(): Pair<Dp, Dp>
 
     fun applyContrast()
     fun crop()

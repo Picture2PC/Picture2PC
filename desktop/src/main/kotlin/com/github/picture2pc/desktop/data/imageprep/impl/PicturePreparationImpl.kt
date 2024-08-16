@@ -5,7 +5,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -13,7 +15,8 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.Image
+import org.jetbrains.skia.IRect
+import org.jetbrains.skia.Image.Companion.makeFromBitmap
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -28,6 +31,7 @@ import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.image.BufferedImage
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.atan2
+import androidx.compose.ui.geometry.Rect as MathRect
 
 class PicturePreparationImpl(
     override val coroutineContext: CoroutineContext
@@ -44,7 +48,6 @@ class PicturePreparationImpl(
     private var _dragOverlayBitmap: MutableState<Bitmap> = mutableStateOf(clearCanvasBitmap())
     override var dragOverlayBitmap: State<Bitmap> = _dragOverlayBitmap
 
-    override var updateBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var zoomedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
 
     //Variables for drag handling
@@ -58,11 +61,6 @@ class PicturePreparationImpl(
         strokeWidth = 5f
         mode = PaintMode.STROKE
     }
-    private val redStroke = Paint().apply {
-        color = Color.RED
-        strokeWidth = 5f
-        mode = PaintMode.STROKE
-    }
     private val blueFill = Paint().apply {
         color = Color.BLUE
         strokeWidth = 5f
@@ -72,8 +70,9 @@ class PicturePreparationImpl(
     //Important other variables
     override var ratio: Float = 1f
     override val clicks: MutableList<Point> = mutableListOf()
+    private var originalBitmapBorderRectangle = MathRect(Offset(0f, 0f), 0f)
 
-    private class TransferableImage(private val image: BufferedImage) : Transferable {
+    private class TransferableImage(val image: BufferedImage): Transferable {
         override fun getTransferData(flavor: DataFlavor?): Any {
             return if (flavor == DataFlavor.imageFlavor) {
                 image
@@ -91,7 +90,9 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun updateBitmaps(){ updateBitmap.value = Bitmap() }
+    private fun updateBitmaps(){
+        _editedBitmap.value = editedBitmap.value.makeClone()
+    }
 
     private fun clearCanvasBitmap(): Bitmap{
         val imageInfo = ImageInfo.makeN32(
@@ -105,17 +106,59 @@ class PicturePreparationImpl(
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
-        ratio =  originalBitmap.width.toFloat() / displayPictureSize.width.toFloat()
+        ratio = originalBitmap.width.toFloat() / displayPictureSize.width.toFloat()
+    }
+
+    override fun calculateOffset(): Pair<Dp, Dp> {
+        return Pair(
+            (currentDragPoint.value.x / ratio).dp - 200.dp,
+            (currentDragPoint.value.y / ratio).dp - 450.dp
+        )
+    }
+
+    private fun isInRect(point: Point): Boolean {
+        return !(
+            point.x < originalBitmapBorderRectangle.left ||
+            point.x > originalBitmapBorderRectangle.right ||
+            point.y < originalBitmapBorderRectangle.top ||
+            point.y > originalBitmapBorderRectangle.bottom
+        )
     }
 
     override fun applyContrast() {
-        println("contrast")
+
     }
 
     override fun crop() {
+        //TODO: Rewrite function to warp translate and then crop the image
         if (clicks.size != 4) return
 
-        //TODO: Warp translate and crop the image
+        // Calculate the bounding box of the square
+        val minX = clicks.minOf { it.x }
+        val minY = clicks.minOf { it.y }
+        val maxX = clicks.maxOf { it.x }
+        val maxY = clicks.maxOf { it.y }
+
+        // Define the width and height of the cropped area
+        val width = (maxX - minX).toInt()
+        val height = (maxY - minY).toInt()
+
+        // Create a new bitmap for the cropped image
+        val croppedBitmap = Bitmap().apply {
+            allocN32Pixels(width, height)
+        }
+        val croppedCanvas = Canvas(croppedBitmap)
+
+        // Draw the cropped area onto the new bitmap
+        croppedCanvas.drawImageRect(
+            makeFromBitmap(originalBitmap),
+            Rect.makeLTRB(minX, minY, maxX, maxY),
+            Rect.makeWH(width.toFloat(), height.toFloat())
+        )
+
+        // Update the current picture with the cropped image
+        _editedBitmap.value = croppedBitmap
+        updateBitmaps()
 
         reset(resetEditedBitmap = false, clearClicks = false)
     }
@@ -129,27 +172,19 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun setZoomedBitmap(point: Point){
+    private fun setZoomBitmap(point: Point){
         val x = point.x.toInt()
         val y = point.y.toInt()
-        val radius = 75f
-        val diameter = (radius * 2).toInt()
+        val radius = 75
 
-        val croppedBitmap = Bitmap().apply { allocN32Pixels(diameter, diameter) }
-        val croppedCanvas = Canvas(croppedBitmap)
-
-        croppedCanvas.drawImageRect(
-            Image.makeFromBitmap(editedBitmap.value),
-            Rect.makeLTRB(
-                (x - radius),
-                (y - radius),
-                (x + radius),
-                (y + radius)
-            ),
-            Rect.makeWH(diameter.toFloat(), diameter.toFloat())
-        ).drawCircle(radius, radius, 10f, blueStroke)
-
-        zoomedBitmap.value = croppedBitmap
+        val rect = IRect.makeLTRB(
+            x - radius,
+            y - radius,
+            x + radius,
+            y + radius
+        )
+        originalBitmap.extractSubset(zoomedBitmap.value, rect)
+        //Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
     }
 
     override fun reset(
@@ -177,7 +212,7 @@ class PicturePreparationImpl(
             dragStart.x * ratio,
             dragStart.y * ratio
         )
-        setZoomedBitmap(dragStartPoint)
+        setZoomBitmap(dragStartPoint)
         dragActive.value = true
     }
 
@@ -188,15 +223,24 @@ class PicturePreparationImpl(
             currentDragPoint.value.x + dragAmount.x * ratio,
             currentDragPoint.value.y + dragAmount.y * ratio
         )
-        setZoomedBitmap(currentDragPoint.value)
+        dragActive.value = isInRect(currentDragPoint.value)
+        setZoomBitmap(currentDragPoint.value)
 
-        //val canvas = Canvas(_dragOverlayBitmap.value)
-        //canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, redStroke)
+        /*
+        //DEBUG OPTION: Print the current drag point
+        val canvas = Canvas(_dragOverlayBitmap.value)
+        canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, redStroke)
+        */
         updateBitmaps()
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
+
+        originalBitmapBorderRectangle = MathRect(
+            Offset(0f, 0f),
+            Offset(picture.width.toFloat(), picture.height.toFloat())
+        )
         reset()
     }
 
@@ -247,7 +291,8 @@ class PicturePreparationImpl(
         val point = Point(offset.x * ratio, offset.y * ratio)
         val canvas = Canvas(_overlayBitmap.value)
 
-        if (clicks.size == 4) reset()
+        if (!isInRect(point)) return
+        if (clicks.size == 4) reset(resetEditedBitmap = false)
         if (clicks.isNotEmpty()) drawFullCircle(canvas)
 
         clicks.add(point)
@@ -259,7 +304,7 @@ class PicturePreparationImpl(
             reset(clearClicks = false, clearOverlay = false)
             drawRectangle(canvas)
         }
-        //TODO: Notify observers without cloning, possibly use LiveData?
+
         updateBitmaps()
     }
 }

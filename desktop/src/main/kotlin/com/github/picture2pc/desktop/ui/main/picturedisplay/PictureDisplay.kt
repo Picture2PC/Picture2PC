@@ -13,7 +13,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
@@ -26,14 +25,7 @@ fun Picture(
     val pictureBitmap = picDisVM.currentPicture.value
     val overlayBitmap = picDisVM.overlayPicture.value
     val dragOverlayBitmap = picDisVM.dragOverlayPicture.value
-    val updateBitmap = picDisVM.updateBitmap.value
     val zoomedBitmap = picDisVM.zoomedBitmap.value
-    val currentDragPoint = picDisVM.picturePreparation.currentDragPoint.value
-
-    Image(
-        bitmap = updateBitmap.asComposeImageBitmap(),
-        contentDescription = "Picture",
-    )
 
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
@@ -76,11 +68,11 @@ fun Picture(
     if (!picDisVM.picturePreparation.dragActive.value) return
     Image(
         bitmap = zoomedBitmap.asComposeImageBitmap(),
-        contentDescription = "ZoomedPoint",
+        contentDescription = "Zoomed Point",
         modifier = Modifier
             .offset(
-                x = (currentDragPoint.x.dp / picDisVM.picturePreparation.ratio - 200.dp),
-                y = (currentDragPoint.y.dp / picDisVM.picturePreparation.ratio - 450.dp)
+                picDisVM.picturePreparation.calculateOffset().first,
+                picDisVM.picturePreparation.calculateOffset().second
             )
             .clip(CircleShape)
             .border(Borders.BORDER_THICK, Colors.PRIMARY, CircleShape)
