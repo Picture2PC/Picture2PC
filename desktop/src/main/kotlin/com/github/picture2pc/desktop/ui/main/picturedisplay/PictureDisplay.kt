@@ -82,8 +82,9 @@ fun Picture(
                     picDisVM.picturePreparation.calculateOffset().second
                 )
                 .clip(CircleShape)
-                .border(Borders.BORDER_THICK, Colors.PRIMARY, CircleShape)
+                .border(Borders.BORDER_THICK, Colors.SECONDARY, CircleShape)
         )
+
         Canvas(Modifier.size(10.dp).align(Alignment.Center).offset(
                 picDisVM.picturePreparation.calculateOffset().first,
             picDisVM.picturePreparation.calculateOffset().second

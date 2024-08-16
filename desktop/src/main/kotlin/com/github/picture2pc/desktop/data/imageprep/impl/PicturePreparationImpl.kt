@@ -4,10 +4,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
 import kotlinx.coroutines.CoroutineScope
@@ -57,14 +59,13 @@ class PicturePreparationImpl(
     override var dragActive: MutableState<Boolean> = mutableStateOf(false)
 
     //Paints for drawing
-    private val blueStroke = Paint().apply {
-        color = Color.BLUE
+    private val stroke = Paint().apply {
+        color = Colors.PRIMARY.toArgb()
         strokeWidth = 5f
         mode = PaintMode.STROKE
     }
-    private val blueFill = Paint().apply {
-        color = Color.BLUE
-        strokeWidth = 5f
+    private val fill = Paint().apply {
+        color = Colors.SECONDARY.toArgb()
         mode = PaintMode.FILL
     }
 
@@ -262,8 +263,8 @@ class PicturePreparationImpl(
     }
 
     private fun drawCircle(canvas: Canvas, point: Point, filled: Boolean = false) {
-        if (filled) canvas.drawCircle( point.x, point.y, 10f, blueFill )
-        canvas.drawCircle( point.x, point.y, 10f, blueStroke )
+        canvas.drawCircle( point.x, point.y, 10f, stroke )
+        if (filled) canvas.drawCircle( point.x, point.y, 13f, fill )
     }
 
     override fun handleClick(offset: Offset) {
@@ -279,7 +280,7 @@ class PicturePreparationImpl(
 
         if (clicks.size == 4) {
             sortClicksToRectangle()
-            drawPolygon(canvas, clicks, blueStroke)
+            drawPolygon(canvas, clicks, stroke)
         }
         updateBitmaps()
     }

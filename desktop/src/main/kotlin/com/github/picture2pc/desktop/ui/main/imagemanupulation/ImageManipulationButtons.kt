@@ -62,7 +62,7 @@ fun ImageManipulationButtons(
                         "nextPicture"
                     )
                 }
-                Row(Modifier.align(Alignment.End).padding(Spacers.SMALL)) {
+                Row(Modifier.align(Alignment.CenterHorizontally).padding(Spacers.SMALL)) {
                     Text(
                         getCurrentIndex(currentIndex, totalPictures),
                         style = TextStyles.SMALL

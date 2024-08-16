@@ -51,6 +51,7 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(Spacers.NORMAL)
         ) {
+            // SMALL SIDEBAR
             Column(
                 Modifier
                     .fillMaxHeight()
@@ -72,13 +73,14 @@ fun MainScreen(
                     ) }
                     Spacer(Modifier.height(Spacers.LARGE))
 
-                    /*
+                    /*UNUSED QUALITY SELECTOR
                     Row { QualitySelector() }
                     Spacer(Modifier.height(Spacers.SMALL))
                     */
 
                     Row { ImageManipulationButtons() }
 
+                    // DEBUG BUTTONS
                     Button(serversSectionViewModel::refreshServers) {
                         Text("Refresh Servers")
                     }
@@ -89,6 +91,7 @@ fun MainScreen(
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
+            // WINDOW DISPLAY AREA
             Column(
                 Modifier
                     .fillMaxSize()
