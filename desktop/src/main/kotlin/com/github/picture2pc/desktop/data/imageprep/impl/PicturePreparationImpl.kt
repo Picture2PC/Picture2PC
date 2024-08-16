@@ -17,13 +17,11 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.IRect
-import org.jetbrains.skia.Image.Companion.makeFromBitmap
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.Point
-import org.jetbrains.skia.Rect
 import org.jetbrains.skiko.toBufferedImage
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
@@ -124,37 +122,33 @@ class PicturePreparationImpl(
     }
 
     override fun crop() {
-        //TODO: Rewrite function to warp translate and then crop the image
         if (clicks.size != 4) return
+        /*val allX = clicks.map { it.x }
+        val allY = clicks.map { it.y }
 
-        // Calculate the bounding box of the square
-        val minX = clicks.minOf { it.x }
-        val minY = clicks.minOf { it.y }
-        val maxX = clicks.maxOf { it.x }
-        val maxY = clicks.maxOf { it.y }
+        val (x1, y1) = clicks[0].x to clicks[0].y
+        val (x2, y2) = clicks[1].x to clicks[1].y
+        val (x3, y3) = clicks[2].x to clicks[2].y
+        val (x4, y4) = clicks[3].x to clicks[3].y
+        val (w, h) = max(allX) - min(allX) to max(allY) - min(allY)
 
-        // Define the width and height of the cropped area
-        val width = (maxX - minX).toInt()
-        val height = (maxY - minY).toInt()
+        val scaleX = (y1 * x2 * x4 - x1 * y2 * x4 + x1 * y3 * x4 - x2 * y3 * x4 - y1 * x2 * x3 + x1 * y2 * x3 - x1 * y4 * x3 + x2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
+        val skewX = (-x1 * x2 * y3 - y1 * x2 * x4 + x2 * y3 * x4 + x1 * x2 * y4 + x1 * y2 * x3 + y1 * x4 * x3 - y2 * x4 * x3 - x1 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
+        val transX = x1
+        val skewY = (-y1 * x2 * y3 + x1 * y2 * y3 + y1 * y3 * x4 - y2 * y3 * x4 + y1 * x2 * y4 - x1 * y2 * y4 - y1 * y4 * x3 + y2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
+        val scaleY = (-y1 * x2 * y3 - y1 * y2 * x4 + y1 * y3 * x4 + x1 * y2 * y4 - x1 * y3 * y4 + x2 * y3 * y4 + y1 * y2 * x3 - y2 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
+        val transY = y1
+        val persp0 = (x1 * y3 - x2 * y3 + y1 * x4 - y2 * x4 - x1 * y4 + x2 * y4 - y1 * x3 + y2 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
+        val persp1 = (-y1 * x2 + x1 * y2 - x1 * y3 - y2 * x4 + y3 * x4 + x2 * y4 + y1 * x3 - y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
+        val persp2 = 1f
 
-        // Create a new bitmap for the cropped image
-        val croppedBitmap = Bitmap().apply {
-            allocN32Pixels(width, height)
-        }
-        val croppedCanvas = Canvas(croppedBitmap)
+        val matrix = Matrix33(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2)
 
-        // Draw the cropped area onto the new bitmap
-        croppedCanvas.drawImageRect(
-            makeFromBitmap(originalBitmap),
-            Rect.makeLTRB(minX, minY, maxX, maxY),
-            Rect.makeWH(width.toFloat(), height.toFloat())
-        )
+        Canvas(_editedBitmap.value).setMatrix(matrix).drawImage(originalBitmap.toImage(), 0f, 0f)*/
 
-        // Update the current picture with the cropped image
-        _editedBitmap.value = croppedBitmap
+        
+
         updateBitmaps()
-
-        reset(resetEditedBitmap = false, resetClicks = false)
     }
 
     override fun copyToClipboard() {
@@ -177,8 +171,8 @@ class PicturePreparationImpl(
             x + radius,
             y + radius
         )
-        originalBitmap.extractSubset(zoomedBitmap.value, rect)
-        //Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
+        originalBitmap.makeClone().extractSubset(zoomedBitmap.value, rect)
+        Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
@@ -196,7 +190,7 @@ class PicturePreparationImpl(
         resetOverlay: Boolean,
         resetDragOverlay: Boolean
     ) {
-        if (resetEditedBitmap) _editedBitmap.value = originalBitmap
+        if (resetEditedBitmap) _editedBitmap.value = originalBitmap.makeClone()
         if (resetClicks) clicks.clear()
         if (resetOverlay) _overlayBitmap.value = clearCanvasBitmap()
         if (resetDragOverlay) _dragOverlayBitmap.value = clearCanvasBitmap()

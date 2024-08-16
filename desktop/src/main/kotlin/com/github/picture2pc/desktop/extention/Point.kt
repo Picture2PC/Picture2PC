@@ -1,5 +1,6 @@
 package com.github.picture2pc.desktop.extention
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import org.jetbrains.skia.Point
 import kotlin.math.pow
@@ -16,4 +17,8 @@ fun Point.isInBounds(rectangle: Rect): Boolean {
         this.y < rectangle.top   ||
         this.y > rectangle.bottom
     )
+}
+
+fun Point.toOffset(): Offset {
+    return Offset(this.x, this.y)
 }
