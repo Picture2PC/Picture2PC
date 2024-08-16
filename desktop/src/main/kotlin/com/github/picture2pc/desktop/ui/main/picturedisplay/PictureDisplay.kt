@@ -1,18 +1,24 @@
 package com.github.picture2pc.desktop.ui.main.picturedisplay
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
@@ -66,15 +72,24 @@ fun Picture(
     )
 
     if (!picDisVM.picturePreparation.dragActive.value) return
-    Image(
-        bitmap = zoomedBitmap.asComposeImageBitmap(),
-        contentDescription = "Zoomed Point",
-        modifier = Modifier
-            .offset(
+    Box {
+        Image(
+            bitmap = zoomedBitmap.asComposeImageBitmap(),
+            contentDescription = "Zoomed Point",
+            modifier = Modifier
+                .offset(
+                    picDisVM.picturePreparation.calculateOffset().first,
+                    picDisVM.picturePreparation.calculateOffset().second
+                )
+                .clip(CircleShape)
+                .border(Borders.BORDER_THICK, Colors.PRIMARY, CircleShape)
+        )
+        Canvas(Modifier.size(10.dp).align(Alignment.Center).offset(
                 picDisVM.picturePreparation.calculateOffset().first,
-                picDisVM.picturePreparation.calculateOffset().second
-            )
-            .clip(CircleShape)
-            .border(Borders.BORDER_THICK, Colors.PRIMARY, CircleShape)
-    )
+            picDisVM.picturePreparation.calculateOffset().second
+        )
+        ){
+            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
+        }
+    }
 }

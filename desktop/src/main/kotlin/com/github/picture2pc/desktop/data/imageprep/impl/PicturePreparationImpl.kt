@@ -22,6 +22,7 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.Point
+import org.jetbrains.skiko.toBitmap
 import org.jetbrains.skiko.toBufferedImage
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
@@ -71,7 +72,6 @@ class PicturePreparationImpl(
     override var ratio: Float = 1f
     override val clicks: MutableList<Point> = mutableListOf()
     private var originalBitmapBounds = MathRect(Offset(0f, 0f), 0f)
-
 
     private class TransferableImage(val image: BufferedImage): Transferable {
         override fun getTransferData(flavor: DataFlavor?): Any {
@@ -152,9 +152,9 @@ class PicturePreparationImpl(
     }
 
     override fun copyToClipboard() {
-        if (overlayBitmap.value.isEmpty) return
+        if (editedBitmap.value.isEmpty) return
         CoroutineScope(coroutineContext).launch {
-            val transferableImage = TransferableImage(overlayBitmap.value.toBufferedImage())
+            val transferableImage = TransferableImage(editedBitmap.value.toBufferedImage())
             val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
             clipboard.setContents(transferableImage, null)
         }
@@ -171,8 +171,9 @@ class PicturePreparationImpl(
             x + radius,
             y + radius
         )
-        originalBitmap.makeClone().extractSubset(zoomedBitmap.value, rect)
-        Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
+
+        originalBitmap.extractSubset(zoomedBitmap.value, rect)
+        //Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
@@ -190,7 +191,7 @@ class PicturePreparationImpl(
         resetOverlay: Boolean,
         resetDragOverlay: Boolean
     ) {
-        if (resetEditedBitmap) _editedBitmap.value = originalBitmap.makeClone()
+        if (resetEditedBitmap) _editedBitmap.value = originalBitmap.toBufferedImage().toBitmap()
         if (resetClicks) clicks.clear()
         if (resetOverlay) _overlayBitmap.value = clearCanvasBitmap()
         if (resetDragOverlay) _dragOverlayBitmap.value = clearCanvasBitmap()
@@ -261,8 +262,8 @@ class PicturePreparationImpl(
     }
 
     private fun drawCircle(canvas: Canvas, point: Point, filled: Boolean = false) {
-        println("Drawing circle")
-        canvas.drawCircle( point.x, point.y, 10f, if (filled) blueFill else blueStroke )
+        if (filled) canvas.drawCircle( point.x, point.y, 10f, blueFill )
+        canvas.drawCircle( point.x, point.y, 10f, blueStroke )
     }
 
     override fun handleClick(offset: Offset) {
