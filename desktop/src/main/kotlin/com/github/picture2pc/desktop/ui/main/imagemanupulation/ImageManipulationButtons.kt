@@ -50,14 +50,14 @@ fun ImageManipulationButtons(
             Column(Modifier.background(Colors.ACCENT, Shapes.BUTTON)) {
                 Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
                     ManipulationButton(
-                        { pictureDisplayViewModel.adjustCurrentPictureIndex(false) },
+                        { pictureDisplayViewModel.adjustCurrentPictureIndex(-1) },
                         Icons.Desktop.PREVIOUS_PICTURE,
                         "previousPicture"
                     )
                     Spacer(spacerSize)
 
                     ManipulationButton(
-                        { pictureDisplayViewModel.adjustCurrentPictureIndex(true) },
+                        { pictureDisplayViewModel.adjustCurrentPictureIndex(1) },
                         Icons.Desktop.NEXT_PICTURE,
                         "nextPicture"
                     )

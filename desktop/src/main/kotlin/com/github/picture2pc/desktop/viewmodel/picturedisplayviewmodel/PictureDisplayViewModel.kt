@@ -38,13 +38,13 @@ class PictureDisplayViewModel(
         }.launchIn(this)
     }
 
-    fun adjustCurrentPictureIndex(increase:Boolean) {
+    fun adjustCurrentPictureIndex(amount: Int) {
         if (pictures.replayCache.isEmpty()) return
-        if (increase && selectedPictureIndex.value < pictures.replayCache.size - 1) {
-            selectedPictureIndex.value++
-        } else if (!increase && selectedPictureIndex.value > 0) {
-            selectedPictureIndex.value--
-        }
+        val newIndex = selectedPictureIndex.value + amount
+        if (newIndex < 0 || newIndex > pictures.replayCache.size) return
+
+        selectedPictureIndex.value = newIndex
+        picturePreparation.setOriginalPicture(pictures.replayCache[newIndex].toComposeImageBitmap().asSkiaBitmap())
     }
 
     fun loadTestImage() {
