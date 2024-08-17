@@ -16,7 +16,7 @@ import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 
 class PictureDisplayViewModel(
-    dataReceiver: DataReceiver,
+    val dataReceiver: DataReceiver,
     val picturePreparation: PicturePreparation,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
@@ -48,7 +48,7 @@ class PictureDisplayViewModel(
     }
 
     fun loadTestImage() {
-        val file = File("common/src/main/res/icons/test.png")
+        val file = File("common/src/main/res/icons/test3.png")
         val bufferedImage = ImageIO.read(file)
         val byteArrayOutputStream = ByteArrayOutputStream()
         ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
@@ -57,10 +57,7 @@ class PictureDisplayViewModel(
 
         // Add the test image to the pictures flow
         CoroutineScope(coroutineContext).launch {
-            val currentPictures = pictures.replayCache.toMutableList()
-            currentPictures.add(testImage)
-            picturePreparation.setOriginalPicture(testImage.toComposeImageBitmap().asSkiaBitmap())
-            totalPictures.value = currentPictures.size
+            dataReceiver.addPicture(testImage)
         }
     }
 

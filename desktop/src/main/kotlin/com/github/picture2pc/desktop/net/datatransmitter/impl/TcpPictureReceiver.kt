@@ -26,4 +26,7 @@ class TcpPictureReceiver(
             }
         }.launchIn(this)
     }
+    override suspend fun addPicture(image: Image) {
+        _pictures.emit(image)
+    }
 }
