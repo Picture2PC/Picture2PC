@@ -12,12 +12,15 @@ import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
+import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ColorFilter
+import org.jetbrains.skia.ColorMatrix
 import org.jetbrains.skia.IRect
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
@@ -119,7 +122,20 @@ class PicturePreparationImpl(
     }
 
     override fun applyContrast() {
+        val contrast = 1.6f
+        val cM = ColorMatrix(
+            contrast, 0f, 0f, 0f, 0f,
+            0f, contrast, 0f, 0f, 0f,
+            0f, 0f, contrast, 0f, 0f,
+            0f, 0f, 0f, 1f, 0f
+        )
+        val paint = Paint().apply {
+            colorFilter = ColorFilter.makeMatrix(cM)
+        }
 
+        Canvas(_editedBitmap.value.makeClone()).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
+
+        updateBitmaps()
     }
 
     override fun crop() {
@@ -147,8 +163,6 @@ class PicturePreparationImpl(
 
         Canvas(_editedBitmap.value).setMatrix(matrix).drawImage(originalBitmap.toImage(), 0f, 0f)*/
 
-        
-
         updateBitmaps()
     }
 
@@ -173,8 +187,7 @@ class PicturePreparationImpl(
             y + radius
         )
 
-        originalBitmap.extractSubset(zoomedBitmap.value, rect)
-        //Canvas(zoomedBitmap.value).drawCircle(radius.toFloat(), radius.toFloat(), 10f, blueStroke)
+        editedBitmap.value.extractSubset(zoomedBitmap.value, rect)
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
