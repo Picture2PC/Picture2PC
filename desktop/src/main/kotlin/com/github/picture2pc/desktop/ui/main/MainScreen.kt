@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -84,8 +85,15 @@ fun MainScreen(
                     Button(serversSectionViewModel::refreshServers) {
                         Text("Refresh Servers")
                     }
-                    Button({ pictureDisplayViewModel.loadTestImage() }) {
-                        Text("Load Test Image")
+                    Row {
+                        Button({ pictureDisplayViewModel.loadTestImage() }) {
+                            Text("Load Test Image")
+                        }
+                        Checkbox(
+                            checked = pictureDisplayViewModel.isSelectPicture.value,
+                            onCheckedChange = { pictureDisplayViewModel.isSelectPicture.value = !pictureDisplayViewModel.isSelectPicture.value },
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
                     }
                 }
             }

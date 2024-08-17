@@ -1,5 +1,6 @@
 package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
@@ -31,6 +32,8 @@ class PictureDisplayViewModel(
     val dragOverlayPicture = picturePreparation.dragOverlayBitmap
     val zoomedBitmap = picturePreparation.zoomedBitmap
 
+    val isSelectPicture = mutableStateOf(false)
+
     init {
         pictures.onEach {
             if (totalPictures.value == 0) picturePreparation.setOriginalPicture(it.toComposeImageBitmap().asSkiaBitmap())
@@ -48,7 +51,12 @@ class PictureDisplayViewModel(
     }
 
     fun loadTestImage() {
-        val file = File("common/src/main/res/icons/test3.png")
+        var imgNum = "3"
+        if (isSelectPicture.value) {
+            print("Enter test image num: ")
+            imgNum = readln()
+        }
+        val file = File("common/src/main/res/test_images/${imgNum}.png")
         val bufferedImage = ImageIO.read(file)
         val byteArrayOutputStream = ByteArrayOutputStream()
         ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
