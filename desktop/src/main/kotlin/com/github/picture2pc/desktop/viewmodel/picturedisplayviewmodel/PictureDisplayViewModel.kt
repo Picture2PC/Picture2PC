@@ -33,7 +33,7 @@ class PictureDisplayViewModel(
 
     init {
         pictures.onEach {
-            picturePreparation.setOriginalPicture(it.toComposeImageBitmap().asSkiaBitmap())
+            if (totalPictures.value == 0) picturePreparation.setOriginalPicture(it.toComposeImageBitmap().asSkiaBitmap())
             totalPictures.value = pictures.replayCache.size
         }.launchIn(this)
     }
