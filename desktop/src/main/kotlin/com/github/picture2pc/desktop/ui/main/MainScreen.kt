@@ -27,7 +27,7 @@ import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.common.ui.getIcon
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageManipulationButtons
+import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
@@ -36,39 +36,44 @@ import org.koin.compose.rememberKoinInject
 @Composable
 fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
-    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
+    pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers()
 
     //TODO: Add tooltips to buttons
 
-    Box(Modifier
-        .background(Colors.BACKGROUND)
-        .fillMaxSize()
-    ) {
-        Row(Modifier
+    Box(
+        Modifier
+            .background(Colors.BACKGROUND)
             .fillMaxSize()
-            .padding(Spacers.NORMAL)
+    ) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(Spacers.NORMAL)
         ) {
             // SIDEBAR
-            Column(Modifier
-                .fillMaxHeight()
-                .width(246.dp)
-                .background(Colors.SECONDARY, Shapes.WINDOW)
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .width(246.dp)
+                    .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
-                Column(Modifier.padding(Spacers.NORMAL)) { Row {
-                    Image(
-                        getIcon(Icons.Logo.STANDARD),
-                        "Logo",
-                        Modifier.width(75.dp)
-                    )
-                    Spacer(Modifier.width(Spacers.LARGE))
+                Column(Modifier.padding(Spacers.NORMAL)) {
+                    Row {
+                        Image(
+                            getIcon(Icons.Logo.STANDARD),
+                            "Logo",
+                            Modifier.width(75.dp)
+                        )
+                        Spacer(Modifier.width(Spacers.LARGE))
 
-                    Text(
-                        Data.APP_NAME,
-                        Modifier.align(Alignment.CenterVertically),
-                        style = TextStyles.HEADER
-                    ) }
+                        Text(
+                            Data.APP_NAME,
+                            Modifier.align(Alignment.CenterVertically),
+                            style = TextStyles.HEADER
+                        )
+                    }
                     Spacer(Modifier.height(Spacers.LARGE))
 
                     /*UNUSED QUALITY SELECTOR
@@ -76,37 +81,42 @@ fun MainScreen(
                     Spacer(Modifier.height(Spacers.SMALL))
                     */
 
-                    Row { ImageManipulationButtons() }
+                    Row { ImageInteractionButtons() }
 
                     // DEBUG BUTTONS
                     Button(serversSectionViewModel::refreshServers) {
                         Text("Refresh Servers")
                     }
                     Row {
-                        Button({ pictureDisplayViewModel.loadTestImage() }) {
+                        Button({ pDVM.loadTestImage() }) {
                             Text("Load Test Image")
                         }
                         Checkbox(
-                            checked = pictureDisplayViewModel.isSelectPicture.value,
+                            checked = pDVM.isSelectPicture.value,
                             onCheckedChange = {
-                                pictureDisplayViewModel.isSelectPicture.value =
-                                !pictureDisplayViewModel.isSelectPicture.value
+                                pDVM.isSelectPicture.value =
+                                    !pDVM.isSelectPicture.value
                             },
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
+                    }
+                    Button({ pDVM.pP.rotate(90f) }) {
+                        Text("Rotate Right")
                     }
                 }
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
             // PICTURE DISPLAY AREA
-            Column(Modifier
-                .fillMaxSize()
-                .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
             ) {
-                Box(Modifier
-                    .padding(Spacers.NORMAL)
-                    .fillMaxSize(),
+                Box(
+                    Modifier
+                        .padding(Spacers.NORMAL)
+                        .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) { Picture() }
             }

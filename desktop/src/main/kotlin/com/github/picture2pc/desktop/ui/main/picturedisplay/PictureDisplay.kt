@@ -17,7 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -30,23 +30,17 @@ fun Picture(
 ) {
     val pictureBitmap = picDisVM.currentPicture.value
     val overlayBitmap = picDisVM.overlayPicture.value
-    val dragOverlayBitmap = picDisVM.dragOverlayPicture.value
     val zoomedBitmap = picDisVM.zoomedBitmap.value
 
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
         modifier = Modifier
-            .onGloballyPositioned { layoutCoordinates ->
-                picDisVM.picturePreparation.calculateRatio(
-                    layoutCoordinates.size
+            .onSizeChanged { size ->
+                picDisVM.pP.calculateRatio(
+                    size
                 )
             }
-    )
-
-    Image(
-        bitmap = dragOverlayBitmap.asComposeImageBitmap(),
-        contentDescription = "Drag Overlay",
     )
 
     Image(
@@ -56,40 +50,41 @@ fun Picture(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragStart: Offset ->
-                        picDisVM.picturePreparation.setDragStart(dragStart)
+                        picDisVM.dragHandler.setDragStart(dragStart)
                     },
                     onDrag = { change, dragAmount ->
-                        picDisVM.picturePreparation.handleDrag(change, dragAmount)
+                        picDisVM.dragHandler.handleDrag(change, dragAmount)
                     },
-                    onDragEnd = { picDisVM.picturePreparation.resetDrag() }
+                    onDragEnd = { picDisVM.dragHandler.resetDrag() }
                 )
             }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    picDisVM.picturePreparation.handleClick(offset)
+                    picDisVM.clickHandler.handleClick(offset)
                 }
             }
     )
 
-    if (!picDisVM.picturePreparation.dragActive.value) return
-    Box {
+    if (!picDisVM.dragHandler.dragActive.value) return
+    Box(Modifier.offset((-5).dp, (-5).dp)) {
         Image(
             bitmap = zoomedBitmap.asComposeImageBitmap(),
             contentDescription = "Zoomed Point",
             modifier = Modifier
                 .offset(
-                    picDisVM.picturePreparation.calculateOffset().first,
-                    picDisVM.picturePreparation.calculateOffset().second
+                    picDisVM.pP.calculateOffset().first,
+                    picDisVM.pP.calculateOffset().second
                 )
                 .clip(CircleShape)
                 .border(Borders.BORDER_THICK, Colors.SECONDARY, CircleShape)
         )
 
-        Canvas(Modifier.size(10.dp).align(Alignment.Center).offset(
-                picDisVM.picturePreparation.calculateOffset().first,
-            picDisVM.picturePreparation.calculateOffset().second
-        )
-        ){
+        Canvas(
+            Modifier.size(10.dp).align(Alignment.Center).offset(
+                picDisVM.pP.calculateOffset().first,
+                picDisVM.pP.calculateOffset().second
+            )
+        ) {
             drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
         }
     }

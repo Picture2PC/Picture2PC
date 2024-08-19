@@ -4,20 +4,18 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.deleteTempImage
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
-import com.github.picture2pc.desktop.extention.isInBounds
+import com.github.picture2pc.desktop.data.imageprep.constants.Paints
+import com.github.picture2pc.desktop.data.imageprep.constants.UnstratifiedValues
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -27,9 +25,7 @@ import org.jetbrains.skia.ColorMatrix
 import org.jetbrains.skia.IRect
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
-import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
-import org.jetbrains.skiko.toBitmap
 import org.jetbrains.skiko.toBufferedImage
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -37,14 +33,7 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import java.awt.Toolkit
-import java.awt.datatransfer.Clipboard
-import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.Transferable
-import java.awt.datatransfer.UnsupportedFlavorException
-import java.awt.image.BufferedImage
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -63,77 +52,16 @@ class PicturePreparationImpl(
     private var _overlayBitmap: MutableState<Bitmap> = mutableStateOf(clearBitmap())
     override var overlayBitmap: State<Bitmap> = _overlayBitmap
 
-    private var _dragOverlayBitmap: MutableState<Bitmap> = mutableStateOf(clearBitmap())
-    override var dragOverlayBitmap: State<Bitmap> = _dragOverlayBitmap
-
     override var zoomedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
-
-    //Variables for drag handling
-    private var dragStartPoint = SkPoint(0f, 0f)
-    override var currentDragPoint: MutableState<SkPoint> = mutableStateOf(SkPoint(0f, 0f))
-    override var dragActive: MutableState<Boolean> = mutableStateOf(false)
-
-    //Paints for drawing
-    private val stroke = Paint().apply {
-        color = Colors.PRIMARY.toArgb()
-        strokeWidth = 5f
-        mode = PaintMode.STROKE
-    }
-    private val fill = Paint().apply {
-        color = Colors.SECONDARY.toArgb()
-        mode = PaintMode.FILL
-    }
 
     //Important other variables
     override var ratio: Float = 1f
+    override var editedBitmapBound = MathRect(Offset(0f, 0f), 0f)
+
     override val clicks: MutableList<SkPoint> = mutableListOf()
-    private var originalBitmapBounds = MathRect(Offset(0f, 0f), 0f)
+    override var currentDragPoint: MutableState<SkPoint> = mutableStateOf(SkPoint(0f, 0f))
 
-    private class TransferableImage(val image: BufferedImage): Transferable {
-        override fun getTransferData(flavor: DataFlavor?): Any {
-            return if (flavor == DataFlavor.imageFlavor) {
-                image
-            } else {
-                throw UnsupportedFlavorException(flavor)
-            }
-        }
-
-        override fun getTransferDataFlavors(): Array<DataFlavor> {
-            return arrayOf(DataFlavor.imageFlavor)
-        }
-
-        override fun isDataFlavorSupported(flavor: DataFlavor?): Boolean {
-            return flavor == DataFlavor.imageFlavor
-        }
-    }
-
-    override fun calculateRatio(displayPictureSize: IntSize) {
-        ratio = originalBitmap.width.toFloat() / displayPictureSize.width.toFloat()
-    }
-
-    override fun calculateOffset(): Pair<Dp, Dp> {
-        return Pair(
-            (currentDragPoint.value.x / ratio).dp - 200.dp,
-            (currentDragPoint.value.y / ratio).dp - 450.dp
-        )
-    }
-
-    private fun updateBitmaps(){
-        _editedBitmap.value = editedBitmap.value.makeClone()
-    }
-
-    private fun clearBitmap(): Bitmap{
-        val imageInfo = ImageInfo.makeN32(
-            originalBitmap.width, originalBitmap.height, ColorAlphaType.UNPREMUL
-        )
-        val bitmap = Bitmap()
-        bitmap.allocPixels(imageInfo)
-        bitmap.erase(Color.TRANSPARENT)
-
-        return bitmap
-    }
-
-    override fun applyContrast() {
+    override fun contrast() {
         val contrast = 1.6f
         val cM = ColorMatrix(
             contrast, 0f, 0f, 0f, 0f,
@@ -145,7 +73,7 @@ class PicturePreparationImpl(
 
         Canvas(_editedBitmap.value.makeClone())
             .drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
-        updateBitmaps()
+        updateEditedBitmap()
     }
 
     override fun crop() {
@@ -173,7 +101,6 @@ class PicturePreparationImpl(
             Point(bl.x.toDouble(), bl.y.toDouble()),
             Point(br.x.toDouble(), br.y.toDouble())
         )
-
         val dstPoints = listOf(
             Point(0.0, 0.0),
             Point(maxWidth, 0.0),
@@ -181,44 +108,42 @@ class PicturePreparationImpl(
             Point(maxWidth, maxHeight)
         )
 
-        val perspectiveTransform = Imgproc.getPerspectiveTransform(MatOfPoint2f(*srcPoints.toTypedArray()), MatOfPoint2f(*dstPoints.toTypedArray()))
+        val perspectiveTransform = Imgproc.getPerspectiveTransform(
+            MatOfPoint2f(*srcPoints.toTypedArray()),
+            MatOfPoint2f(*dstPoints.toTypedArray())
+        )
         Imgproc.warpPerspective(mat, dst, perspectiveTransform, Size(maxWidth, maxHeight))
 
         _editedBitmap.value = dst.toBitmap()
+        _overlayBitmap.value = clearBitmap()
+        updateEditedBitmap()
         deleteTempImage()
+        reset(resetEditedBitmap = false, resetClicks = false, resetDragOverlay = false)
     }
 
-    override fun copyToClipboard() {
+    override fun copy() {
         if (editedBitmap.value.isEmpty) return
-        CoroutineScope(coroutineContext).launch {
-            val transferableImage = TransferableImage(editedBitmap.value.toBufferedImage())
-            val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-            clipboard.setContents(transferableImage, null)
+        addToClipboard(editedBitmap.value.toBufferedImage())
+    }
+
+    override fun rotate(degrees: Float) {
+        if (editedBitmap.value.isEmpty) return
+        val rotatedBitmap = Bitmap().apply {
+            allocPixels(
+                ImageInfo.makeN32Premul(
+                    editedBitmap.value.height, editedBitmap.value.width
+                )
+            )
         }
-    }
 
-    private fun setZoomBitmap(point: SkPoint){
-        val x = point.x.toInt()
-        val y = point.y.toInt()
-        val radius = 75
-
-        val rect = IRect.makeLTRB(
-            x - radius,
-            y - radius,
-            x + radius,
-            y + radius
-        )
-
-        editedBitmap.value.extractSubset(zoomedBitmap.value, rect)
-    }
-
-    override fun setOriginalPicture(picture: Bitmap) {
-        originalBitmap = picture
-        originalBitmapBounds = MathRect(
-            Offset(0f, 0f),
-            Offset(picture.width.toFloat(), picture.height.toFloat())
-        )
-        reset()
+        Canvas(rotatedBitmap).translate(rotatedBitmap.width.toFloat(), 0f)
+            .rotate(90f)
+            .drawImage(
+                editedBitmap.value.toImage(), 0f, 0f
+            )
+        _editedBitmap.value = rotatedBitmap
+        _overlayBitmap.value = clearBitmap()
+        updateEditedBitmap()
     }
 
     override fun reset(
@@ -227,96 +152,93 @@ class PicturePreparationImpl(
         resetOverlay: Boolean,
         resetDragOverlay: Boolean
     ) {
-        if (resetEditedBitmap) _editedBitmap.value = originalBitmap.toBufferedImage().toBitmap()
+        if (resetEditedBitmap) _editedBitmap.value = originalBitmap
         if (resetClicks) clicks.clear()
         if (resetOverlay) _overlayBitmap.value = clearBitmap()
-        if (resetDragOverlay) _dragOverlayBitmap.value = clearBitmap()
+        updateEditedBitmap()
     }
 
-    override fun resetDrag() {
-        handleClick(Offset(currentDragPoint.value.x / ratio, currentDragPoint.value.y / ratio))
-        reset(resetOverlay = false, resetClicks = false, resetEditedBitmap = false)
-        dragStartPoint = SkPoint(0f, 0f)
-        currentDragPoint.value = SkPoint(0f, 0f)
-        dragActive.value = false
+    override fun calculateRatio(displayPictureSize: IntSize) {
+        ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
     }
 
-    override fun setDragStart(dragStart: Offset) {
-        dragStartPoint = SkPoint(
-            dragStart.x * ratio,
-            dragStart.y * ratio
+    override fun calculateOffset(): Pair<Dp, Dp> {
+        return Pair(
+            ((currentDragPoint.value.x / ratio) - ((editedBitmapBound.width / ratio) / 2)).dp,
+            ((currentDragPoint.value.y / ratio) - ((editedBitmapBound.height / ratio) / 2)).dp
         )
-        setZoomBitmap(dragStartPoint)
-        dragActive.value = true
     }
 
-    override fun handleDrag(change: PointerInputChange, dragAmount: Offset){
-        if (currentDragPoint.value == SkPoint(0f, 0f)) currentDragPoint.value = dragStartPoint
-
-        currentDragPoint.value = SkPoint(
-            currentDragPoint.value.x + dragAmount.x * ratio,
-            currentDragPoint.value.y + dragAmount.y * ratio
+    override fun updateEditedBitmap() {
+        _editedBitmap.value = editedBitmap.value.makeClone()
+        editedBitmapBound = MathRect(
+            Offset(0f, 0f),
+            Offset(editedBitmap.value.width.toFloat(), editedBitmap.value.height.toFloat())
         )
-        dragActive.value = currentDragPoint.value.isInBounds(originalBitmapBounds)
-        setZoomBitmap(currentDragPoint.value)
-
-
-        //DEBUG OPTION: Print the current drag point
-        val canvas = Canvas(_dragOverlayBitmap.value)
-        canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, stroke)
-
-        updateBitmaps()
     }
 
-    private fun sortClicksToRectangle() {
-        if (clicks.size != 4) return
-
-        // Calculate the centroid of the four points
-        val centroid = SkPoint(
-            clicks.map { it.x }.average().toFloat(),
-            clicks.map { it.y }.average().toFloat()
-        )
-
-        // Sort points based on the angle with the centroid
-        clicks.sortBy { point ->
-            atan2((point.y - centroid.y).toDouble(), (point.x - centroid.x).toDouble())
+    private fun clearBitmap(): Bitmap {
+        val bitmap = Bitmap().apply {
+            allocPixels(
+                ImageInfo.makeN32(
+                    editedBitmap.value.width, editedBitmap.value.height, ColorAlphaType.UNPREMUL
+                )
+            )
+            erase(Color.TRANSPARENT)
         }
+
+        return bitmap
     }
 
-    private fun drawPolygon(canvas: Canvas, points: List<SkPoint>, paint: Paint) {
-        if (points.isEmpty()) throw IllegalArgumentException("At least one point is required")
+    override fun setDisplayedZoomedBitmap(point: SkPoint) {
+        val x = point.x.toInt()
+        val y = point.y.toInt()
+        val radius = 70
 
+        val rect = IRect.makeLTRB(
+            x - radius,
+            y - radius,
+            x + radius,
+            y + radius
+        )
+
+        originalBitmap.extractSubset(zoomedBitmap.value, rect)
+    }
+
+    override fun setOriginalPicture(picture: Bitmap) {
+        originalBitmap = picture
+        editedBitmapBound = MathRect(
+            Offset(0f, 0f),
+            Offset(picture.width.toFloat(), picture.height.toFloat())
+        )
+        reset()
+    }
+
+    override fun drawPolygon(points: List<SkPoint>, paint: Paint) {
+        if (points.isEmpty()) throw IllegalArgumentException("At least one point is required")
         val path = Path().apply {
             moveTo(points[0].x, points[0].y)
             for (i in 1 until points.size) {
                 lineTo(points[i].x, points[i].y)
             }
-            closePath()
-        }
-
-        canvas.drawPath(path, paint)
+        }.closePath()
+        Canvas(_overlayBitmap.value).drawPath(path, paint)
+        updateEditedBitmap()
     }
 
-    private fun drawCircle(canvas: Canvas, point: SkPoint, filled: Boolean = false) {
-        canvas.drawCircle( point.x, point.y, 10f, stroke )
-        if (filled) canvas.drawCircle( point.x, point.y, 13f, fill )
-    }
-
-    override fun handleClick(offset: Offset) {
-        val point = SkPoint(offset.x * ratio, offset.y * ratio)
-        if (!point.isInBounds(originalBitmapBounds)) return
-
-        if (clicks.size == 4) reset(resetEditedBitmap = false, resetDragOverlay = false)
+    override fun drawCircle(point: SkPoint, filled: Boolean) {
         val canvas = Canvas(_overlayBitmap.value)
-        if (clicks.isNotEmpty()) drawCircle(canvas, clicks.last(), filled = true)
-
-        clicks.add(point)
-        drawCircle(canvas, point, clicks.size >= 4)
-
-        if (clicks.size == 4) {
-            sortClicksToRectangle()
-            drawPolygon(canvas, clicks, stroke)
-        }
-        updateBitmaps()
+        canvas.drawCircle(
+            point.x,
+            point.y,
+            UnstratifiedValues.CIRCLE_RADIUS_STROKE * ratio,
+            Paints.stroke.apply { strokeWidth = UnstratifiedValues.STROKE_WIDTH * ratio })
+        if (filled) canvas.drawCircle(
+            point.x,
+            point.y,
+            UnstratifiedValues.CIRCLE_RADIUS_FILL * ratio,
+            Paints.fill
+        )
+        updateEditedBitmap()
     }
 }

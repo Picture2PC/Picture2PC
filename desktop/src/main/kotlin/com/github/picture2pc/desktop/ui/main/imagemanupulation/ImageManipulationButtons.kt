@@ -31,17 +31,17 @@ fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
 }
 
 @Composable
-fun ImageManipulationButtons(
-    pictureDisplayViewModel: PictureDisplayViewModel = rememberKoinInject()
+fun ImageInteractionButtons(
+    pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     val spacerSize: Modifier = Modifier.size(Spacers.SMALL)
-    val currentIndex = pictureDisplayViewModel.selectedPictureIndex.collectAsState().value
-    val totalPictures = pictureDisplayViewModel.totalPictures.collectAsState().value
+    val currentIndex = pDVM.selectedPictureIndex.collectAsState().value
+    val totalPictures = pDVM.totalPictures.collectAsState().value
 
     Column {
         Row {
             ManipulationButton(
-                { pictureDisplayViewModel.picturePreparation.reset() },
+                { pDVM.pP.reset() },
                 Icons.Desktop.RESET,
                 "reset"
             )
@@ -50,14 +50,14 @@ fun ImageManipulationButtons(
             Column(Modifier.background(Colors.ACCENT, Shapes.BUTTON)) {
                 Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
                     ManipulationButton(
-                        { pictureDisplayViewModel.adjustCurrentPictureIndex(-1) },
+                        { pDVM.adjustCurrentPictureIndex(-1) },
                         Icons.Desktop.PREVIOUS_PICTURE,
                         "previousPicture"
                     )
                     Spacer(spacerSize)
 
                     ManipulationButton(
-                        { pictureDisplayViewModel.adjustCurrentPictureIndex(1) },
+                        { pDVM.adjustCurrentPictureIndex(1) },
                         Icons.Desktop.NEXT_PICTURE,
                         "nextPicture"
                     )
@@ -75,7 +75,12 @@ fun ImageManipulationButtons(
         Column(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
             Row {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        if (pDVM.pP.clicks.size != 4) return@Button
+                        pDVM.pP.crop()
+                        pDVM.pP.contrast()
+                        pDVM.pP.copy()
+                    },
                     shape = Shapes.BUTTON,
                     colors = Colors.BUTTON_SECONDARY,
                     modifier = Modifier.fillMaxWidth().height(Heights.BUTTON)
@@ -84,25 +89,29 @@ fun ImageManipulationButtons(
                 }
             }
 
-            Divider(Modifier.padding(horizontal = Spacers.NORMAL), Heights.DIVIDER, Colors.SECONDARY)
+            Divider(
+                Modifier.padding(horizontal = Spacers.NORMAL),
+                Heights.DIVIDER,
+                Colors.SECONDARY
+            )
 
             Row {
                 ManipulationButton(
-                    { pictureDisplayViewModel.picturePreparation.applyContrast() },
+                    { pDVM.pP.contrast() },
                     Icons.Desktop.CONTRAST,
                     "contrast"
                 )
                 Spacer(spacerSize)
 
                 ManipulationButton(
-                    { pictureDisplayViewModel.picturePreparation.copyToClipboard() },
+                    { pDVM.pP.copy() },
                     Icons.Desktop.COPY,
                     "copy"
                 )
                 Spacer(spacerSize)
 
                 ManipulationButton(
-                    { pictureDisplayViewModel.picturePreparation.crop() },
+                    { pDVM.pP.crop() },
                     Icons.Desktop.CROP,
                     "crop"
                 )
