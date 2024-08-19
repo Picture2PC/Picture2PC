@@ -1,18 +1,14 @@
 [versions]
-#noinspection GradleDependency
 activityCompose = "1.9.0"
 cameraxVersion = "1.4.0-beta02"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
-#noinspection GradleDependency
 kotlin = "1.8.20"
 androidGradlePlugin = "8.5.1"
 composeMultiplatformPlugin = "1.4.0"
 
 koin = "3.4.3"
 kotlinxSerializationJson = "1.6.2"
-opencv = "4.5.5"
-opencvAndroidVersion = "4.5.8"
 opencvVersion = "4.5.5-0"
 
 [libraries]
@@ -23,15 +19,11 @@ camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = 
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVersion" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-jetbrains-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version = "1.0.3" } # Version different for who knows what reason
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material3 = { module = "androidx.compose.material3:material3", version = "1.3.0-beta05" }
-opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-opencv-opencv-android = { module = "org.opencv:opencv-android", version.ref = "opencvAndroidVersion" }
 openpnp-opencv = { module = "org.openpnp:opencv", version.ref = "opencvVersion" }
 org-jetbrains-kotlin-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version = "1.7.0-beta06" }
@@ -41,7 +33,6 @@ ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", versio
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-#noinspection GradleDependency
 kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.8.20" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformPlugin" }

@@ -42,22 +42,19 @@ fun MainScreen(
 
     //TODO: Add tooltips to buttons
 
-    Box(
-        Modifier
-            .background(Colors.BACKGROUND)
-            .fillMaxSize()
+    Box(Modifier
+        .background(Colors.BACKGROUND)
+        .fillMaxSize()
     ) {
-        Row(
-            Modifier
-                .fillMaxSize()
-                .padding(Spacers.NORMAL)
+        Row(Modifier
+            .fillMaxSize()
+            .padding(Spacers.NORMAL)
         ) {
-            // SMALL SIDEBAR
-            Column(
-                Modifier
-                    .fillMaxHeight()
-                    .width(246.dp)
-                    .background(Colors.SECONDARY, Shapes.WINDOW)
+            // SIDEBAR
+            Column(Modifier
+                .fillMaxHeight()
+                .width(246.dp)
+                .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
                 Column(Modifier.padding(Spacers.NORMAL)) { Row {
                     Image(
@@ -91,7 +88,10 @@ fun MainScreen(
                         }
                         Checkbox(
                             checked = pictureDisplayViewModel.isSelectPicture.value,
-                            onCheckedChange = { pictureDisplayViewModel.isSelectPicture.value = !pictureDisplayViewModel.isSelectPicture.value },
+                            onCheckedChange = {
+                                pictureDisplayViewModel.isSelectPicture.value =
+                                !pictureDisplayViewModel.isSelectPicture.value
+                            },
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
@@ -99,16 +99,14 @@ fun MainScreen(
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
-            // WINDOW DISPLAY AREA
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
+            // PICTURE DISPLAY AREA
+            Column(Modifier
+                .fillMaxSize()
+                .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
             ) {
-                Box(
-                    Modifier
-                        .padding(Spacers.NORMAL)
-                        .fillMaxSize(),
+                Box(Modifier
+                    .padding(Spacers.NORMAL)
+                    .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) { Picture() }
             }

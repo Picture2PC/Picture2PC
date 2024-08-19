@@ -22,3 +22,7 @@ fun Point.isInBounds(rectangle: Rect): Boolean {
 fun Point.toOffset(): Offset {
     return Offset(this.x, this.y)
 }
+
+fun Point.toOpenCVPoint(): org.opencv.core.Point {
+    return org.opencv.core.Point(this.x.toDouble(), this.y.toDouble())
+}

@@ -10,9 +10,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.desktop.data.deleteTempImage
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
+import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
+import com.github.picture2pc.desktop.extention.toMat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
@@ -26,9 +29,14 @@ import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
-import org.jetbrains.skia.Point
 import org.jetbrains.skiko.toBitmap
 import org.jetbrains.skiko.toBufferedImage
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
@@ -37,7 +45,11 @@ import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.image.BufferedImage
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.atan2
+import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.sqrt
 import androidx.compose.ui.geometry.Rect as MathRect
+import org.jetbrains.skia.Point as SkPoint
 
 class PicturePreparationImpl(
     override val coroutineContext: CoroutineContext
@@ -48,17 +60,17 @@ class PicturePreparationImpl(
     private var _editedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var editedBitmap: State<Bitmap> = _editedBitmap
 
-    private var _overlayBitmap: MutableState<Bitmap> = mutableStateOf(clearCanvasBitmap())
+    private var _overlayBitmap: MutableState<Bitmap> = mutableStateOf(clearBitmap())
     override var overlayBitmap: State<Bitmap> = _overlayBitmap
 
-    private var _dragOverlayBitmap: MutableState<Bitmap> = mutableStateOf(clearCanvasBitmap())
+    private var _dragOverlayBitmap: MutableState<Bitmap> = mutableStateOf(clearBitmap())
     override var dragOverlayBitmap: State<Bitmap> = _dragOverlayBitmap
 
     override var zoomedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
 
     //Variables for drag handling
-    private var dragStartPoint = Point(0f, 0f)
-    override var currentDragPoint: MutableState<Point> = mutableStateOf(Point(0f, 0f))
+    private var dragStartPoint = SkPoint(0f, 0f)
+    override var currentDragPoint: MutableState<SkPoint> = mutableStateOf(SkPoint(0f, 0f))
     override var dragActive: MutableState<Boolean> = mutableStateOf(false)
 
     //Paints for drawing
@@ -74,7 +86,7 @@ class PicturePreparationImpl(
 
     //Important other variables
     override var ratio: Float = 1f
-    override val clicks: MutableList<Point> = mutableListOf()
+    override val clicks: MutableList<SkPoint> = mutableListOf()
     private var originalBitmapBounds = MathRect(Offset(0f, 0f), 0f)
 
     private class TransferableImage(val image: BufferedImage): Transferable {
@@ -110,7 +122,7 @@ class PicturePreparationImpl(
         _editedBitmap.value = editedBitmap.value.makeClone()
     }
 
-    private fun clearCanvasBitmap(): Bitmap{
+    private fun clearBitmap(): Bitmap{
         val imageInfo = ImageInfo.makeN32(
             originalBitmap.width, originalBitmap.height, ColorAlphaType.UNPREMUL
         )
@@ -129,41 +141,51 @@ class PicturePreparationImpl(
             0f, 0f, contrast, 0f, 0f,
             0f, 0f, 0f, 1f, 0f
         )
-        val paint = Paint().apply {
-            colorFilter = ColorFilter.makeMatrix(cM)
-        }
+        val paint = Paint().apply { colorFilter = ColorFilter.makeMatrix(cM) }
 
-        Canvas(_editedBitmap.value.makeClone()).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
-
+        Canvas(_editedBitmap.value.makeClone())
+            .drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
         updateBitmaps()
     }
 
     override fun crop() {
         if (clicks.size != 4) return
-        /*val allX = clicks.map { it.x }
-        val allY = clicks.map { it.y }
 
-        val (x1, y1) = clicks[0].x to clicks[0].y
-        val (x2, y2) = clicks[1].x to clicks[1].y
-        val (x3, y3) = clicks[2].x to clicks[2].y
-        val (x4, y4) = clicks[3].x to clicks[3].y
-        val (w, h) = max(allX) - min(allX) to max(allY) - min(allY)
+        val tl = clicks[0] // Top Left
+        val tr = clicks[1] // Top Right
+        val br = clicks[2] // Bottom Right
+        val bl = clicks[3] // Bottom Left
 
-        val scaleX = (y1 * x2 * x4 - x1 * y2 * x4 + x1 * y3 * x4 - x2 * y3 * x4 - y1 * x2 * x3 + x1 * y2 * x3 - x1 * y4 * x3 + x2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
-        val skewX = (-x1 * x2 * y3 - y1 * x2 * x4 + x2 * y3 * x4 + x1 * x2 * y4 + x1 * y2 * x3 + y1 * x4 * x3 - y2 * x4 * x3 - x1 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
-        val transX = x1
-        val skewY = (-y1 * x2 * y3 + x1 * y2 * y3 + y1 * y3 * x4 - y2 * y3 * x4 + y1 * x2 * y4 - x1 * y2 * y4 - y1 * y4 * x3 + y2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
-        val scaleY = (-y1 * x2 * y3 - y1 * y2 * x4 + y1 * y3 * x4 + x1 * y2 * y4 - x1 * y3 * y4 + x2 * y3 * y4 + y1 * y2 * x3 - y2 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
-        val transY = y1
-        val persp0 = (x1 * y3 - x2 * y3 + y1 * x4 - y2 * x4 - x1 * y4 + x2 * y4 - y1 * x3 + y2 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3)
-        val persp1 = (-y1 * x2 + x1 * y2 - x1 * y3 - y2 * x4 + y3 * x4 + x2 * y4 + y1 * x3 - y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3)
-        val persp2 = 1f
+        val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
+        val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
+        val maxWidth = max(widthA, widthB).toDouble()
 
-        val matrix = Matrix33(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2)
+        val heightA = sqrt((tr.x - br.x).pow(2) + (tr.y - br.y).pow(2))
+        val heightB = sqrt((tl.x - bl.x).pow(2) + (tl.y - bl.y).pow(2))
+        val maxHeight = max(heightA, heightB).toDouble()
 
-        Canvas(_editedBitmap.value).setMatrix(matrix).drawImage(originalBitmap.toImage(), 0f, 0f)*/
+        val mat = editedBitmap.value.toMat()
+        val dst = Mat(Size(maxWidth, maxHeight), CvType.CV_8UC3)
 
-        updateBitmaps()
+        val srcPoints = listOf(
+            Point(tl.x.toDouble(), tl.y.toDouble()),
+            Point(tr.x.toDouble(), tr.y.toDouble()),
+            Point(bl.x.toDouble(), bl.y.toDouble()),
+            Point(br.x.toDouble(), br.y.toDouble())
+        )
+
+        val dstPoints = listOf(
+            Point(0.0, 0.0),
+            Point(maxWidth, 0.0),
+            Point(0.0, maxHeight),
+            Point(maxWidth, maxHeight)
+        )
+
+        val perspectiveTransform = Imgproc.getPerspectiveTransform(MatOfPoint2f(*srcPoints.toTypedArray()), MatOfPoint2f(*dstPoints.toTypedArray()))
+        Imgproc.warpPerspective(mat, dst, perspectiveTransform, Size(maxWidth, maxHeight))
+
+        _editedBitmap.value = dst.toBitmap()
+        deleteTempImage()
     }
 
     override fun copyToClipboard() {
@@ -175,7 +197,7 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun setZoomBitmap(point: Point){
+    private fun setZoomBitmap(point: SkPoint){
         val x = point.x.toInt()
         val y = point.y.toInt()
         val radius = 75
@@ -207,20 +229,20 @@ class PicturePreparationImpl(
     ) {
         if (resetEditedBitmap) _editedBitmap.value = originalBitmap.toBufferedImage().toBitmap()
         if (resetClicks) clicks.clear()
-        if (resetOverlay) _overlayBitmap.value = clearCanvasBitmap()
-        if (resetDragOverlay) _dragOverlayBitmap.value = clearCanvasBitmap()
+        if (resetOverlay) _overlayBitmap.value = clearBitmap()
+        if (resetDragOverlay) _dragOverlayBitmap.value = clearBitmap()
     }
 
     override fun resetDrag() {
         handleClick(Offset(currentDragPoint.value.x / ratio, currentDragPoint.value.y / ratio))
         reset(resetOverlay = false, resetClicks = false, resetEditedBitmap = false)
-        dragStartPoint = Point(0f, 0f)
-        currentDragPoint.value = Point(0f, 0f)
+        dragStartPoint = SkPoint(0f, 0f)
+        currentDragPoint.value = SkPoint(0f, 0f)
         dragActive.value = false
     }
 
     override fun setDragStart(dragStart: Offset) {
-        dragStartPoint = Point(
+        dragStartPoint = SkPoint(
             dragStart.x * ratio,
             dragStart.y * ratio
         )
@@ -229,20 +251,20 @@ class PicturePreparationImpl(
     }
 
     override fun handleDrag(change: PointerInputChange, dragAmount: Offset){
-        if (currentDragPoint.value == Point(0f, 0f)) currentDragPoint.value = dragStartPoint
+        if (currentDragPoint.value == SkPoint(0f, 0f)) currentDragPoint.value = dragStartPoint
 
-        currentDragPoint.value = Point(
+        currentDragPoint.value = SkPoint(
             currentDragPoint.value.x + dragAmount.x * ratio,
             currentDragPoint.value.y + dragAmount.y * ratio
         )
         dragActive.value = currentDragPoint.value.isInBounds(originalBitmapBounds)
         setZoomBitmap(currentDragPoint.value)
 
-        /*
+
         //DEBUG OPTION: Print the current drag point
         val canvas = Canvas(_dragOverlayBitmap.value)
-        canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, redStroke)
-        */
+        canvas.drawCircle(currentDragPoint.value.x, currentDragPoint.value.y, 3f, stroke)
+
         updateBitmaps()
     }
 
@@ -250,7 +272,7 @@ class PicturePreparationImpl(
         if (clicks.size != 4) return
 
         // Calculate the centroid of the four points
-        val centroid = Point(
+        val centroid = SkPoint(
             clicks.map { it.x }.average().toFloat(),
             clicks.map { it.y }.average().toFloat()
         )
@@ -261,7 +283,7 @@ class PicturePreparationImpl(
         }
     }
 
-    private fun drawPolygon(canvas: Canvas, points: List<Point>, paint: Paint) {
+    private fun drawPolygon(canvas: Canvas, points: List<SkPoint>, paint: Paint) {
         if (points.isEmpty()) throw IllegalArgumentException("At least one point is required")
 
         val path = Path().apply {
@@ -275,13 +297,13 @@ class PicturePreparationImpl(
         canvas.drawPath(path, paint)
     }
 
-    private fun drawCircle(canvas: Canvas, point: Point, filled: Boolean = false) {
+    private fun drawCircle(canvas: Canvas, point: SkPoint, filled: Boolean = false) {
         canvas.drawCircle( point.x, point.y, 10f, stroke )
         if (filled) canvas.drawCircle( point.x, point.y, 13f, fill )
     }
 
     override fun handleClick(offset: Offset) {
-        val point = Point(offset.x * ratio, offset.y * ratio)
+        val point = SkPoint(offset.x * ratio, offset.y * ratio)
         if (!point.isInBounds(originalBitmapBounds)) return
 
         if (clicks.size == 4) reset(resetEditedBitmap = false, resetDragOverlay = false)
