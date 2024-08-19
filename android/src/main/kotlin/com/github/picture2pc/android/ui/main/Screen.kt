@@ -28,5 +28,6 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
                 ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
             }
         }
+
     }
 }
