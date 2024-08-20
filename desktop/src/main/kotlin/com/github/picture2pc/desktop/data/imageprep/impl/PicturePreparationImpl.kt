@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.data.addToClipboard
-import com.github.picture2pc.desktop.data.deleteTempImage
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.constants.Paints
 import com.github.picture2pc.desktop.data.imageprep.constants.UnstratifiedValues
@@ -117,7 +116,6 @@ class PicturePreparationImpl(
         _editedBitmap.value = dst.toBitmap()
         _overlayBitmap.value = clearBitmap()
         updateEditedBitmap()
-        deleteTempImage()
         reset(resetEditedBitmap = false, resetClicks = false, resetDragOverlay = false)
     }
 

@@ -1,6 +1,5 @@
 package com.github.picture2pc.desktop.data
 
-import com.github.picture2pc.desktop.data.Variables.PATH_TO_TEMP_FOLDER
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope.coroutineContext
@@ -11,19 +10,8 @@ import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.image.BufferedImage
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.attribute.DosFileAttributeView
-import kotlin.io.path.deleteIfExists
 
-object Variables {
-    val PATH_TO_TEMP_FOLDER: Path = Paths.get("tmp")
-}
-
-var tempImageHash = 0
-
-private class TransferableImage(val image: BufferedImage): Transferable {
+private class TransferableImage(val image: BufferedImage) : Transferable {
     override fun getTransferData(flavor: DataFlavor?): Any {
         return if (flavor == DataFlavor.imageFlavor) {
             image
@@ -41,21 +29,8 @@ private class TransferableImage(val image: BufferedImage): Transferable {
     }
 }
 
-fun setHidden(path: Path){
-    Files.getFileAttributeView(path, DosFileAttributeView::class.java).setHidden(true)
-}
-
-fun makeTempDir(){
-    Files.createDirectories(PATH_TO_TEMP_FOLDER)
-    setHidden(PATH_TO_TEMP_FOLDER)
-}
-
-fun deleteTempImage(){
-    PATH_TO_TEMP_FOLDER.resolve("$tempImageHash.png").deleteIfExists()
-}
-
 @OptIn(DelicateCoroutinesApi::class)
-fun addToClipboard(bufferedImage: BufferedImage){
+fun addToClipboard(bufferedImage: BufferedImage) {
     CoroutineScope(coroutineContext).launch {
         val transferableImage = TransferableImage(bufferedImage)
         val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
