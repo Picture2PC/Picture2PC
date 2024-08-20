@@ -175,5 +175,11 @@ fun MainScreen(
                 }
             }
         }
+        BoxWithConstraints {
+            Picture(
+                modifier = Modifier
+                    .fillMaxHeight()
+            )
+        }
     }
 }

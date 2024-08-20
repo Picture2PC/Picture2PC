@@ -5,11 +5,8 @@ import com.github.picture2pc.common.net2.Peer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
+import kotlinx.serialization.cbor.Cbor
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.InetSocketAddress
 
@@ -25,12 +22,7 @@ sealed class Payload {
 
     @OptIn(ExperimentalSerializationApi::class)
     fun asInputStream(): ByteArrayInputStream {
-        val stream = ByteArrayOutputStream()
-        val format = Json {
-            encodeDefaults = true
-        }
-        format.encodeToStream(serializer(), this, stream)
-        return ByteArrayInputStream(stream.toByteArray())
+        return ByteArrayInputStream(format.encodeToByteArray(serializer(), this))
     }
 
     companion object {
@@ -39,9 +31,14 @@ sealed class Payload {
             inputStream: InputStream,
             inetSocketAddress: InetSocketAddress
         ): Payload {
-            val packet = Json.decodeFromStream(serializer(), inputStream)
+            val packet: Payload = Cbor.decodeFromByteArray(serializer(), inputStream.readBytes())
             packet.receivedFromInetSocketAddress = inetSocketAddress
             return packet
+        }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        private val format = Cbor {
+            encodeDefaults = true
         }
     }
 }

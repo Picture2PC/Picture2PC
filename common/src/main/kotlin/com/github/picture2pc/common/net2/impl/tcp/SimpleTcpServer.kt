@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.net.InetSocketAddress
@@ -28,21 +29,24 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
+
     init {
         jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
+        jvmServerSocket.soTimeout = 1000
     }
 
     suspend fun accept(peer: Peer): Boolean {
         if (checkPeer(peer)) return false
-        val jvmSocket = coroutineScope {
+        val jvmSocket =
             try {
-                jvmServerSocket.accept()
+                withTimeout(CONNECION_TIMEOUT) {
+                    jvmServerSocket.accept()
+                }
             } catch (e: Exception) {
-                return@coroutineScope null
+                return false
             }
-        } ?: return false
         val client = SimpleTcpClient(get(), peer, this, jvmSocket)
-        client.clientState = ClientState.PENDING
+        client.clientState.value = ClientState.PENDING
         addPeer(peer, client)
         val packet = client.receivePacket()
         if (packet == null || packet !is TcpPayload.Ping) {
@@ -53,7 +57,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             disconnect(peer)
             return false
         }
-        client.clientState = ClientState.CONNECTED
+        client.clientState.value = ClientState.CONNECTED
         client.startReceiving()
         return true
     }
@@ -61,10 +65,10 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         if (checkPeer(peer)) return false
         val client = SimpleTcpClient(get(), peer, this)
-        coroutineScope {
-            client.connect(inetSocketAddress)
-        }
-        client.clientState = ClientState.PENDING
+        if (!coroutineScope {
+                return@coroutineScope client.connect(inetSocketAddress)
+            }) return false
+        client.clientState.value = ClientState.PENDING
         addPeer(peer, client)
 
         if (!sendPayload(TcpPayload.Ping(peer))) {
@@ -77,7 +81,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             disconnect(peer)
             return false
         }
-        client.clientState = ClientState.CONNECTED
+        client.clientState.value = ClientState.CONNECTED
         client.startReceiving()
         return true
     }
@@ -105,7 +109,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     suspend fun disconnect(peer: Peer) {
         val client = peerToClientMap.getOrDefault(peer, null) ?: return
-        client.clientState = ClientState.DISCONNECTED
+        client.clientState.value = ClientState.DISCONNECTED
         client.close()
         removePeer(peer)
     }

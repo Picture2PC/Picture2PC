@@ -11,7 +11,7 @@ import kotlin.math.min
 data class NetworkPacket(
     private val inputStream: InputStream? = null,
     var address: SocketAddress? = null,
-    val packetSize: Int = NetworkConstants.PacketSize
+    val packetSize: Int = NetworkConstants.PACKETSIZE
 ) {
     var totalSize: Int? = inputStream?.available()
     var lastByteArray: ByteArray? = null

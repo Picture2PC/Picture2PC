@@ -5,6 +5,6 @@ import java.net.InetSocketAddress
 
 val multicastModule = module {
     single { MulticastPayloadTransceiver(get()) }
-    factory { SimpleMulticastSocket(get()) }
-    single { InetSocketAddress(MulticastConstants.address, MulticastConstants.port) }
+    factory { SimpleMulticastSocket(get(), get()) }
+    single { InetSocketAddress(MulticastConstants.ADDRESS, MulticastConstants.PORT) }
 }

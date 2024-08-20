@@ -14,6 +14,7 @@ repositories {
 dependencies {
     implementation(libs.koin.android)
 
+
     implementation(libs.core.ktx)
 
     val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
@@ -41,7 +42,6 @@ android {
     defaultConfig {
         applicationId = "com.github.picture2pc.android"
         minSdk = 26
-        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

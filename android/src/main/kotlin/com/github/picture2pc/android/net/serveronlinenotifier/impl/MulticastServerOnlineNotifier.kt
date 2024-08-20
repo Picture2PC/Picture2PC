@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class MulticastServerOnlineNotifier(
@@ -37,7 +38,7 @@ class MulticastServerOnlineNotifier(
             (payload as? MulticastPayload.ListPeers)?.let {
                 if (serverConnectable.value) {
                     emitServerOnline(serverName.value, it.sourcePeer)
-                    tcpPayloadTransceiver.connect(it.sourcePeer)
+                    launch { tcpPayloadTransceiver.connect(it.sourcePeer) }
                 }
             }
         }.launchIn(this)

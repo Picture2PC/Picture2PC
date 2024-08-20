@@ -17,6 +17,9 @@ class CameraViewModel(
         get() {
             return pictureManager.takenImages
         }
+    fun getLastImage(): Bitmap {
+        return pictureManager.takenImages.replayCache.last()
+    }
 
     private var flashState = Icons.Mobile.FLASH_OFF
     val flashMode by mutableStateOf(flashState)
@@ -35,7 +38,6 @@ class CameraViewModel(
 
     fun sendImage() {
         dataTransmitter.send(getLastImage())
-    }
 
     fun switchFlashMode() {
         pictureManager.switchFlashMode()
@@ -45,4 +47,5 @@ class CameraViewModel(
             Icons.Mobile.FLASH_AUTO
         }
     }
+
 }

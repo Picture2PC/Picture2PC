@@ -25,6 +25,7 @@ abstract class NetworkPayloadTransceiver : CoroutineScope {
     private var lock = MutableStateFlow(0)
     private var lockQueue = 0
     suspend fun sendPayload(payload: Payload): Boolean {
+
         return coroutineScope {
             val c = lockQueue++
             while (lock.value != c) {

@@ -6,7 +6,6 @@ import java.net.InetSocketAddress
 
 @Serializable
 sealed class MulticastPayload : Payload() {
-
     @Serializable
     data class PeerTcpOnline(val port: Int, override val targetPeer: Peer) : MulticastPayload() {
         val tcpServerSocketAddress: InetSocketAddress

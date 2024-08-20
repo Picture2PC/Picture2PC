@@ -4,13 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.window.launchApplication
+import androidx.compose.ui.window.application
 import com.github.picture2pc.desktop.ui.OpenExitTray
 import com.github.picture2pc.desktop.ui.main.MainWindow
-import kotlinx.coroutines.CoroutineScope
 import kotlin.system.exitProcess
 
-fun CoroutineScope.launchDesktopApp() = launchApplication {
+fun runDesktopApp() = application {
     var mainWindowVisible by remember { mutableStateOf(true) }
 
     OpenExitTray(
