@@ -2,7 +2,7 @@ package com.github.picture2pc.desktop.viewmodel.serversectionviewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.github.picture2pc.desktop.data.AvailableServersCollector
+import com.github.picture2pc.desktop.data.availableserverscollector.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Desktop" type="JetRunConfigurationType" activateToolWindowBeforeRun="false">
+    <option name="MAIN_CLASS_NAME" value="com.github.picture2pc.desktop.MainKt" />
+    <module name="Picture2PC.desktop.main" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;desktop\lib&quot;" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

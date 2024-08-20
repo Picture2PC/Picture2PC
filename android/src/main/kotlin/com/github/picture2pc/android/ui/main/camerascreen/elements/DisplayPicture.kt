@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.android.extentions.rotate
 
 @Composable
 fun DisplayPicture(
@@ -20,7 +19,7 @@ fun DisplayPicture(
 ) {
     if (horizontal) {
         Image(
-            bitmap = image.rotate(-90f).asImageBitmap(),
+            bitmap = image.asImageBitmap(),
             contentDescription = "current image",
             modifier = Modifier
                 .width(200.dp)
