@@ -14,13 +14,11 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStat
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
 import com.github.picture2pc.android.ui.main.mainscreen.elements.StateInfoPictureButton
-import com.github.picture2pc.android.ui.main.mainscreen.elements.TransmissionProgressbar
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
-
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(10.dp))
         BrandingTopBar(
@@ -38,11 +36,6 @@ fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememb
                 .padding(40.dp)
                 .fillMaxWidth()
         )
-        TransmissionProgressbar(
-            Modifier
-                .fillMaxWidth()
-                .padding(50.dp, 0.dp, 50.dp, 10.dp)
-        )
         Spacer(modifier = Modifier.height(10.dp))
         ConnectedClientsList(
             modifier = Modifier
@@ -56,6 +49,5 @@ fun MainScreenVertical(screenSelectorViewModel: ScreenSelectorViewModel = rememb
                 .padding(0.dp, 0.dp, 0.dp, 20.dp),
             onClick = screenSelectorViewModel::toCamera
         )
-
     }
 }

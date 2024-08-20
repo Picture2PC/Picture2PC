@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 interface PictureManager {
     val takenImages: SharedFlow<Bitmap>
+    fun switchFlashMode()
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)
     fun saveImageToCache()

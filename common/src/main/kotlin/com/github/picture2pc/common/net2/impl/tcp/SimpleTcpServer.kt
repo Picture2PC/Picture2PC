@@ -26,7 +26,6 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
     val connectedPeers: SharedFlow<List<Peer>> = _connectedPeers.asSharedFlow()
-    val CONNECION_TIMEOUT = 2000L
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress

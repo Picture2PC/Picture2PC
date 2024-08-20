@@ -7,9 +7,6 @@ plugins {
 group = "com.github.picture2pc.common"
 version = "${rootProject.version}.0"
 
-
-
-
 dependencies {
     api(compose.ui)
     api(compose.foundation)
@@ -20,4 +17,12 @@ dependencies {
     api(libs.koin.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.cbor)
+}
+
+sourceSets{
+    main {
+        resources {
+            srcDir("src/main/res")
+        }
+    }
 }

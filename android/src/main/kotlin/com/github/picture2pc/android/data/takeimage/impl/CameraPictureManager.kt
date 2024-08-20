@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.github.picture2pc.android.data.takeimage.PictureManager
-import com.github.picture2pc.android.extentions.rotate
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -28,7 +27,7 @@ import java.io.IOException
 class CameraPictureManager(
     private val context: Context,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
-        .setFlashMode(ImageCapture.FLASH_MODE_OFF) //TODO: Add flash mode setting
+        .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
     private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(
@@ -36,6 +35,14 @@ class CameraPictureManager(
     )
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
+
+    override fun switchFlashMode(){
+        if (imageCapture.flashMode == FLASH_MODE_AUTO){
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
+        } else {
+            imageCapture.flashMode = FLASH_MODE_AUTO
+        }
+    }
 
     override fun takeImage() {
         val outputStream = ByteArrayOutputStream()
@@ -55,7 +62,7 @@ class CameraPictureManager(
                         outputStream.size()
                     )
                     lifecycleOwner.lifecycleScope.launch {
-                        _takenImages.emit(image.rotate(90f))
+                        _takenImages.emit(image)
                     }
                 }
             }
@@ -66,7 +73,7 @@ class CameraPictureManager(
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
+                it.surfaceProvider = previewView.surfaceProvider
             }
 
             cameraProvider.unbindAll()
@@ -90,6 +97,6 @@ class CameraPictureManager(
         }
     }
 
-    private val _takenImages = MutableSharedFlow<Bitmap>(replay = 3)            //listen and write
-    override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //listen only
+    private val _takenImages = MutableSharedFlow<Bitmap>(replay = 3)            //read and write
+    override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //read only
 }

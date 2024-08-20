@@ -3,14 +3,15 @@ package com.github.picture2pc.desktop.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
-import com.github.picture2pc.common.ui.Picture2PcIcon
+import com.github.picture2pc.common.ui.Icons
+import com.github.picture2pc.common.ui.getIcon
 
 @Composable
 fun ApplicationScope.OpenExitTray(openAction: () -> Unit, exitAction: () -> Unit) {
     Tray(
-        icon = Picture2PcIcon,
+        icon = getIcon(Icons.Logo.STANDARD),
         onAction = openAction,
-        tooltip = "Picture2Pc",
+        tooltip = "Picture2PC",
         menu = {
             Item(
                 text = "Open",

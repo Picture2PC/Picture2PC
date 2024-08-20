@@ -9,7 +9,6 @@ import com.github.picture2pc.desktop.ui.OpenExitTray
 import com.github.picture2pc.desktop.ui.main.MainWindow
 import kotlin.system.exitProcess
 
-
 fun runDesktopApp() = application {
     var mainWindowVisible by remember { mutableStateOf(true) }
 

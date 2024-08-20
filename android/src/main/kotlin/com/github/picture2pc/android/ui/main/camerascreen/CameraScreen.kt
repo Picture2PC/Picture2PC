@@ -19,6 +19,7 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun CameraScreen(
+    vertical: Boolean = false,
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
@@ -38,7 +39,7 @@ fun CameraScreen(
                     .align(Alignment.TopStart)
                     .clickable(onClick = screenSelectorViewModel::toBigPicture)
             ) {
-                DisplayPicture(image, .5f)
+                DisplayPicture(image, vertical)
             }
         }
         Box(
@@ -49,4 +50,3 @@ fun CameraScreen(
         }
     }
 }
-

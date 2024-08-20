@@ -5,4 +5,6 @@ import org.jetbrains.skia.Image
 
 interface DataReceiver {
     val pictures: SharedFlow<Image>
+
+    suspend fun addPicture(image: Image)
 }
