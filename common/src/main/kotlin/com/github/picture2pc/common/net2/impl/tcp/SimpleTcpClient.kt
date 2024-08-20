@@ -79,7 +79,7 @@ class SimpleTcpClient(
 
     suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
         coroutineScope {
-            return@coroutineScope withTimeoutOrNull(simpleTcpServer.CONNECION_TIMEOUT)
+            return@coroutineScope withTimeoutOrNull(TcpConstants.CONNECION_TIMEOUT)
             {
                 jvmSocket.connect(inetSocketAddress)
                 return@withTimeoutOrNull true
