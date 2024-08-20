@@ -35,9 +35,18 @@ object Style {
 
         val BUTTON_PRIMARY: ButtonColors
             @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
-
         val BUTTON_SECONDARY: ButtonColors
             @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
+
+        object States {
+            val PENDING = Color(0xFF3557C8)
+            val CONNECTED = Color(0xFF2FB86C)
+            val WAITING_FOR_DATA = Color(0xFF3557C8)
+            val RECIEVING = Color(0xFFC0C02C)
+            val ERROR_WHILE_RECIEVING = Color(0xFFC83538)
+            val ERROR_WHILE_SENDING = Color(0xFFC83538)
+            val DISCONNECTED = Color(0xFF000000)
+        }
     }
 
     object Shapes {
@@ -46,7 +55,8 @@ object Style {
     }
 
     object TextStyles {
-        val HEADER = TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
+        val HEADER1 = TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
+        val HEADER2 = TextStyle(fontSize = 16.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
         val NORMAL = TextStyle(fontSize = 16.sp, color = Colors.TEXT)
         val SMALL = TextStyle(fontSize = 14.sp, color = Colors.TEXT)
     }
@@ -68,5 +78,7 @@ object Style {
             val BORDER_STANDARD = 2.dp
             val BORDER_THICK = 3.dp
         }
+
+        val StateIndicator = 6.dp
     }
 }

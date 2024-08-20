@@ -9,15 +9,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,6 +35,7 @@ import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.common.ui.getIcon
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
+import com.github.picture2pc.desktop.ui.main.serverssection.connectionInfo
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
@@ -40,7 +45,9 @@ fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
     pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
+    // Notify all Servers that the client is online
     serversSectionViewModel.refreshServers()
+    val showConnections = remember { mutableStateOf(false) }
 
     //TODO: Add tooltips to buttons
 
@@ -55,7 +62,7 @@ fun MainScreen(
                 .padding(Spacers.NORMAL)
         ) {
             // SIDEBAR
-            Column(
+            Box(
                 Modifier
                     .fillMaxHeight()
                     .width(246.dp)
@@ -73,7 +80,7 @@ fun MainScreen(
                         Text(
                             Data.APP_NAME,
                             Modifier.align(Alignment.CenterVertically),
-                            style = TextStyles.HEADER
+                            style = TextStyles.HEADER1
                         )
                     }
                     Spacer(Modifier.height(Spacers.LARGE))
@@ -84,6 +91,14 @@ fun MainScreen(
                     */
 
                     Row { ImageInteractionButtons() }
+                    Spacer(Modifier.height(Spacers.LARGE))
+
+                    if (showConnections.value) {
+                        Row(
+                            Modifier.background(Colors.ACCENT, Shapes.BUTTON).fillMaxWidth()
+                                .wrapContentHeight()
+                        ) { connectionInfo() }
+                    }
 
                     // DEBUG BUTTONS
                     Button(serversSectionViewModel::refreshServers) {
@@ -94,15 +109,30 @@ fun MainScreen(
                             Text("Load Test Image")
                         }
                         Checkbox(
-                            checked = pDVM.isSelectPicture.value,
-                            onCheckedChange = {
+                            pDVM.isSelectPicture.value,
+                            {
                                 pDVM.isSelectPicture.value =
                                     !pDVM.isSelectPicture.value
                             },
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            Modifier.align(Alignment.CenterVertically)
                         )
                     }
+
+                    Row(Modifier.fillMaxHeight()) {
+                        Column(Modifier.fillMaxWidth().align(Alignment.Bottom)) {
+                            IconButton(
+                                { showConnections.value = !showConnections.value },
+                                Modifier
+                                    .align(Alignment.End)
+                                    .background(Colors.ACCENT, Shapes.BUTTON)
+                            ) {
+                                Image(getIcon(Icons.Desktop.INFO), "Info")
+                            }
+                        }
+
+                    }
                 }
+
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
@@ -113,27 +143,33 @@ fun MainScreen(
                         Modifier
                             .padding(Spacers.NORMAL)
                             .fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        Alignment.Center
                     ) { Picture() }
                 }
-                Box(Modifier.offset(5.dp, 5.dp)) {
+                Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
                         IconButton(
-                            onClick = { pDVM.pP.rotate(-90f) },
-                            modifier = Modifier
-                                .background(Colors.ACCENT, Shapes.BUTTON)
+                            { pDVM.pP.rotate(-90f) },
+                            Modifier.background(Colors.ACCENT, Shapes.BUTTON)
                         ) {
-                            Image(getIcon(Icons.Desktop.ROTATE_LEFT), "Rotate Left")
+                            Image(
+                                getIcon(Icons.Desktop.ROTATE_LEFT),
+                                "Rotate Left"
+                            )
                         }
 
                         Spacer(Modifier.width(Spacers.SMALL))
 
-                        IconButton(
-                            onClick = { pDVM.pP.rotate(90f) },
-                            modifier = Modifier
-                                .background(Colors.ACCENT, Shapes.BUTTON)
-                        ) {
-                            Image(getIcon(Icons.Desktop.ROTATE_RIGHT), "Rotate Right")
+                        Row {
+                            IconButton(
+                                { pDVM.pP.rotate(90f) },
+                                Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                            ) {
+                                Image(
+                                    getIcon(Icons.Desktop.ROTATE_RIGHT),
+                                    "Rotate Right"
+                                )
+                            }
                         }
                     }
                 }

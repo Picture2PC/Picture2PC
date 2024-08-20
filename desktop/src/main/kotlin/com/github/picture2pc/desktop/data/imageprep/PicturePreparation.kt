@@ -39,6 +39,8 @@ interface PicturePreparation {
     fun setDisplayedZoomedBitmap(point: Point)
     fun updateEditedBitmap()
 
+    //fun getCorners(): MutableList<Array<org.opencv.core.Point>>?
+
     fun drawCircle(point: Point, filled: Boolean = false)
     fun drawPolygon(points: List<Point>, paint: Paint)
 }

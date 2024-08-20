@@ -61,6 +61,7 @@ class PicturePreparationImpl(
     override var currentDragPoint: MutableState<SkPoint> = mutableStateOf(SkPoint(0f, 0f))
 
     override fun contrast() {
+        if (editedBitmap.value.isEmpty) return
         val contrast = 1.6f
         val cM = ColorMatrix(
             contrast, 0f, 0f, 0f, 0f,
@@ -77,6 +78,7 @@ class PicturePreparationImpl(
 
     override fun crop() {
         if (clicks.size != 4) return
+        if (editedBitmap.value.isEmpty) return
 
         val tl = clicks[0] // Top Left
         val tr = clicks[1] // Top Right
@@ -211,6 +213,110 @@ class PicturePreparationImpl(
         )
         reset()
     }
+    /*private fun sortPoint(corners: Array<Point>): Array<Point> {
+        val tr: Point
+        val tl: Point
+        val bl: Point
+        val br: Point
+
+        val f = ratio.pow(-1)
+
+        val sum = IntArray(corners.size)
+        val diff = IntArray(corners.size)
+
+        for (i in corners.indices) {
+            sum[i] = (corners[i].x + corners[i].y).toInt()
+            diff[i] = (corners[i].x - corners[i].y).toInt()
+        }
+
+        println(corners.joinToString(""))
+
+        tl = corners[sum.indexOf(sum.minOrNull()!!)]
+        br = corners[sum.indexOf(sum.maxOrNull()!!)]
+
+        tr = corners[diff.indexOf(diff.maxOrNull()!!)]
+        bl = corners[diff.indexOf(diff.minOrNull()!!)]
+
+        tl.x += (tl.x * f - tl.x).toInt()
+        tl.y += (tl.y * f - tl.y).toInt()
+        tr.x += (tr.x * f - tr.x).toInt()
+        tr.y += (tr.y * f - tr.y).toInt()
+        bl.x += (bl.x * f - bl.x).toInt()
+        bl.y += (bl.y * f - bl.y).toInt()
+        br.x += (br.x * f - br.x).toInt()
+        br.y += (br.y * f - br.y).toInt()
+
+        return arrayOf(tl, tr, bl, br)
+    }
+
+    override fun getCorners(): MutableList<Array<Point>>? {
+        if (editedBitmap.value.isEmpty) return null
+        reset()
+
+        val listOfCorners = mutableListOf(arrayOf(Point(), Point(), Point(), Point()))
+
+        val mat = editedBitmap.value.toMat()
+        val blur = Mat()
+        val gray = Mat()
+        val canny = Mat()
+
+        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY)
+        Imgproc.GaussianBlur(gray, blur, Size(5.0, 5.0), 1.0)
+        Imgproc.adaptiveThreshold(
+            blur,
+            canny,
+            255.0,
+            Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
+            Imgproc.THRESH_BINARY,
+            69,
+            0.0,
+        )
+
+        val allContours = mutableListOf<MatOfPoint>()
+        Imgproc.findContours(
+            canny,
+            allContours,
+            Mat(),
+            Imgproc.RETR_TREE,
+            Imgproc.CHAIN_APPROX_NONE
+        )
+
+        val contours = mutableListOf<MatOfPoint2f>()
+        for (contour in allContours) {
+            if (Imgproc.contourArea(contour) > 10000 * ratio) {
+                contours.add(MatOfPoint2f(*contour.toArray()))
+            }
+        }
+
+        for (contour in contours) {
+            val approx = MatOfPoint2f()
+            Imgproc.approxPolyDP(contour, approx, Imgproc.arcLength(contour, true) * 0.02, true)
+            val corners = approx.toArray()
+
+            if (corners.size in 4..10) {
+                listOfCorners.add(sortPoint(corners))
+            }
+        }
+
+        listOfCorners.sortBy { Imgproc.contourArea(MatOfPoint(*it)) }
+        listOfCorners.reverse()
+        println(Imgproc.contourArea(MatOfPoint(*listOfCorners[0])))
+        println(Imgproc.contourArea(MatOfPoint(*listOfCorners[1])))
+
+        for (corners in listOfCorners) {
+            for (corner in corners) {
+                Imgproc.drawMarker(
+                    mat,
+                    corner,
+                    Scalar(0.0, 0.0, 255.0),
+                    Imgproc.MARKER_CROSS,
+                    20,
+                    2
+                )
+            }
+        }
+        return listOfCorners
+    }*/
 
     override fun drawPolygon(points: List<SkPoint>, paint: Paint) {
         if (points.isEmpty()) throw IllegalArgumentException("At least one point is required")
