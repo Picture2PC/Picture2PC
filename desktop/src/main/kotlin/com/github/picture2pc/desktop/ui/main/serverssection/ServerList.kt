@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.github.picture2pc.desktop.viewmodel.ServersSectionViewModel
+import androidx.compose.runtime.mutableStateOf
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 
 @Composable
 fun ServerList(viewModel: ServersSectionViewModel) {
@@ -14,7 +15,7 @@ fun ServerList(viewModel: ServersSectionViewModel) {
         //TODO
         ServerEntry(
             ServersSectionViewModel.ServerEntryState(
-                "TestEntry",
+                mutableStateOf("TestEntry"),
                 "192.168.178.23",
                 ServersSectionViewModel.ServerEntryConnectionState.DISCONNECTED
             )

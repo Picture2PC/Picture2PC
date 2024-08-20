@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose.multiplatform)
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 group = "com.github.picture2pc.common"
@@ -14,4 +15,13 @@ dependencies {
 
     api(libs.koin.core)
     api(libs.koin.compose)
+    implementation(libs.kotlinx.serialization.json)
+}
+
+sourceSets{
+    main {
+        resources {
+            srcDir("src/main/res")
+        }
+    }
 }

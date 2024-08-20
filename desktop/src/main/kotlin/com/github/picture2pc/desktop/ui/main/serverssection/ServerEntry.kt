@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.github.picture2pc.desktop.viewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 
 @Composable
 fun ServerEntry(state: ServersSectionViewModel.ServerEntryState) {
     //TODO Connection state
     Row {
-        Text(state.deviceName)
+        Text(state.deviceName.value)
         Spacer(Modifier.weight(1f))
         Text(state.deviceAddress)
     }
