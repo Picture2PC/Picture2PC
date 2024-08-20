@@ -10,9 +10,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 object Style {
-    object Colors{
+    object Colors {
         val TEXT = Color(0xFFe9e7ff)
         val BACKGROUND = Color(0xFF161616)
         val PRIMARY = Color(0xFF642bcf)
@@ -35,37 +34,37 @@ object Style {
         }
 
         val BUTTON_PRIMARY: ButtonColors
-        @Composable get() = provideButtonColors( PRIMARY, TEXT, ACCENT, TEXT )
+            @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
 
         val BUTTON_SECONDARY: ButtonColors
-        @Composable get() = provideButtonColors( PRIMARY, TEXT, ACCENT, TEXT )
+            @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
     }
 
-    object Shapes{
+    object Shapes {
         val WINDOW = RoundedCornerShape(12.dp)
         val BUTTON = RoundedCornerShape(10.dp)
     }
 
-    object TextStyles{
+    object TextStyles {
         val HEADER = TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
         val NORMAL = TextStyle(fontSize = 16.sp, color = Colors.TEXT)
         val SMALL = TextStyle(fontSize = 14.sp, color = Colors.TEXT)
     }
 
-    object Dimensions{
-        object Spacers{
+    object Dimensions {
+        object Spacers {
             val SMALL = 5.dp
             val MEDIUM = 8.dp
             val NORMAL = 10.dp
             val LARGE = 15.dp
         }
 
-        object Heights{
+        object Heights {
             val DIVIDER = 3.dp
             val BUTTON = 40.dp
         }
 
-        object Borders{
+        object Borders {
             val BORDER_STANDARD = 2.dp
             val BORDER_THICK = 3.dp
         }

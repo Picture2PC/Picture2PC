@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Desktop" type="JetRunConfigurationType">
+  <configuration default="false" name="Desktop" type="JetRunConfigurationType" activateToolWindowBeforeRun="false">
     <option name="MAIN_CLASS_NAME" value="com.github.picture2pc.desktop.MainKt" />
     <module name="Picture2PC.desktop.main" />
     <shortenClasspath name="NONE" />

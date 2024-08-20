@@ -8,6 +8,8 @@ object Icons {
         const val RESET = "icons/desktop/reset.svg"
         const val NEXT_PICTURE = "icons/desktop/nextPicture.svg"
         const val PREVIOUS_PICTURE = "icons/desktop/previousPicture.svg"
+        const val ROTATE_RIGHT = "icons/desktop/rotate_right.svg"
+        const val ROTATE_LEFT = "icons/desktop/rotate_left.svg"
     }
 
     object Mobile {

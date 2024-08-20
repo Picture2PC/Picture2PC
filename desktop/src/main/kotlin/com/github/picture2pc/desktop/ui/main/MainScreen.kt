@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -100,25 +102,41 @@ fun MainScreen(
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
-                    Button({ pDVM.pP.rotate(90f) }) {
-                        Text("Rotate Right")
-                    }
                 }
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
             // PICTURE DISPLAY AREA
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)
-            ) {
-                Box(
-                    Modifier
-                        .padding(Spacers.NORMAL)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) { Picture() }
+            Box(Modifier.fillMaxSize()) {
+                Column(Modifier.border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)) {
+                    Box(
+                        Modifier
+                            .padding(Spacers.NORMAL)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { Picture() }
+                }
+                Box(Modifier.offset(5.dp, 5.dp)) {
+                    Row {
+                        IconButton(
+                            onClick = { pDVM.pP.rotate(-90f) },
+                            modifier = Modifier
+                                .background(Colors.ACCENT, Shapes.BUTTON)
+                        ) {
+                            Image(getIcon(Icons.Desktop.ROTATE_LEFT), "Rotate Left")
+                        }
+
+                        Spacer(Modifier.width(Spacers.SMALL))
+
+                        IconButton(
+                            onClick = { pDVM.pP.rotate(90f) },
+                            modifier = Modifier
+                                .background(Colors.ACCENT, Shapes.BUTTON)
+                        ) {
+                            Image(getIcon(Icons.Desktop.ROTATE_RIGHT), "Rotate Right")
+                        }
+                    }
+                }
             }
         }
     }
