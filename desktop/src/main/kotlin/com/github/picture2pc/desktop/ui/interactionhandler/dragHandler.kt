@@ -4,13 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
-import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
 import org.jetbrains.skia.Point
 
 class DragHandler(
-    private val rotation: MutableState<RotationState>,
     private val pP: PicturePreparation,
     private val cH: ClickHandler
 ) {
