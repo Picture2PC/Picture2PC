@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.ui.util.getIcon
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
+import com.github.picture2pc.common.ui.Style
 import org.koin.compose.rememberKoinInject
 import com.github.picture2pc.common.ui.Icons as CustomIcons
 
@@ -38,11 +39,12 @@ fun PictureButtons(
             }
         }
         Column {
-            IconButton(onClick = cameraViewModel::switchFlashMode) {
+            Button(onClick = cameraViewModel::switchFlashMode) {
                 getIcon(CustomIcons.Mobile.FLASH_OFF)?.let {
                     Icon(
                         it,
-                        "Flash Mode On"
+                        "Flash Mode On",
+                        tint = Style.Colors.TEXT
                     )
                 }
             }
