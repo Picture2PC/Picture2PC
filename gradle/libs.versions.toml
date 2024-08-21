@@ -34,7 +34,7 @@ ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", versio
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-#noinspection GradleDependency // DO NOT UPGRADE KOTLIN PLUGIN
+# DO NOT UPDATE until Compose Multuplatform supports newer version
 kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.8.20" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformPlugin" }
