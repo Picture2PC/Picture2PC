@@ -31,7 +31,6 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
             style = TextStyles.HEADER2
         )
 
-        //TODO: Replace with actual connection info
         if (serversSectionViewModel.serverEntries.collectAsState().value.isEmpty()) {
             Text(
                 "No connections",
@@ -49,7 +48,6 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
 }
 
 @Composable
-//TODO: Replace state with actual connection state
 fun connection(name: MutableState<String>, state: ClientState) {
     Row(Modifier.padding(start = Spacers.NORMAL, end = Spacers.NORMAL, top = Spacers.SMALL)) {
         Text(name.value, color = Colors.TEXT, style = TextStyles.NORMAL)
