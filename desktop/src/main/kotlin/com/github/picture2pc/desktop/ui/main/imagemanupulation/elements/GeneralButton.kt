@@ -9,19 +9,22 @@ import androidx.compose.ui.res.painterResource
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.desktop.ui.main.elements.Tooltip
 
 @Composable
-fun ManipulationButton(
+fun InteractionIconButton(
     onClick: () -> Unit,
     resourcePath: String,
     name: String
 ) {
-    Button(
-        onClick,
-        Modifier.height(Heights.BUTTON),
-        shape = Shapes.BUTTON,
-        colors = Colors.BUTTON_PRIMARY
-    ) {
-        Icon(painterResource(resourcePath), name, tint = Colors.TEXT)
+    Tooltip(name) {
+        Button(
+            onClick,
+            Modifier.height(Heights.BUTTON),
+            shape = Shapes.BUTTON,
+            colors = Colors.BUTTON_PRIMARY
+        ) {
+            Icon(painterResource(resourcePath), name, tint = Colors.TEXT)
+        }
     }
 }
