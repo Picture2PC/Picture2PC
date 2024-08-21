@@ -21,7 +21,8 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
+import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.InteractionIconButton
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -40,26 +41,26 @@ fun ImageInteractionButtons(
 
     Column {
         Row {
-            ManipulationButton(
+            InteractionIconButton(
                 { pDVM.pP.reset() },
                 Icons.Desktop.RESET,
-                "reset"
+                Descriptions.RESET
             )
             Spacer(spacerSize)
 
             Column(Modifier.background(Colors.ACCENT, Shapes.BUTTON)) {
                 Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
-                    ManipulationButton(
+                    InteractionIconButton(
                         { pDVM.adjustCurrentPictureIndex(-1) },
                         Icons.Desktop.PREVIOUS_PICTURE,
-                        "previousPicture"
+                        Descriptions.PREVIOUS_PICTURE
                     )
                     Spacer(spacerSize)
 
-                    ManipulationButton(
+                    InteractionIconButton(
                         { pDVM.adjustCurrentPictureIndex(1) },
                         Icons.Desktop.NEXT_PICTURE,
-                        "nextPicture"
+                        Descriptions.NEXT_PICTURE
                     )
                 }
                 Row(Modifier.align(Alignment.CenterHorizontally).padding(Spacers.SMALL)) {
@@ -96,24 +97,24 @@ fun ImageInteractionButtons(
             )
 
             Row {
-                ManipulationButton(
+                InteractionIconButton(
                     { pDVM.pP.contrast() },
                     Icons.Desktop.CONTRAST,
-                    "contrast"
+                    Descriptions.CONTRAST
                 )
                 Spacer(spacerSize)
 
-                ManipulationButton(
+                InteractionIconButton(
                     { pDVM.pP.copy() },
                     Icons.Desktop.COPY,
-                    "copy"
+                    Descriptions.COPY
                 )
                 Spacer(spacerSize)
 
-                ManipulationButton(
+                InteractionIconButton(
                     { pDVM.pP.crop() },
                     Icons.Desktop.CROP,
-                    "crop"
+                    Descriptions.CROP
                 )
             }
         }

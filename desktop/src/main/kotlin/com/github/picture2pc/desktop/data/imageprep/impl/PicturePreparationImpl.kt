@@ -126,26 +126,6 @@ class PicturePreparationImpl(
         addToClipboard(editedBitmap.value.toBufferedImage())
     }
 
-    override fun rotate(degrees: Float) {
-        if (editedBitmap.value.isEmpty) return
-        val rotatedBitmap = Bitmap().apply {
-            allocPixels(
-                ImageInfo.makeN32Premul(
-                    editedBitmap.value.height, editedBitmap.value.width
-                )
-            )
-        }
-
-        Canvas(rotatedBitmap).translate(rotatedBitmap.width.toFloat(), 0f)
-            .rotate(90f)
-            .drawImage(
-                editedBitmap.value.toImage(), 0f, 0f
-            )
-        _editedBitmap.value = rotatedBitmap
-        _overlayBitmap.value = clearBitmap()
-        updateEditedBitmap()
-    }
-
     override fun reset(
         resetEditedBitmap: Boolean,
         resetClicks: Boolean,
@@ -202,7 +182,7 @@ class PicturePreparationImpl(
             y + radius
         )
 
-        originalBitmap.extractSubset(zoomedBitmap.value, rect)
+        editedBitmap.value.extractSubset(zoomedBitmap.value, rect)
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
@@ -213,6 +193,7 @@ class PicturePreparationImpl(
         )
         reset()
     }
+
     /*private fun sortPoint(corners: Array<Point>): Array<Point> {
         val tr: Point
         val tl: Point

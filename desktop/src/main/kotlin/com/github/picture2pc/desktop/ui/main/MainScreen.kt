@@ -33,6 +33,9 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
+import com.github.picture2pc.desktop.data.next
+import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.main.elements.Tooltip
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 import com.github.picture2pc.desktop.ui.main.serverssection.connectionInfo
@@ -96,7 +99,9 @@ fun MainScreen(
 
                     if (showConnections.value) {
                         Row(
-                            Modifier.background(Colors.ACCENT, Shapes.BUTTON).fillMaxWidth()
+                            Modifier
+                                .background(Colors.ACCENT, Shapes.BUTTON)
+                                .fillMaxWidth()
                                 .wrapContentHeight()
                         ) { connectionInfo() }
                     }
@@ -111,20 +116,19 @@ fun MainScreen(
                         }
                         Checkbox(
                             pDVM.isSelectPicture.value,
-                            {
-                                pDVM.isSelectPicture.value =
-                                    !pDVM.isSelectPicture.value
-                            },
+                            { pDVM.isSelectPicture.value = !pDVM.isSelectPicture.value },
                             Modifier.align(Alignment.CenterVertically)
                         )
                     }
 
-                    Row(Modifier.fillMaxHeight()) {
-                        Column(Modifier.fillMaxWidth().align(Alignment.Bottom)) {
+                    Box(Modifier.fillMaxSize()) {
+                        Tooltip(
+                            Descriptions.INFO, Modifier
+                                .align(Alignment.BottomEnd)
+                        ) {
                             IconButton(
                                 { showConnections.value = !showConnections.value },
                                 Modifier
-                                    .align(Alignment.End)
                                     .background(Colors.ACCENT, Shapes.BUTTON)
                             ) {
                                 Image(getIcon(Icons.Desktop.INFO), "Info")
@@ -133,7 +137,6 @@ fun MainScreen(
 
                     }
                 }
-
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
@@ -149,27 +152,38 @@ fun MainScreen(
                 }
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
-                        IconButton(
-                            { pDVM.pP.rotate(-90f) },
-                            Modifier.background(Colors.ACCENT, Shapes.BUTTON)
-                        ) {
-                            Icon(
-                                getIcon(Icons.Desktop.ROTATE_LEFT),
-                                "Rotate Left"
-                            )
+                        Tooltip(Descriptions.ROTATE_LEFT) {
+                            IconButton(
+                                {
+                                    pDVM.rotationState.value = pDVM.rotationState.value.next(false)
+                                },
+                                Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                            ) {
+                                Icon(
+                                    getIcon(Icons.Desktop.ROTATE_LEFT),
+                                    "Rotate Left",
+                                    tint = Colors.TEXT
+                                )
+                            }
                         }
 
                         Spacer(Modifier.width(Spacers.SMALL))
 
                         Row {
-                            IconButton(
-                                { pDVM.pP.rotate(90f) },
-                                Modifier.background(Colors.ACCENT, Shapes.BUTTON)
-                            ) {
-                                Icon(
-                                    getIcon(Icons.Desktop.ROTATE_RIGHT),
-                                    "Rotate Right"
-                                )
+                            Tooltip(Descriptions.ROTATE_RIGHT) {
+                                IconButton(
+                                    {
+                                        pDVM.rotationState.value =
+                                            pDVM.rotationState.value.next(true)
+                                    },
+                                    Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                                ) {
+                                    Icon(
+                                        getIcon(Icons.Desktop.ROTATE_RIGHT),
+                                        "Rotate Right",
+                                        tint = Colors.TEXT
+                                    )
+                                }
                             }
                         }
                     }
