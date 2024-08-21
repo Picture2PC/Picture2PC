@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -131,7 +132,11 @@ fun MainScreen(
                                 Modifier
                                     .background(Colors.ACCENT, Shapes.BUTTON)
                             ) {
-                                Image(getIcon(Icons.Desktop.INFO), "Info")
+                                Icon(
+                                    getIcon(Icons.Desktop.INFO),
+                                    "Info",
+                                    tint = Colors.TEXT
+                                )
                             }
                         }
 
@@ -145,6 +150,7 @@ fun MainScreen(
                 Column(Modifier.border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)) {
                     Box(
                         Modifier
+                            .rotate(pDVM.rotationState.value.angle)
                             .padding(Spacers.NORMAL)
                             .fillMaxSize(),
                         Alignment.Center
@@ -152,16 +158,31 @@ fun MainScreen(
                 }
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
-                        Tooltip(Descriptions.ROTATE_LEFT) {
+                        IconButton(
+                            {
+                                pDVM.rotationState.value = pDVM.rotationState.value.next(false)
+                            },
+                            Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                        ) {
+                            Icon(
+                                getIcon(Icons.Desktop.ROTATE_LEFT),
+                                "Rotate Left",
+                                tint = Colors.TEXT
+                            )
+                        }
+
+                        Spacer(Modifier.width(Spacers.SMALL))
+
+                        Row {
                             IconButton(
                                 {
-                                    pDVM.rotationState.value = pDVM.rotationState.value.next(false)
+                                    pDVM.rotationState.value = pDVM.rotationState.value.next(true)
                                 },
                                 Modifier.background(Colors.ACCENT, Shapes.BUTTON)
                             ) {
                                 Icon(
-                                    getIcon(Icons.Desktop.ROTATE_LEFT),
-                                    "Rotate Left",
+                                    getIcon(Icons.Desktop.ROTATE_RIGHT),
+                                    "Rotate Right",
                                     tint = Colors.TEXT
                                 )
                             }
