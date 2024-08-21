@@ -8,7 +8,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
-import com.github.picture2pc.common.ui.getIcon
+import com.github.picture2pc.desktop.ui.util.getIcon
 import java.awt.Toolkit
 
 @Composable

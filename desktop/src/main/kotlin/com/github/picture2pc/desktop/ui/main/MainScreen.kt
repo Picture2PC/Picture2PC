@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,10 +33,10 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.common.ui.getIcon
 import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
 import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
 import com.github.picture2pc.desktop.ui.main.serverssection.connectionInfo
+import com.github.picture2pc.desktop.ui.util.getIcon
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
@@ -152,7 +153,7 @@ fun MainScreen(
                             { pDVM.pP.rotate(-90f) },
                             Modifier.background(Colors.ACCENT, Shapes.BUTTON)
                         ) {
-                            Image(
+                            Icon(
                                 getIcon(Icons.Desktop.ROTATE_LEFT),
                                 "Rotate Left"
                             )
@@ -165,7 +166,7 @@ fun MainScreen(
                                 { pDVM.pP.rotate(90f) },
                                 Modifier.background(Colors.ACCENT, Shapes.BUTTON)
                             ) {
-                                Image(
+                                Icon(
                                     getIcon(Icons.Desktop.ROTATE_RIGHT),
                                     "Rotate Right"
                                 )

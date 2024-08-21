@@ -19,7 +19,7 @@ class CameraViewModel(
         }
 
     private var flashState = Icons.Mobile.FLASH_OFF
-    val flashMode by mutableStateOf(flashState)
+    private val flashMode by mutableStateOf(flashState)
 
     fun getLastImage(): Bitmap {
         return pictureManager.takenImages.replayCache.last()
