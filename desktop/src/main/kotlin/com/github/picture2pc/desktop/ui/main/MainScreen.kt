@@ -104,7 +104,7 @@ fun MainScreen(
                                 .background(Colors.ACCENT, Shapes.BUTTON)
                                 .fillMaxWidth()
                                 .wrapContentHeight()
-                        ) { connectionInfo() }
+                        ) { connectionInfo(serversSectionViewModel) }
                     }
 
                     // DEBUG BUTTONS

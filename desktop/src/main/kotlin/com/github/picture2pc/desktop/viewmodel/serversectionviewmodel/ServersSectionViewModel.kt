@@ -2,6 +2,7 @@ package com.github.picture2pc.desktop.viewmodel.serversectionviewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.github.picture2pc.common.net2.impl.tcp.ClientState
 import com.github.picture2pc.desktop.data.availableserverscollector.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class ServersSectionViewModel(
                 _serverEntries.value += ServerEntryState(
                     mutableStateOf(it.deviceName),
                     it.senderAddress,
-                    ServerEntryConnectionState.DISCONNECTED //TODO
+                    ClientState.CONNECTED //TODO: Replace with actual received connection state
                 )
             }
             .launchIn(this)
@@ -44,7 +45,7 @@ class ServersSectionViewModel(
     data class ServerEntryState(
         val deviceName: MutableState<String>,
         val deviceAddress: String,
-        val connectionState: ServerEntryConnectionState
+        val connectionState: ClientState
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -57,11 +58,4 @@ class ServersSectionViewModel(
             return deviceAddress.hashCode()
         }
     }
-
-    enum class ServerEntryConnectionState {
-        DISCONNECTED,
-        CONNECTING,
-        CONNECTED
-    }
-
 }

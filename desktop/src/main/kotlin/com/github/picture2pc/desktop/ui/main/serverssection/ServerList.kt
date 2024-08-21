@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import com.github.picture2pc.common.net2.impl.tcp.ClientState
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 
 @Composable
@@ -17,7 +18,7 @@ fun ServerList(viewModel: ServersSectionViewModel) {
             ServersSectionViewModel.ServerEntryState(
                 mutableStateOf("TestEntry"),
                 "192.168.178.23",
-                ServersSectionViewModel.ServerEntryConnectionState.DISCONNECTED
+                ClientState.CONNECTED
             )
         )
 

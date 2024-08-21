@@ -24,7 +24,7 @@ class MulticastAvailableServersCollector(
                 (payload as? MulticastPayload.PeerTcpOnline)?.let { peerOnline ->
                     val server = AvailableServersCollector.Server(
                         payload.sourcePeer.name,
-                        payload.receivedFromInetSocketAddress?.hostString ?: "unknown"
+                        payload.receivedFromInetSocketAddress?.hostString ?: "unknown",
                     )
                     tcpPayloadTransceiver.connect(
                         payload.sourcePeer,

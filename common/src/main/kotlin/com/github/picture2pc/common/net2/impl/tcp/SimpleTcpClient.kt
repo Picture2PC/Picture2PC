@@ -101,7 +101,7 @@ class SimpleTcpClient(
                     .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
                 message.copyTo(jvmSocket.getOutputStream())
             } catch (e: Exception) {
-                clientState.value = ClientState.ERRORWHILESENDING
+                clientState.value = ClientState.ERROR_WHILE_SENDING
                 simpleTcpServer.disconnect(targetPeer)
                 message.close()
                 return@coroutineScope false
@@ -124,7 +124,7 @@ class SimpleTcpClient(
     suspend fun receivePacket(): Payload? {
         try {
             val sizeBuff = ByteArray(Int.SIZE_BYTES)
-            clientState.emit(ClientState.WAITINGFORDATA)
+            clientState.emit(ClientState.WAITING_FOR_DATA)
             coroutineScope {
                 jvmSocket.getInputStream().read(sizeBuff, 0, Int.SIZE_BYTES)
             }
@@ -147,7 +147,7 @@ class SimpleTcpClient(
                 InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
             )
         } catch (e: Exception) {
-            clientState.emit(ClientState.ERRORWHILERECEIVING)
+            clientState.emit(ClientState.ERROR_WHILE_RECIEVING)
             return null
         }
     }
