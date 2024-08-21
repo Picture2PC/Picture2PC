@@ -39,7 +39,7 @@ class PictureDisplayViewModel(
     val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
     val clickHandler = ClickHandler(rotationState, pP)
-    val dragHandler = DragHandler(rotationState, pP, clickHandler)
+    val dragHandler = DragHandler(pP, clickHandler)
 
     init {
         pictures.onEach {
