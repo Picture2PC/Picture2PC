@@ -4,7 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import com.github.picture2pc.desktop.data.RotationStates
+import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
@@ -36,10 +36,10 @@ class PictureDisplayViewModel(
     val zoomedBitmap = pP.zoomedBitmap
 
     val isSelectPicture = mutableStateOf(false)
-    val rotationState: MutableState<RotationStates> = mutableStateOf(RotationStates.ROTATION_0)
+    val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
-    val clickHandler = ClickHandler(pP)
-    val dragHandler = DragHandler(pP, clickHandler)
+    val clickHandler = ClickHandler(rotationState, pP)
+    val dragHandler = DragHandler(rotationState, pP, clickHandler)
 
     init {
         pictures.onEach {
