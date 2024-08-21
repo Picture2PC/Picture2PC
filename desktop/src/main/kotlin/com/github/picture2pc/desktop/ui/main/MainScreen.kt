@@ -187,26 +187,6 @@ fun MainScreen(
                                 )
                             }
                         }
-
-                        Spacer(Modifier.width(Spacers.SMALL))
-
-                        Row {
-                            Tooltip(Descriptions.ROTATE_RIGHT) {
-                                IconButton(
-                                    {
-                                        pDVM.rotationState.value =
-                                            pDVM.rotationState.value.next(true)
-                                    },
-                                    Modifier.background(Colors.ACCENT, Shapes.BUTTON)
-                                ) {
-                                    Icon(
-                                        getIcon(Icons.Desktop.ROTATE_RIGHT),
-                                        "Rotate Right",
-                                        tint = Colors.TEXT
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
