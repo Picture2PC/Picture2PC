@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -36,8 +37,8 @@ class CameraPictureManager(
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
 
-    override fun switchFlashMode(){
-        if (imageCapture.flashMode == FLASH_MODE_AUTO){
+    override fun switchFlashMode() {
+        if (imageCapture.flashMode == FLASH_MODE_AUTO) {
             imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
         } else {
             imageCapture.flashMode = FLASH_MODE_AUTO

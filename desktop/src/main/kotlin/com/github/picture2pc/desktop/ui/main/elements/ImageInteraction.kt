@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.imagemanupulation
+package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -15,13 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.elements.ManipulationButton
+import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -40,31 +42,32 @@ fun ImageInteractionButtons(
 
     Column {
         Row {
-            ManipulationButton(
-                { pDVM.pP.reset() },
+            TooltipIconButton(
+                Descriptions.RESET,
                 Icons.Desktop.RESET,
-                "reset"
-            )
+                buttonModifier = Modifier.width(75.dp)
+            ) { pDVM.pP.reset() }
             Spacer(spacerSize)
 
             Column(Modifier.background(Colors.ACCENT, Shapes.BUTTON)) {
-                Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
-                    ManipulationButton(
-                        { pDVM.adjustCurrentPictureIndex(-1) },
-                        Icons.Desktop.PREVIOUS_PICTURE,
-                        "previousPicture"
-                    )
-                    Spacer(spacerSize)
+                Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON).fillMaxWidth()) {
+                    Spacer(Modifier.width(Spacers.LARGE))
+                    TooltipIconButton(
+                        Descriptions.PREVIOUS_PICTURE,
+                        Icons.Desktop.PREVIOUS_PICTURE
+                    ) { pDVM.adjustCurrentPictureIndex(-1) }
 
-                    ManipulationButton(
-                        { pDVM.adjustCurrentPictureIndex(1) },
-                        Icons.Desktop.NEXT_PICTURE,
-                        "nextPicture"
-                    )
+                    Spacer(Modifier.weight(1f))
+
+                    TooltipIconButton(
+                        Descriptions.NEXT_PICTURE,
+                        Icons.Desktop.NEXT_PICTURE
+                    ) { pDVM.adjustCurrentPictureIndex(1) }
+                    Spacer(Modifier.width(Spacers.LARGE))
                 }
                 Row(Modifier.align(Alignment.CenterHorizontally).padding(Spacers.SMALL)) {
                     Text(
-                        getCurrentIndex(currentIndex, totalPictures),
+                        text = getCurrentIndex(currentIndex, totalPictures),
                         style = TextStyles.SMALL
                     )
                 }
@@ -81,12 +84,10 @@ fun ImageInteractionButtons(
                         pDVM.pP.contrast()
                         pDVM.pP.copy()
                     },
+                    Modifier.fillMaxWidth().height(Heights.BUTTON),
                     shape = Shapes.BUTTON,
                     colors = Colors.BUTTON_SECONDARY,
-                    modifier = Modifier.fillMaxWidth().height(Heights.BUTTON)
-                ) {
-                    Text("Do All", style = TextStyles.NORMAL)
-                }
+                ) { Text("Do All", style = TextStyles.NORMAL) }
             }
 
             Divider(
@@ -96,25 +97,24 @@ fun ImageInteractionButtons(
             )
 
             Row {
-                ManipulationButton(
-                    { pDVM.pP.contrast() },
-                    Icons.Desktop.CONTRAST,
-                    "contrast"
-                )
-                Spacer(spacerSize)
+                Spacer(Modifier.weight(1f))
+                TooltipIconButton(
+                    Descriptions.CONTRAST,
+                    Icons.Desktop.CONTRAST
+                ) { pDVM.pP.contrast() }
+                Spacer(Modifier.weight(1f))
 
-                ManipulationButton(
-                    { pDVM.pP.copy() },
-                    Icons.Desktop.COPY,
-                    "copy"
-                )
-                Spacer(spacerSize)
+                TooltipIconButton(
+                    Descriptions.COPY,
+                    Icons.Desktop.COPY
+                ) { pDVM.pP.copy() }
+                Spacer(Modifier.weight(1f))
 
-                ManipulationButton(
-                    { pDVM.pP.crop() },
-                    Icons.Desktop.CROP,
-                    "crop"
-                )
+                TooltipIconButton(
+                    Descriptions.CROP,
+                    Icons.Desktop.CROP
+                ) { pDVM.pP.crop() }
+                Spacer(Modifier.weight(1f))
             }
         }
     }

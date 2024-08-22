@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.picturedisplay
+package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image

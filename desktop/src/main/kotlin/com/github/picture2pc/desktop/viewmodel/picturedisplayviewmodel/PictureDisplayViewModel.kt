@@ -1,8 +1,10 @@
 package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
@@ -34,8 +36,9 @@ class PictureDisplayViewModel(
     val zoomedBitmap = pP.zoomedBitmap
 
     val isSelectPicture = mutableStateOf(false)
+    val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
-    val clickHandler = ClickHandler(pP)
+    val clickHandler = ClickHandler(rotationState, pP)
     val dragHandler = DragHandler(pP, clickHandler)
 
     init {
@@ -46,6 +49,7 @@ class PictureDisplayViewModel(
             totalPictures.value = pictures.replayCache.size
         }.launchIn(this)
     }
+
 
     fun adjustCurrentPictureIndex(amount: Int) {
         if (pictures.replayCache.isEmpty()) return

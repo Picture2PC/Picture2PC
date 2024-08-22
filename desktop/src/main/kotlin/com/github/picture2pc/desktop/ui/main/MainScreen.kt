@@ -17,13 +17,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -32,10 +32,13 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.common.ui.getIcon
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
-import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
-import com.github.picture2pc.desktop.ui.main.serverssection.connectionInfo
+import com.github.picture2pc.desktop.data.next
+import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.main.elements.ImageInteractionButtons
+import com.github.picture2pc.desktop.ui.main.elements.Picture
+import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
+import com.github.picture2pc.desktop.ui.main.elements.connectionInfo
+import com.github.picture2pc.desktop.ui.util.getIcon
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
@@ -53,8 +56,8 @@ fun MainScreen(
 
     Box(
         Modifier
-            .background(Colors.BACKGROUND)
             .fillMaxSize()
+            .background(Colors.BACKGROUND)
     ) {
         Row(
             Modifier
@@ -68,7 +71,9 @@ fun MainScreen(
                     .width(246.dp)
                     .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
+                // Items in the Sidebar
                 Column(Modifier.padding(Spacers.NORMAL)) {
+                    // HEADER
                     Row {
                         Image(
                             getIcon(Icons.Logo.STANDARD),
@@ -90,12 +95,16 @@ fun MainScreen(
                     Spacer(Modifier.height(Spacers.SMALL))
                     */
 
+                    // IMAGE INTERACTION BUTTONS
                     Row { ImageInteractionButtons() }
                     Spacer(Modifier.height(Spacers.LARGE))
 
+                    // CONNECTION INFO
                     if (showConnections.value) {
                         Row(
-                            Modifier.background(Colors.ACCENT, Shapes.BUTTON).fillMaxWidth()
+                            Modifier
+                                .background(Colors.ACCENT, Shapes.BUTTON)
+                                .fillMaxWidth()
                                 .wrapContentHeight()
                         ) { connectionInfo() }
                     }
@@ -110,76 +119,62 @@ fun MainScreen(
                         }
                         Checkbox(
                             pDVM.isSelectPicture.value,
-                            {
-                                pDVM.isSelectPicture.value =
-                                    !pDVM.isSelectPicture.value
-                            },
+                            { pDVM.isSelectPicture.value = !pDVM.isSelectPicture.value },
                             Modifier.align(Alignment.CenterVertically)
                         )
                     }
 
-                    Row(Modifier.fillMaxHeight()) {
-                        Column(Modifier.fillMaxWidth().align(Alignment.Bottom)) {
-                            IconButton(
-                                { showConnections.value = !showConnections.value },
-                                Modifier
-                                    .align(Alignment.End)
-                                    .background(Colors.ACCENT, Shapes.BUTTON)
-                            ) {
-                                Image(getIcon(Icons.Desktop.INFO), "Info")
-                            }
+                    // CONNECTION INFO TOGGLE BUTTON
+                    Box(Modifier.fillMaxSize()) {
+                        TooltipIconButton(
+                            Descriptions.INFO,
+                            Icons.Desktop.INFO,
+                            Colors.ACCENT,
+                            Modifier.align(Alignment.BottomEnd),
+                        ) {
+                            showConnections.value = !showConnections.value
                         }
-
                     }
                 }
-
             }
             Spacer(Modifier.width(Spacers.NORMAL))
 
             // PICTURE DISPLAY AREA
             Box(Modifier.fillMaxSize()) {
+                // Picture Display
                 Column(Modifier.border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)) {
                     Box(
                         Modifier
+                            .rotate(pDVM.rotationState.value.angle)
                             .padding(Spacers.NORMAL)
                             .fillMaxSize(),
                         Alignment.Center
                     ) { Picture() }
                 }
+
+                // Rotation Buttons
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
-                        IconButton(
-                            { pDVM.pP.rotate(-90f) },
-                            Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                        TooltipIconButton(
+                            Descriptions.ROTATE_LEFT,
+                            Icons.Desktop.ROTATE_LEFT,
+                            Colors.ACCENT,
                         ) {
-                            Image(
-                                getIcon(Icons.Desktop.ROTATE_LEFT),
-                                "Rotate Left"
-                            )
+                            pDVM.rotationState.value = pDVM.rotationState.value.next(false)
                         }
 
                         Spacer(Modifier.width(Spacers.SMALL))
 
-                        Row {
-                            IconButton(
-                                { pDVM.pP.rotate(90f) },
-                                Modifier.background(Colors.ACCENT, Shapes.BUTTON)
-                            ) {
-                                Image(
-                                    getIcon(Icons.Desktop.ROTATE_RIGHT),
-                                    "Rotate Right"
-                                )
-                            }
+                        TooltipIconButton(
+                            Descriptions.ROTATE_RIGHT,
+                            Icons.Desktop.ROTATE_RIGHT,
+                            Colors.ACCENT,
+                        ) {
+                            pDVM.rotationState.value = pDVM.rotationState.value.next(true)
                         }
                     }
                 }
             }
-        }
-        BoxWithConstraints {
-            Picture(
-                modifier = Modifier
-                    .fillMaxHeight()
-            )
         }
     }
 }

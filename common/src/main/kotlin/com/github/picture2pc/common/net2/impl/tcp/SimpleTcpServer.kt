@@ -41,7 +41,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
         if (checkPeer(peer)) return false
         val jvmSocket =
             try {
-                withTimeout(CONNECION_TIMEOUT) {
+                withTimeout(TcpConstants.CONNECION_TIMEOUT) {
                     jvmServerSocket.accept()
                 }
             } catch (e: Exception) {

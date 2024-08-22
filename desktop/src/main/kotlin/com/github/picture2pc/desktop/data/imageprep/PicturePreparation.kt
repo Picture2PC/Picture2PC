@@ -27,7 +27,6 @@ interface PicturePreparation {
     fun contrast()
     fun crop()
     fun copy()
-    fun rotate(degrees: Float)
     fun reset(
         resetEditedBitmap: Boolean = true,
         resetClicks: Boolean = true,
