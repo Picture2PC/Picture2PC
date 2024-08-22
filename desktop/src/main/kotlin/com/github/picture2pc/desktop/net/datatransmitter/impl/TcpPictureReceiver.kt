@@ -16,7 +16,8 @@ class TcpPictureReceiver(
     tcpPayloadTransceiver: TcpPayloadTransceiver,
     override val coroutineContext: CoroutineContext,
 ): DataReceiver, CoroutineScope {
-    private val _pictures = MutableSharedFlow<Image>()
+
+    private val _pictures = MutableSharedFlow<Image>(replay = 5)
     override val pictures = _pictures.asSharedFlow()
     init {
         tcpPayloadTransceiver.receivedPayloads.onEach {
@@ -25,5 +26,8 @@ class TcpPictureReceiver(
                 else -> {}
             }
         }.launchIn(this)
+    }
+    override suspend fun addPicture(image: Image) {
+        _pictures.emit(image)
     }
 }

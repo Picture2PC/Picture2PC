@@ -13,7 +13,8 @@ val usingAndroidStudio =
 
 include(":desktop")
 include(":common")
-if (true) {
+
+if (true /*usingAndroidStudio*/) {
     include(":android")
 }
 else {

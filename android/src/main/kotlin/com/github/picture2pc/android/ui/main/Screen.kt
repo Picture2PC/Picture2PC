@@ -22,20 +22,12 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-
-            if (vertical) {
-                when (screenSelector.value) {
-                    ScreenSelectorViewModel.Screens.MAIN -> MainScreenVertical()
-                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen()
-                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
-                }
-            } else {
-                when (screenSelector.value) {
-                    ScreenSelectorViewModel.Screens.MAIN -> MainScreenHorizontal()
-                    ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen()
-                    ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
-                }
+            when (screenSelector.value) {
+                ScreenSelectorViewModel.Screens.MAIN -> if (vertical) MainScreenVertical() else MainScreenHorizontal()
+                ScreenSelectorViewModel.Screens.CAMERA -> CameraScreen(vertical)
+                ScreenSelectorViewModel.Screens.BIG_PICTURE -> BigPictureScreen()
             }
         }
+
     }
 }

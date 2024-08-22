@@ -17,7 +17,6 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-
 class MainActivity : ComponentActivity() {
 
     @OptIn(InternalCoroutinesApi::class)
@@ -31,11 +30,9 @@ class MainActivity : ComponentActivity() {
         }
         startKoin {
             // Log Koin into Android logger
-
             androidLogger()
             // Reference Android context
             androidContext(this@MainActivity)
-
 
             modules(appModule, coroutineContextProviderModule)
         }
