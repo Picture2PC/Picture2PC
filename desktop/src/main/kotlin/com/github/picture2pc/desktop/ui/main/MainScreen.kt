@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -36,10 +34,10 @@ import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.ui.constants.Descriptions
-import com.github.picture2pc.desktop.ui.main.elements.Tooltip
-import com.github.picture2pc.desktop.ui.main.imagemanupulation.ImageInteractionButtons
-import com.github.picture2pc.desktop.ui.main.picturedisplay.Picture
-import com.github.picture2pc.desktop.ui.main.serverssection.connectionInfo
+import com.github.picture2pc.desktop.ui.main.elements.ImageInteractionButtons
+import com.github.picture2pc.desktop.ui.main.elements.Picture
+import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
+import com.github.picture2pc.desktop.ui.main.elements.connectionInfo
 import com.github.picture2pc.desktop.ui.util.getIcon
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
@@ -58,8 +56,8 @@ fun MainScreen(
 
     Box(
         Modifier
-            .background(Colors.BACKGROUND)
             .fillMaxSize()
+            .background(Colors.BACKGROUND)
     ) {
         Row(
             Modifier
@@ -73,7 +71,9 @@ fun MainScreen(
                     .width(246.dp)
                     .background(Colors.SECONDARY, Shapes.WINDOW)
             ) {
+                // Items in the Sidebar
                 Column(Modifier.padding(Spacers.NORMAL)) {
+                    // HEADER
                     Row {
                         Image(
                             getIcon(Icons.Logo.STANDARD),
@@ -95,9 +95,11 @@ fun MainScreen(
                     Spacer(Modifier.height(Spacers.SMALL))
                     */
 
+                    // IMAGE INTERACTION BUTTONS
                     Row { ImageInteractionButtons() }
                     Spacer(Modifier.height(Spacers.LARGE))
 
+                    // CONNECTION INFO
                     if (showConnections.value) {
                         Row(
                             Modifier
@@ -122,24 +124,16 @@ fun MainScreen(
                         )
                     }
 
+                    // CONNECTION INFO TOGGLE BUTTON
                     Box(Modifier.fillMaxSize()) {
-                        Tooltip(
-                            Descriptions.INFO, Modifier
-                                .align(Alignment.BottomEnd)
+                        TooltipIconButton(
+                            Descriptions.INFO,
+                            Icons.Desktop.INFO,
+                            Colors.ACCENT,
+                            Modifier.align(Alignment.BottomEnd),
                         ) {
-                            IconButton(
-                                { showConnections.value = !showConnections.value },
-                                Modifier
-                                    .background(Colors.ACCENT, Shapes.BUTTON)
-                            ) {
-                                Icon(
-                                    getIcon(Icons.Desktop.INFO),
-                                    "Info",
-                                    tint = Colors.TEXT
-                                )
-                            }
+                            showConnections.value = !showConnections.value
                         }
-
                     }
                 }
             }
@@ -147,6 +141,7 @@ fun MainScreen(
 
             // PICTURE DISPLAY AREA
             Box(Modifier.fillMaxSize()) {
+                // Picture Display
                 Column(Modifier.border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)) {
                     Box(
                         Modifier
@@ -156,36 +151,26 @@ fun MainScreen(
                         Alignment.Center
                     ) { Picture() }
                 }
+
+                // Rotation Buttons
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
-                        IconButton(
-                            {
-                                pDVM.rotationState.value = pDVM.rotationState.value.next(false)
-                            },
-                            Modifier.background(Colors.ACCENT, Shapes.BUTTON)
+                        TooltipIconButton(
+                            Descriptions.ROTATE_LEFT,
+                            Icons.Desktop.ROTATE_LEFT,
+                            Colors.ACCENT,
                         ) {
-                            Icon(
-                                getIcon(Icons.Desktop.ROTATE_LEFT),
-                                "Rotate Left",
-                                tint = Colors.TEXT
-                            )
+                            pDVM.rotationState.value = pDVM.rotationState.value.next(false)
                         }
 
                         Spacer(Modifier.width(Spacers.SMALL))
 
-                        Row {
-                            IconButton(
-                                {
-                                    pDVM.rotationState.value = pDVM.rotationState.value.next(true)
-                                },
-                                Modifier.background(Colors.ACCENT, Shapes.BUTTON)
-                            ) {
-                                Icon(
-                                    getIcon(Icons.Desktop.ROTATE_RIGHT),
-                                    "Rotate Right",
-                                    tint = Colors.TEXT
-                                )
-                            }
+                        TooltipIconButton(
+                            Descriptions.ROTATE_RIGHT,
+                            Icons.Desktop.ROTATE_RIGHT,
+                            Colors.ACCENT,
+                        ) {
+                            pDVM.rotationState.value = pDVM.rotationState.value.next(true)
                         }
                     }
                 }

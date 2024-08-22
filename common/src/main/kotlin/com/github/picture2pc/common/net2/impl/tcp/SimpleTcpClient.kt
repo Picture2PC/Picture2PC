@@ -1,6 +1,7 @@
 package com.github.picture2pc.common.net2.impl.tcp
 
 import com.github.picture2pc.common.net2.Peer
+import com.github.picture2pc.common.net2.impl.tcp.TcpConstants.CONNECION_TIMEOUT
 import com.github.picture2pc.common.net2.payloads.Payload
 import com.github.picture2pc.common.net2.payloads.TcpPayload
 import kotlinx.coroutines.CoroutineScope
@@ -9,6 +10,8 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
@@ -31,7 +34,8 @@ class SimpleTcpClient(
     private var timeoutJob: Job? = null
 ) : CoroutineScope //, DefaultDataPayloadTransceiver()
 {
-    var clientState: MutableStateFlow<ClientState> = MutableStateFlow(ClientState.DISCONNECTED)
+    private val _clientState: MutableStateFlow<ClientState> = MutableStateFlow(ClientState.PENDING)
+    val clientState: StateFlow<ClientState> = _clientState.asStateFlow()
 
     val socketAddress
         get() = jvmSocket.localSocketAddress as InetSocketAddress
@@ -41,6 +45,7 @@ class SimpleTcpClient(
         get() = jvmSocket.isConnected && !jvmSocket.isClosed
 
     fun startReceiving() {
+        _clientState.value = ClientState.CONNECTED
         timeoutJob = getTimeoutJob()
         launch {
             while (isActive) {
@@ -57,7 +62,7 @@ class SimpleTcpClient(
             }
         }
 
-        clientState.onEach {
+        _clientState.onEach {
             if (it == ClientState.RECEIVING) {
                 timeoutJob!!.cancelAndJoin()
                 timeoutJob = getTimeoutJob()
@@ -79,7 +84,7 @@ class SimpleTcpClient(
 
     suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
         coroutineScope {
-            return@coroutineScope withTimeoutOrNull(TcpConstants.CONNECION_TIMEOUT)
+            return@coroutineScope withTimeoutOrNull(CONNECION_TIMEOUT)
             {
                 jvmSocket.connect(inetSocketAddress)
                 return@withTimeoutOrNull true
@@ -101,7 +106,7 @@ class SimpleTcpClient(
                     .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
                 message.copyTo(jvmSocket.getOutputStream())
             } catch (e: Exception) {
-                clientState.value = ClientState.ERROR_WHILE_SENDING
+                _clientState.value = ClientState.ERROR_WHILE_SENDING
                 simpleTcpServer.disconnect(targetPeer)
                 message.close()
                 return@coroutineScope false
@@ -112,6 +117,7 @@ class SimpleTcpClient(
     }
 
     suspend fun close() {
+        _clientState.value = ClientState.DISCONNECTED
         coroutineScope {
             try {
                 jvmSocket.close()
@@ -124,11 +130,11 @@ class SimpleTcpClient(
     suspend fun receivePacket(): Payload? {
         try {
             val sizeBuff = ByteArray(Int.SIZE_BYTES)
-            clientState.emit(ClientState.WAITING_FOR_DATA)
+            _clientState.emit(ClientState.WAITING_FOR_DATA)
             coroutineScope {
                 jvmSocket.getInputStream().read(sizeBuff, 0, Int.SIZE_BYTES)
             }
-            clientState.emit(ClientState.RECEIVING)
+            _clientState.emit(ClientState.RECEIVING)
             yield()
             val size = ByteBuffer.wrap(sizeBuff).int
             check(size > 0) { "Size is not positive" }
@@ -140,14 +146,14 @@ class SimpleTcpClient(
                         .read(byteArray, copied, size - copied)
                 }
             }
-            clientState.emit(ClientState.CONNECTED)
+            _clientState.emit(ClientState.CONNECTED)
             yield()
             return Payload.fromInputStream(
                 byteArray.inputStream(),
                 InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
             )
         } catch (e: Exception) {
-            clientState.emit(ClientState.ERROR_WHILE_RECIEVING)
+            _clientState.emit(ClientState.ERROR_WHILE_RECIEVING)
             return null
         }
     }
