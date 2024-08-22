@@ -4,16 +4,18 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
+import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
 import org.jetbrains.skia.Point
 
 class DragHandler(
     private val pP: PicturePreparation,
+    private val rotationState: RotationState,
     private val cH: ClickHandler
 ) {
     private var dragStartPoint = Point(0f, 0f)
-    private val currentDragPoint = pP.currentDragPoint
+    var currentDragPoint: MutableState<Point> = mutableStateOf(Point(0f, 0f))
     var dragActive: MutableState<Boolean> = mutableStateOf(false)
 
     fun handleDrag(change: PointerInputChange, dragAmount: Offset) {
@@ -24,8 +26,11 @@ class DragHandler(
             currentDragPoint.value.x + dragAmount.x * pP.ratio,
             currentDragPoint.value.y + dragAmount.y * pP.ratio
         )
+
         dragActive.value = currentDragPoint.value.isInBounds(pP.editedBitmapBound)
-        pP.setDisplayedZoomedBitmap(currentDragPoint.value)
+        pP.setDisplayedZoomedBitmap(
+            currentDragPoint.value
+        )
 
         pP.updateEditedBitmap()
     }

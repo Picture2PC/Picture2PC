@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.extention.toPair
+import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
 import com.github.picture2pc.desktop.ui.interactionhandler.DragHandler
@@ -39,7 +41,7 @@ class PictureDisplayViewModel(
     val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
     val clickHandler = ClickHandler(rotationState, pP)
-    val dragHandler = DragHandler(pP, clickHandler)
+    val dragHandler = DragHandler(pP, rotationState.value, clickHandler)
 
     init {
         pictures.onEach {
@@ -60,6 +62,20 @@ class PictureDisplayViewModel(
         pP.setOriginalPicture(
             pictures.replayCache[newIndex].toComposeImageBitmap().asSkiaBitmap()
         )
+    }
+
+    fun calculateOffset(): Pair<Float, Float> {
+        val currentDP = dragHandler.currentDragPoint.value
+        val ratio = pP.ratio
+        val bound = pP.editedBitmapBound
+
+        val translatedPair = currentDP.toPair().translate(rotationState.value, bound)
+        val offsetPair = Pair(
+            (translatedPair.first / ratio) - ((bound.width / ratio) / 2),
+            (translatedPair.second / ratio) - ((bound.height / ratio) / 2)
+        )
+
+        return offsetPair
     }
 
     fun loadTestImage() {

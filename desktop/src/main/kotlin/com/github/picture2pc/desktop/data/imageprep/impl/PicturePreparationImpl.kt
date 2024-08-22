@@ -4,9 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.constants.Paints
@@ -58,7 +56,6 @@ class PicturePreparationImpl(
     override var editedBitmapBound = MathRect(Offset(0f, 0f), 0f)
 
     override val clicks: MutableList<SkPoint> = mutableListOf()
-    override var currentDragPoint: MutableState<SkPoint> = mutableStateOf(SkPoint(0f, 0f))
 
     override fun contrast() {
         if (editedBitmap.value.isEmpty) return
@@ -140,13 +137,6 @@ class PicturePreparationImpl(
 
     override fun calculateRatio(displayPictureSize: IntSize) {
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
-    }
-
-    override fun calculateOffset(): Pair<Dp, Dp> {
-        return Pair(
-            ((currentDragPoint.value.x / ratio) - ((editedBitmapBound.width / ratio) / 2)).dp,
-            ((currentDragPoint.value.y / ratio) - ((editedBitmapBound.height / ratio) / 2)).dp
-        )
     }
 
     override fun updateEditedBitmap() {

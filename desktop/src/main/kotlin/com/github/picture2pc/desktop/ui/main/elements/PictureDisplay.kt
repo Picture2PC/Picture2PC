@@ -67,13 +67,14 @@ fun Picture(
 
     if (!picDisVM.dragHandler.dragActive.value) return
     Box(Modifier.offset((-5).dp, (-5).dp)) {
+        val offset = picDisVM.calculateOffset()
         Image(
             bitmap = zoomedBitmap.asComposeImageBitmap(),
             contentDescription = "Zoomed Point",
             modifier = Modifier
                 .offset(
-                    picDisVM.pP.calculateOffset().first,
-                    picDisVM.pP.calculateOffset().second
+                    offset.first.dp,
+                    offset.second.dp
                 )
                 .clip(CircleShape)
                 .border(Borders.BORDER_THICK, Colors.SECONDARY, CircleShape)
@@ -81,8 +82,8 @@ fun Picture(
 
         Canvas(
             Modifier.size(10.dp).align(Alignment.Center).offset(
-                picDisVM.pP.calculateOffset().first,
-                picDisVM.pP.calculateOffset().second
+                offset.first.dp,
+                offset.second.dp
             )
         ) {
             drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))

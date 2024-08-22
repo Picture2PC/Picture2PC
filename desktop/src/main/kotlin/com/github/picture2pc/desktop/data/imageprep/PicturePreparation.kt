@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.data.imageprep
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Paint
@@ -19,10 +18,8 @@ interface PicturePreparation {
     var editedBitmapBound: Rect
 
     val clicks: MutableList<Point>
-    var currentDragPoint: MutableState<Point>
 
     fun calculateRatio(displayPictureSize: IntSize)
-    fun calculateOffset(): Pair<Dp, Dp>
 
     fun contrast()
     fun crop()
