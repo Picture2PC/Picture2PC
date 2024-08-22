@@ -41,8 +41,9 @@ object Style {
         object States {
             val PENDING = Color(0xFF3557C8)
             val CONNECTED = Color(0xFF2FB86C)
-            val WAITING_FOR_DATA = Color(0xFF3557C8)
-            val RECIEVING = Color(0xFFC0C02C)
+
+            //val WAITING_FOR_DATA = Color(0xFFC0C02C) // °-°
+            val RECEIVING = Color(0xFF3557C8)
             val ERROR_WHILE_RECIEVING = Color(0xFFC83538)
             val ERROR_WHILE_SENDING = Color(0xFFC83538)
             val DISCONNECTED = Color(0xFF000000)
