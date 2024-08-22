@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.imagemanupulation
+package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,11 +36,11 @@ fun QualitySelector() {
     var isClicked by remember { mutableStateOf(false) }
     var buttonWidthPx by remember { mutableStateOf(0) }
 
-    Box( Modifier.background(Colors.ACCENT, Shapes.BUTTON) ) {
-        Row( verticalAlignment = Alignment.CenterVertically ) {
+    Box(Modifier.background(Colors.ACCENT, Shapes.BUTTON)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 "Output Quality",
-                Modifier.padding( start = Spacers.MEDIUM,end = Spacers.MEDIUM ),
+                Modifier.padding(start = Spacers.MEDIUM, end = Spacers.MEDIUM),
                 style = TextStyles.NORMAL,
             )
 
