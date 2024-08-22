@@ -28,8 +28,8 @@ fun Tooltip(description: String, modifier: Modifier = Modifier, element: @Compos
                 Text(
                     description,
                     Modifier
-                        .background(Colors.PRIMARY, Shapes.BUTTON)
-                        .border(Borders.BORDER_STANDARD, Colors.ACCENT, Shapes.BUTTON)
+                        .background(Colors.ACCENT, Shapes.BUTTON)
+                        .border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.BUTTON)
                         .padding(Spacers.SMALL)
                         .align(Alignment.Center),
                     Colors.TEXT,

@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.throbber
+package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
