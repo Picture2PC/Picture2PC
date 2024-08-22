@@ -142,6 +142,7 @@ class SimpleTcpClient(
             var copied = 0
             coroutineScope {
                 while (copied < size) {
+                    delay(150)
                     copied += jvmSocket.getInputStream()
                         .read(byteArray, copied, size - copied)
                 }
@@ -157,6 +158,4 @@ class SimpleTcpClient(
             return null
         }
     }
-
-
 }
