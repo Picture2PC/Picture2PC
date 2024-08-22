@@ -45,7 +45,7 @@ fun ImageInteractionButtons(
             TooltipIconButton(
                 Descriptions.RESET,
                 Icons.Desktop.RESET,
-                modifierButton = Modifier.width(75.dp)
+                buttonModifier = Modifier.width(75.dp)
             ) { pDVM.pP.reset() }
             Spacer(spacerSize)
 
