@@ -37,8 +37,8 @@ class SimpleTcpClient(
     private val _clientState: MutableStateFlow<ClientState> = MutableStateFlow(ClientState.PENDING)
     val clientState: StateFlow<ClientState> = _clientState.asStateFlow()
 
-    //val socketAddress
-    //    get() = jvmSocket.localSocketAddress as InetSocketAddress
+    val socketAddress
+        get() = jvmSocket.localSocketAddress as InetSocketAddress
 
 
     val isConnected
@@ -150,7 +150,7 @@ class SimpleTcpClient(
             yield()
             return Payload.fromInputStream(
                 byteArray.inputStream(),
-                InetSocketAddress(jvmSocket.inetAddress, jvmSocket.port)
+                socketAddress
             )
         } catch (e: Exception) {
             _clientState.emit(ClientState.ERROR_WHILE_RECIEVING)
