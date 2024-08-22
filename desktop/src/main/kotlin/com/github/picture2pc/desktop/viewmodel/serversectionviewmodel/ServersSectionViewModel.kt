@@ -27,6 +27,7 @@ class ServersSectionViewModel(
                         peer,
                         peer.name,
                         availableServersCollector.getClientState(peer)
+                            ?: return@onEach
                     )
                 })
             }.launchIn(this)
@@ -39,6 +40,6 @@ class ServersSectionViewModel(
     data class ServerEntryState(
         val peer: Peer,
         val deviceName: String,
-        val connectionState: StateFlow<ClientState>?
+        val connectionState: StateFlow<ClientState>
     )
 }

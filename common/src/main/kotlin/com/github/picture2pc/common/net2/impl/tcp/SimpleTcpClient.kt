@@ -37,8 +37,8 @@ class SimpleTcpClient(
     private val _clientState: MutableStateFlow<ClientState> = MutableStateFlow(ClientState.PENDING)
     val clientState: StateFlow<ClientState> = _clientState.asStateFlow()
 
-    val socketAddress
-        get() = jvmSocket.localSocketAddress as InetSocketAddress
+    //val socketAddress
+    //    get() = jvmSocket.localSocketAddress as InetSocketAddress
 
 
     val isConnected
@@ -142,7 +142,6 @@ class SimpleTcpClient(
             var copied = 0
             coroutineScope {
                 while (copied < size) {
-                    delay(150)
                     copied += jvmSocket.getInputStream()
                         .read(byteArray, copied, size - copied)
                 }

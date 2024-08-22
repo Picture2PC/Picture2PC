@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
-    val availableServers = serversSectionViewModel.availableServers.collectAsState()
+    val availableServers = serversSectionViewModel.availableServers.collectAsState().value
     Column {
         Text(
             "Connections",
@@ -33,7 +33,7 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
             style = TextStyles.HEADER2
         )
 
-        if (availableServers.value.isEmpty()) {
+        if (availableServers.isEmpty()) {
             Text(
                 "No connections",
                 Modifier.padding(Spacers.NORMAL),
@@ -41,7 +41,7 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
                 style = TextStyles.NORMAL
             )
         } else {
-            availableServers.value.forEach {
+            availableServers.forEach {
                 connection(it.deviceName, it.connectionState)
             }
         }
@@ -50,20 +50,21 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
 }
 
 @Composable
-fun connection(name: String, state: StateFlow<ClientState>?) {
+fun connection(name: String, clientStateFlow: StateFlow<ClientState>?) {
+    val clientState = clientStateFlow?.collectAsState()
     Row(Modifier.padding(start = Spacers.NORMAL, end = Spacers.NORMAL, top = Spacers.SMALL)) {
         Text(name, color = Colors.TEXT, style = TextStyles.NORMAL)
         Spacer(Modifier.weight(1f))
 
         Text(
-            state?.value?.displayName ?: "null",
+            clientState?.value?.displayName ?: "null",
             color = Colors.TEXT,
             style = TextStyles.NORMAL
         )
         Spacer(Modifier.width(Spacers.SMALL))
 
         Canvas(Modifier.size(Style.Dimensions.StateIndicator).align(Alignment.CenterVertically)) {
-            drawCircle(state?.value?.color ?: StateColors.DISCONNECTED)
+            drawCircle(clientState?.value?.color ?: StateColors.DISCONNECTED)
         }
     }
 }
