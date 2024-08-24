@@ -19,14 +19,14 @@ fun TooltipIconButton(
     icon: String,
     color: Color = Colors.PRIMARY,
     modifier: Modifier = Modifier,
-    modifierButton: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Tooltip(description, modifier) {
         Box {
             IconButton(
                 onClick,
-                modifierButton.background(color, Shapes.BUTTON).size(Heights.BUTTON)
+                buttonModifier.background(color, Shapes.BUTTON).size(Heights.BUTTON)
             ) {
                 Icon(
                     getIcon(icon),
