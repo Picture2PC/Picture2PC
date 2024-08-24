@@ -40,12 +40,14 @@ fun Picture(
     val overlayBitmap = picDisVM.overlayPicture.value
     val pP = picDisVM.pP
 
+    // Main Picture
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
         modifier = Modifier.onSizeChanged { size -> pP.calculateRatio(size) }
     )
 
+    // Clicked Points Overlay
     Image(
         bitmap = overlayBitmap.asComposeImageBitmap(),
         contentDescription = "Overlay",
@@ -72,9 +74,9 @@ fun Picture(
             )
     )
 
+    // Zoom Overlay
     if (!picDisVM.movementHandler.dragActive.value) return
     val offset = picDisVM.calculateOffset(picDisVM.rotationState.value)
-
     Box(
         Modifier
             .offset(offset.first.dp, offset.second.dp)
