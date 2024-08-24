@@ -72,7 +72,7 @@ object Style {
 
         object Heights {
             val DIVIDER = 3.dp
-            val BUTTON = 40.dp
+            val BUTTON = 50.dp
         }
 
         object Borders {

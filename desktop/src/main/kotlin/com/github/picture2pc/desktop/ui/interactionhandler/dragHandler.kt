@@ -10,10 +10,10 @@ import org.jetbrains.skia.Point
 
 class DragHandler(
     private val pP: PicturePreparation,
-    private val cH: ClickHandler
+    private val cH: ClickHandler,
 ) {
     private var dragStartPoint = Point(0f, 0f)
-    private val currentDragPoint = pP.currentDragPoint
+    var currentDragPoint: MutableState<Point> = mutableStateOf(Point(0f, 0f))
     var dragActive: MutableState<Boolean> = mutableStateOf(false)
 
     fun handleDrag(change: PointerInputChange, dragAmount: Offset) {
@@ -21,16 +21,17 @@ class DragHandler(
         if (currentDragPoint.value == Point(0f, 0f)) currentDragPoint.value = dragStartPoint
 
         currentDragPoint.value = Point(
-            currentDragPoint.value.x + dragAmount.x * pP.ratio,
-            currentDragPoint.value.y + dragAmount.y * pP.ratio
+            currentDragPoint.value.x + (dragAmount.x / 2) * pP.ratio,
+            currentDragPoint.value.y + (dragAmount.y / 2) * pP.ratio
         )
+
         dragActive.value = currentDragPoint.value.isInBounds(pP.editedBitmapBound)
         pP.setDisplayedZoomedBitmap(currentDragPoint.value)
-
         pP.updateEditedBitmap()
     }
 
     fun resetDrag() {
+        /*setCursorPosition(Pair(dragStartPoint.x.toInt(), dragStartPoint.y.toInt()))*/
         cH.handleClick(
             Offset(
                 currentDragPoint.value.x / pP.ratio,
