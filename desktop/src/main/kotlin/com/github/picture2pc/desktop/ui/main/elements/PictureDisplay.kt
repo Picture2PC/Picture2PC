@@ -26,7 +26,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
-import com.github.picture2pc.desktop.extention.toPair
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.util.customCursor
@@ -54,26 +53,26 @@ fun Picture(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragStart: Offset ->
-                        picDisVM.dragHandler.setDragStart(dragStart)
+                        picDisVM.movementHandler.setDragStart(dragStart)
                     },
                     onDrag = { change, dragAmount ->
-                        picDisVM.dragHandler.handleDrag(change, dragAmount)
+                        picDisVM.movementHandler.handleDrag(change, dragAmount)
                     },
-                    onDragEnd = { picDisVM.dragHandler.resetDrag() }
+                    onDragEnd = { picDisVM.movementHandler.endDrag() }
                 )
             }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    picDisVM.clickHandler.handleClick(offset)
+                    picDisVM.movementHandler.handleClick(offset)
                 }
             }
             .pointerHoverIcon(
-                if (picDisVM.dragHandler.dragActive.value) PointerIcon(customCursor())
+                if (picDisVM.movementHandler.dragActive.value) PointerIcon(customCursor())
                 else PointerIcon.Default
             )
     )
 
-    if (!picDisVM.dragHandler.dragActive.value) return
+    if (!picDisVM.movementHandler.dragActive.value) return
     val offset = picDisVM.calculateOffset(picDisVM.rotationState.value)
 
     Box(
@@ -81,7 +80,7 @@ fun Picture(
             .offset(offset.first.dp, offset.second.dp)
             .border(2.dp, Colors.PRIMARY, CircleShape)
     ) {
-        val point = picDisVM.dragHandler.currentDragPoint.value.toPair().translate(
+        val point = picDisVM.movementHandler.currentDragPoint.value.translate(
             picDisVM.rotationState.value,
             picDisVM.pP.editedBitmapBound
         )

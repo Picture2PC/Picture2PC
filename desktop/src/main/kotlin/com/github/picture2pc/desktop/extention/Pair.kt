@@ -2,7 +2,8 @@ package com.github.picture2pc.desktop.extention
 
 import androidx.compose.ui.geometry.Rect
 import com.github.picture2pc.desktop.data.RotationState
-import org.jetbrains.skia.Point
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun Pair<Float, Float>.translate(
     rotationState: RotationState,
@@ -17,8 +18,20 @@ fun Pair<Float, Float>.translate(
     }
 }
 
-fun Pair<Float, Float>.toPoint(): Point {
-    return Point(this.first, this.second)
+fun Pair<Float, Float>.isInBounds(rectangle: Rect): Boolean {
+    return !(
+            this.first < rectangle.left ||
+                    this.first > rectangle.right ||
+                    this.second < rectangle.top ||
+                    this.second > rectangle.bottom
+            )
+}
+
+fun Pair<Float, Float>.distanceTo(secondPair: Pair<Float, Float>): Float {
+    return sqrt(
+        (secondPair.first - this.first).pow(2) +
+                (secondPair.second - this.second).pow(2)
+    )
 }
 
 operator fun Pair<Float, Float>.div(value: Number): Pair<Float, Float> {

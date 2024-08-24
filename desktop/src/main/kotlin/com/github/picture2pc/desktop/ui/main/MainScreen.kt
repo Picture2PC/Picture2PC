@@ -48,11 +48,8 @@ fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
     pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
-    // Notify all Servers that the client is online
-    serversSectionViewModel.refreshServers()
+    serversSectionViewModel.refreshServers() // Notify all Servers that the client is online
     val showConnections = remember { mutableStateOf(false) }
-
-    //TODO: Add tooltips to buttons
 
     Box(
         Modifier
@@ -114,9 +111,7 @@ fun MainScreen(
                         Text("Refresh Servers")
                     }
                     Row {
-                        Button({ pDVM.loadTestImage() }) {
-                            Text("Load Test Image")
-                        }
+                        Button({ pDVM.loadTestImage() }) { Text("Load Test Image") }
                         Checkbox(
                             pDVM.isSelectPicture.value,
                             { pDVM.isSelectPicture.value = !pDVM.isSelectPicture.value },
@@ -131,9 +126,7 @@ fun MainScreen(
                             Icons.Desktop.INFO,
                             Colors.ACCENT,
                             Modifier.align(Alignment.BottomEnd),
-                        ) {
-                            showConnections.value = !showConnections.value
-                        }
+                        ) { showConnections.value = !showConnections.value }
                     }
                 }
             }
@@ -160,7 +153,8 @@ fun MainScreen(
                             Icons.Desktop.ROTATE_LEFT,
                             Colors.ACCENT,
                         ) {
-                            pDVM.rotationState.value = pDVM.rotationState.value.next(false)
+                            pDVM.rotationState.value =
+                                pDVM.rotationState.value.next(false)
                         }
 
                         Spacer(Modifier.width(Spacers.SMALL))
@@ -170,7 +164,8 @@ fun MainScreen(
                             Icons.Desktop.ROTATE_RIGHT,
                             Colors.ACCENT,
                         ) {
-                            pDVM.rotationState.value = pDVM.rotationState.value.next(true)
+                            pDVM.rotationState.value =
+                                pDVM.rotationState.value.next(true)
                         }
                     }
                 }
