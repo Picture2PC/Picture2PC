@@ -82,7 +82,7 @@ fun Picture(
     ) {
         val point = picDisVM.movementHandler.currentDragPoint.value.translate(
             picDisVM.rotationState.value,
-            picDisVM.pP.editedBitmapBound
+            picDisVM.pP.bounds
         )
         Canvas(Modifier.size(140.dp).align(Alignment.Center)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {

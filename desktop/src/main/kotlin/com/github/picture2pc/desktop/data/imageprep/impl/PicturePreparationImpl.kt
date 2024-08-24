@@ -49,7 +49,7 @@ class PicturePreparationImpl(
 
     //Important other variables
     override var ratio: Float = 1f
-    override var editedBitmapBound = MathRect(Offset(0f, 0f), 0f)
+    override var bounds = MathRect(Offset(0f, 0f), 0f)
     override var displayPictureSize = IntSize(0, 0)
 
     override val clicks: MutableList<Pair<Float, Float>> = mutableListOf()
@@ -138,7 +138,7 @@ class PicturePreparationImpl(
 
     override fun updateEditedBitmap() {
         _editedBitmap.value = editedBitmap.value.makeClone()
-        editedBitmapBound = MathRect(
+        bounds = MathRect(
             Offset(0f, 0f),
             Offset(editedBitmap.value.width.toFloat(), editedBitmap.value.height.toFloat())
         )
@@ -158,7 +158,7 @@ class PicturePreparationImpl(
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        editedBitmapBound = MathRect(
+        bounds = MathRect(
             Offset(0f, 0f),
             Offset(picture.width.toFloat(), picture.height.toFloat())
         )
@@ -195,10 +195,8 @@ class PicturePreparationImpl(
 
     override fun redrawAllPoints() {
         reset(resetEditedBitmap = false, resetClicks = false)
-        println("draw")
         for (point in clicks) {
             drawCircle(point, filled = true)
-            println(point)
         }
     }
 }

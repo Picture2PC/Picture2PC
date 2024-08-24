@@ -24,9 +24,9 @@ class MovementHandler(
     fun handleClick(offset: Offset) {
         val point = Pair(offset.x * pP.ratio, offset.y * pP.ratio).translate(
             rotation.value,
-            pP.editedBitmapBound
+            pP.bounds
         )
-        if (!point.isInBounds(pP.editedBitmapBound)) return
+        if (!point.isInBounds(pP.bounds)) return
 
         if (clicks.size == 4) pP.reset(resetEditedBitmap = false)
         if (clicks.isNotEmpty()) pP.drawCircle(clicks.last(), filled = true)
@@ -50,13 +50,21 @@ class MovementHandler(
             clicks.map { it.second }.average().toFloat()
         )
 
-        // Sort points based on the angle with the centroid
-        clicks.sortBy { pair ->
-            atan2(
-                (pair.first - centroid.first).toDouble(),
-                (pair.first - centroid.second).toDouble()
+        // Calculate the angle of each point relative to the centroid
+        val angles = clicks.map { point ->
+            val angle = atan2(
+                (point.second - centroid.second).toDouble(),
+                (point.first - centroid.first).toDouble()
             )
+            Pair(point, angle)
         }
+
+        // Sort points based on the angle
+        val sortedPoints = angles.sortedBy { it.second }.map { it.first }
+
+        // Update the clicks list with sorted points
+        clicks.clear()
+        clicks.addAll(sortedPoints)
     }
 
     private fun resetDrag() {
@@ -79,7 +87,7 @@ class MovementHandler(
             currentDragPoint.value.second + (dragAmount.y / 2) * pP.ratio
         )
 
-        dragActive.value = currentDragPoint.value.isInBounds(pP.editedBitmapBound)
+        dragActive.value = currentDragPoint.value.isInBounds(pP.bounds)
         pP.updateEditedBitmap()
     }
 
@@ -90,7 +98,7 @@ class MovementHandler(
             val distances = mutableListOf<Float>()
             for (click in pP.clicks) {
                 val distance =
-                    dragStartPoint.translate(rotation.value, pP.editedBitmapBound).distanceTo(click)
+                    dragStartPoint.translate(rotation.value, pP.bounds).distanceTo(click)
                 distances.add(distance)
             }
             val indexOfLowestDistance = distances.indexOf(distances.minOrNull())
@@ -104,7 +112,10 @@ class MovementHandler(
     }
 
     fun endDrag() {
-        pP.clicks.add(currentDragPoint.value.translate(rotation.value, pP.editedBitmapBound))
+        if (pP.clicks.size == 4) {
+            pP.clicks.clear()
+        }
+        pP.clicks.add(currentDragPoint.value.translate(rotation.value, pP.bounds))
         pP.redrawAllPoints()
         if (pP.clicks.size == 4) {
             sortClicksToRectangle()

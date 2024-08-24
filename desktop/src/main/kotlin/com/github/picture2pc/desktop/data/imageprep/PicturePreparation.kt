@@ -11,7 +11,7 @@ interface PicturePreparation {
     var overlayBitmap: State<Bitmap>
 
     var ratio: Float
-    var editedBitmapBound: Rect
+    var bounds: Rect
     var displayPictureSize: IntSize
 
     val clicks: MutableList<Pair<Float, Float>>

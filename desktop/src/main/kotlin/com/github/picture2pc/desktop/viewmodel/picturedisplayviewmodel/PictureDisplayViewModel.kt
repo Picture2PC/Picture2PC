@@ -64,7 +64,7 @@ class PictureDisplayViewModel(
         rotationState: RotationState
     ): Pair<Float, Float> {
         val ratio = pP.ratio
-        val bound = pP.editedBitmapBound / ratio
+        val bound = pP.bounds / ratio
         val currentDP = (movementHandler.currentDragPoint.value / ratio).translate(
             rotationState,
             bound
