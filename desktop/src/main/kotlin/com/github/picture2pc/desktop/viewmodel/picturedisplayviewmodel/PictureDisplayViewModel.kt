@@ -7,12 +7,9 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.div
-import com.github.picture2pc.desktop.extention.toPair
-import com.github.picture2pc.desktop.extention.toPoint
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
-import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
-import com.github.picture2pc.desktop.ui.interactionhandler.DragHandler
+import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -42,8 +39,7 @@ class PictureDisplayViewModel(
     val isSelectPicture = mutableStateOf(false)
     val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
-    val clickHandler = ClickHandler(rotationState, pP)
-    val dragHandler = DragHandler(pP, clickHandler)
+    val movementHandler = MovementHandler(rotationState, pP)
 
     init {
         pictures.onEach {
@@ -68,15 +64,15 @@ class PictureDisplayViewModel(
         rotationState: RotationState
     ): Pair<Float, Float> {
         val ratio = pP.ratio
-        val bound = pP.editedBitmapBound / ratio
-        val currentDP = (dragHandler.currentDragPoint.value / ratio).toPair().translate(
+        val bound = pP.bounds / ratio
+        val currentDP = (movementHandler.currentDragPoint.value / ratio).translate(
             rotationState,
             bound
-        ).toPoint()
+        )
 
         val offsetPair = Pair(
-            currentDP.x - (bound.width / 2),
-            currentDP.y - (bound.height / 2)
+            currentDP.first - (bound.width / 2),
+            currentDP.second - (bound.height / 2)
         )
         return offsetPair
     }

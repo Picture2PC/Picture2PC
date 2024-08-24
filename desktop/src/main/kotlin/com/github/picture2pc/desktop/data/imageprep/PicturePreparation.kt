@@ -1,24 +1,20 @@
 package com.github.picture2pc.desktop.data.imageprep
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntSize
 import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Paint
-import org.jetbrains.skia.Point
 
 interface PicturePreparation {
     var originalBitmap: Bitmap
     var editedBitmap: State<Bitmap>
     var overlayBitmap: State<Bitmap>
-    var zoomedBitmap: MutableState<Bitmap>
 
     var ratio: Float
-    var editedBitmapBound: Rect
+    var bounds: Rect
     var displayPictureSize: IntSize
 
-    val clicks: MutableList<Point>
+    val clicks: MutableList<Pair<Float, Float>>
 
     fun calculateRatio(displayPictureSize: IntSize)
 
@@ -28,16 +24,13 @@ interface PicturePreparation {
     fun reset(
         resetEditedBitmap: Boolean = true,
         resetClicks: Boolean = true,
-        resetOverlay: Boolean = true,
-        resetDragOverlay: Boolean = true
+        resetOverlay: Boolean = true
     )
 
     fun setOriginalPicture(picture: Bitmap)
-    fun setDisplayedZoomedBitmap(point: Point)
     fun updateEditedBitmap()
 
-    //fun getCorners(): MutableList<Array<org.opencv.core.Point>>?
-
-    fun drawCircle(point: Point, filled: Boolean = false)
-    fun drawPolygon(points: List<Point>, paint: Paint)
+    fun drawCircle(pair: Pair<Float, Float>, filled: Boolean = false)
+    fun drawPolygon(pairs: MutableList<Pair<Float, Float>>)
+    fun redrawAllPoints()
 }
