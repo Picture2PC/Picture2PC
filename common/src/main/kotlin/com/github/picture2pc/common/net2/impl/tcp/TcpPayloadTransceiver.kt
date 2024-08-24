@@ -4,6 +4,7 @@ import com.github.picture2pc.common.net2.NetworkPayloadTransceiver
 import com.github.picture2pc.common.net2.Peer
 import com.github.picture2pc.common.net2.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.component.KoinComponent
@@ -25,10 +26,12 @@ class TcpPayloadTransceiver(override val coroutineContext: CoroutineContext) : C
         }.launchIn(this)
     }
 
-
     val inetSocketAddress
         get() = tcpServer.socketAddress
 
+    fun getPeerStateAsStateFlow(peer: Peer): StateFlow<ClientState>? {
+        return tcpServer.getPeerStateAsFlow(peer)
+    }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress? = null) {
         if (inetSocketAddress == null) {
