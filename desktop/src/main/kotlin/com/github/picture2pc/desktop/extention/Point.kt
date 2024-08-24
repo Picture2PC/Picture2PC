@@ -21,3 +21,7 @@ fun Point.isInBounds(rectangle: Rect): Boolean {
 fun Point.toPair(): Pair<Float, Float> {
     return Pair(this.x, this.y)
 }
+
+operator fun Point.div(value: Number): Point {
+    return Point(this.x / value.toFloat(), this.y / value.toFloat())
+}

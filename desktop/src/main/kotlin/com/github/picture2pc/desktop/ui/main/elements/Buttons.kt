@@ -1,7 +1,8 @@
 package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -22,15 +23,17 @@ fun TooltipIconButton(
     onClick: () -> Unit
 ) {
     Tooltip(description, modifier) {
-        IconButton(
-            onClick,
-            modifierButton.background(color, Shapes.BUTTON).height(Heights.BUTTON)
-        ) {
-            Icon(
-                getIcon(icon),
-                description,
-                tint = Colors.TEXT
-            )
+        Box {
+            IconButton(
+                onClick,
+                modifierButton.background(color, Shapes.BUTTON).size(Heights.BUTTON)
+            ) {
+                Icon(
+                    getIcon(icon),
+                    description,
+                    tint = Colors.TEXT
+                )
+            }
         }
     }
 }

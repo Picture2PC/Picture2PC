@@ -12,7 +12,9 @@ import com.github.picture2pc.desktop.ui.util.getIcon
 import java.awt.Toolkit
 
 @Composable
-fun MainWindow(onCloseRequest: () -> Unit) {
+fun MainWindow(
+    onCloseRequest: () -> Unit
+) {
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val windowWidth = Data.MINIMUM_WINDOW_SIZE.width
     val windowHeight = Data.MINIMUM_WINDOW_SIZE.height

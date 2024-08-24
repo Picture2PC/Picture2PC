@@ -54,6 +54,7 @@ class PicturePreparationImpl(
     //Important other variables
     override var ratio: Float = 1f
     override var editedBitmapBound = MathRect(Offset(0f, 0f), 0f)
+    override var displayPictureSize = IntSize(0, 0)
 
     override val clicks: MutableList<SkPoint> = mutableListOf()
 
@@ -136,6 +137,7 @@ class PicturePreparationImpl(
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
+        this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
     }
 
@@ -156,7 +158,6 @@ class PicturePreparationImpl(
             )
             erase(Color.TRANSPARENT)
         }
-
         return bitmap
     }
 
@@ -171,7 +172,6 @@ class PicturePreparationImpl(
             x + radius,
             y + radius
         )
-
         editedBitmap.value.extractSubset(zoomedBitmap.value, rect)
     }
 

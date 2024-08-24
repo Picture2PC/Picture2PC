@@ -4,15 +4,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
-import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.isInBounds
 import org.jetbrains.skia.Point
 
 class DragHandler(
     private val pP: PicturePreparation,
-    private val rotationState: RotationState,
-    private val cH: ClickHandler
+    private val cH: ClickHandler,
 ) {
     private var dragStartPoint = Point(0f, 0f)
     var currentDragPoint: MutableState<Point> = mutableStateOf(Point(0f, 0f))
@@ -23,19 +21,17 @@ class DragHandler(
         if (currentDragPoint.value == Point(0f, 0f)) currentDragPoint.value = dragStartPoint
 
         currentDragPoint.value = Point(
-            currentDragPoint.value.x + dragAmount.x * pP.ratio,
-            currentDragPoint.value.y + dragAmount.y * pP.ratio
+            currentDragPoint.value.x + (dragAmount.x / 2) * pP.ratio,
+            currentDragPoint.value.y + (dragAmount.y / 2) * pP.ratio
         )
 
         dragActive.value = currentDragPoint.value.isInBounds(pP.editedBitmapBound)
-        pP.setDisplayedZoomedBitmap(
-            currentDragPoint.value
-        )
-
+        pP.setDisplayedZoomedBitmap(currentDragPoint.value)
         pP.updateEditedBitmap()
     }
 
     fun resetDrag() {
+        /*setCursorPosition(Pair(dragStartPoint.x.toInt(), dragStartPoint.y.toInt()))*/
         cH.handleClick(
             Offset(
                 currentDragPoint.value.x / pP.ratio,

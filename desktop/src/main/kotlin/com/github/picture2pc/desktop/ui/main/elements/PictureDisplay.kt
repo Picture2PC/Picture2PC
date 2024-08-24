@@ -12,15 +12,24 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.desktop.extention.toPair
+import com.github.picture2pc.desktop.extention.translate
+import com.github.picture2pc.desktop.ui.constants.Settings
+import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -30,17 +39,12 @@ fun Picture(
 ) {
     val pictureBitmap = picDisVM.currentPicture.value
     val overlayBitmap = picDisVM.overlayPicture.value
-    val zoomedBitmap = picDisVM.zoomedBitmap.value
+    val pP = picDisVM.pP
 
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
-        modifier = Modifier
-            .onSizeChanged { size ->
-                picDisVM.pP.calculateRatio(
-                    size
-                )
-            }
+        modifier = Modifier.onSizeChanged { size -> pP.calculateRatio(size) }
     )
 
     Image(
@@ -63,30 +67,41 @@ fun Picture(
                     picDisVM.clickHandler.handleClick(offset)
                 }
             }
+            .pointerHoverIcon(
+                if (picDisVM.dragHandler.dragActive.value) PointerIcon(customCursor())
+                else PointerIcon.Default
+            )
     )
 
     if (!picDisVM.dragHandler.dragActive.value) return
-    Box(Modifier.offset((-5).dp, (-5).dp)) {
-        val offset = picDisVM.calculateOffset()
-        Image(
-            bitmap = zoomedBitmap.asComposeImageBitmap(),
-            contentDescription = "Zoomed Point",
-            modifier = Modifier
-                .offset(
-                    offset.first.dp,
-                    offset.second.dp
-                )
-                .clip(CircleShape)
-                .border(Borders.BORDER_THICK, Colors.SECONDARY, CircleShape)
-        )
+    val offset = picDisVM.calculateOffset(picDisVM.rotationState.value)
 
-        Canvas(
-            Modifier.size(10.dp).align(Alignment.Center).offset(
-                offset.first.dp,
-                offset.second.dp
-            )
-        ) {
-            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
+    Box(
+        Modifier
+            .offset(offset.first.dp, offset.second.dp)
+            .border(2.dp, Colors.PRIMARY, CircleShape)
+    ) {
+        val point = picDisVM.dragHandler.currentDragPoint.value.toPair().translate(
+            picDisVM.rotationState.value,
+            picDisVM.pP.editedBitmapBound
+        )
+        Canvas(Modifier.size(140.dp).align(Alignment.Center)) {
+            clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
+                translate(
+                    left = -(point.first * Settings.SCALE) + 110,
+                    top = -(point.second * Settings.SCALE) + 110
+                ) {
+                    scale(Settings.SCALE) {
+                        drawImage(
+                            image = pictureBitmap.asComposeImageBitmap(),
+                            topLeft = Offset.Zero
+                        )
+                    }
+                }
+            }
         }
+        Canvas(
+            Modifier.size(10.dp).align(Alignment.Center)
+        ) { drawCircle(Colors.PRIMARY, style = Stroke(width = 2f)) }
     }
 }

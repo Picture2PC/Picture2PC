@@ -16,6 +16,7 @@ interface PicturePreparation {
 
     var ratio: Float
     var editedBitmapBound: Rect
+    var displayPictureSize: IntSize
 
     val clicks: MutableList<Point>
 
