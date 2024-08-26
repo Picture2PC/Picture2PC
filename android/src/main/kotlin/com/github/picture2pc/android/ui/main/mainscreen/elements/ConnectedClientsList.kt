@@ -17,12 +17,12 @@ import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewM
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun ConnectedClientsList(modifier: Modifier, viewModel: ClientsViewModel = rememberKoinInject()) {
+fun ConnectedClientsList(viewModel: ClientsViewModel = rememberKoinInject()) {
 
     val connections by viewModel.serverEntries.collectAsState(emptyList())
 
     LazyColumn(
-        modifier = modifier.background(Color.DarkGray, RoundedCornerShape(12.dp)),
+        modifier = Modifier.background(Color.DarkGray, RoundedCornerShape(12.dp)),
         contentPadding = PaddingValues(10.dp, 5.dp)
     ) {
         items(connections) { client ->

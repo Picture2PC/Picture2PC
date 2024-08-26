@@ -12,11 +12,10 @@ import com.github.picture2pc.common.net2.Peer
 @Composable
 fun Client(clientData: Peer) {
     Row(
-        Modifier
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = clientData.name, fontSize = 20.sp)
         Text(text = "clientData.address")
-
     }
 }

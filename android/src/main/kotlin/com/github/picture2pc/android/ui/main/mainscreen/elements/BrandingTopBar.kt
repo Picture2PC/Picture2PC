@@ -28,8 +28,7 @@ fun BrandingTopBar(modifier: Modifier) {
         Image(
             painterResource(R.drawable.app_icon_standard),
             contentDescription = "ICON",
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
