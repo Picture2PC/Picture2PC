@@ -74,9 +74,7 @@ fun MainScreen() {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        ConnectableStateSwitch()
-                    }
+                    Column { ConnectableStateSwitch() }
                     Spacer(Modifier.width(10.dp))
                     Column {
                         Text(
@@ -86,13 +84,9 @@ fun MainScreen() {
                     }
                 }
                 Spacer(Modifier.height(10.dp))
-                Row(Modifier.weight(1f)) {
-                    ConnectedClientsList(Modifier.fillMaxSize())
-                }
+                Row(Modifier.weight(1f)) { ConnectedClientsList(Modifier.fillMaxSize()) }
                 Spacer(Modifier.height(10.dp))
-                Row {
-                    BottomOfScreen()
-                }
+                Row { BottomOfScreen() }
             }
         }
     }

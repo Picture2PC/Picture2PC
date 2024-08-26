@@ -12,6 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -24,10 +28,15 @@ fun ServerNameInputField(
     modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
     val nameInput by viewModel.serverName.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    val focusRequester = FocusRequester()
 
     OutlinedTextField(
         value = nameInput,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester),
         singleLine = true,
         onValueChange = viewModel::nameChanged,
         placeholder = { Text("Unknown", color = Colors.TEXT.copy(0.5f)) },
@@ -38,8 +47,14 @@ fun ServerNameInputField(
             autoCorrectEnabled = true,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = { viewModel.saveName(nameInput) }),
+        keyboardActions = KeyboardActions(onDone = {
+            viewModel.saveName(nameInput)
+            keyboardController?.hide()
+            focusManager.clearFocus()
+        }),
         colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Colors.TEXT,
+            unfocusedTextColor = Colors.TEXT,
             focusedBorderColor = Colors.PRIMARY,
             unfocusedBorderColor = Colors.PRIMARY,
             cursorColor = Colors.ACCENT,
