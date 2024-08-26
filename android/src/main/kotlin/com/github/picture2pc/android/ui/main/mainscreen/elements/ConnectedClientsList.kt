@@ -30,7 +30,7 @@ fun ConnectedClientsList(
 
     Column(
         modifier = modifier
-            .background(Colors.ACCENT, RoundedCornerShape(12.dp))
+            .background(Colors.ACCENT, RoundedCornerShape(25.dp))
             .padding(20.dp),
     ) {
         Row {

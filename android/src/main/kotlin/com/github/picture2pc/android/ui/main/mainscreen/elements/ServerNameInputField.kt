@@ -1,6 +1,7 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -19,12 +21,13 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun ServerNameInputField(
-    viewModel: BroadcastViewModel = rememberKoinInject()
+    modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
     val nameInput by viewModel.serverName.collectAsState()
 
     OutlinedTextField(
         value = nameInput,
+        modifier = modifier.fillMaxWidth(),
         singleLine = true,
         onValueChange = viewModel::nameChanged,
         placeholder = { Text("Unknown", color = Colors.TEXT.copy(0.5f)) },

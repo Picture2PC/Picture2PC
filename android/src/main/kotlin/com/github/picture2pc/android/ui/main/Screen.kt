@@ -2,6 +2,7 @@ package com.github.picture2pc.android.ui.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -23,6 +24,7 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
         Surface(
             Modifier
                 .background(Colors.BACKGROUND)
+                .fillMaxSize()
                 .padding(10.dp)
                 .border(4.dp, Style.Colors.PRIMARY, RoundedCornerShape(25.dp))
         ) {

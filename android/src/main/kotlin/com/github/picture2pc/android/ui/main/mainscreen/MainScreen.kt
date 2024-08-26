@@ -26,11 +26,13 @@ import com.github.picture2pc.android.R
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen() {
+fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
     Column(
         Modifier
             .fillMaxSize()
@@ -71,7 +73,7 @@ fun MainScreen() {
                     .fillMaxWidth()
             ) {
                 Row { ServerNameInputField() }
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(10.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -86,14 +88,14 @@ fun MainScreen() {
                         )
                     }
                 }
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(10.dp))
                 Row(Modifier.weight(1f)) {
                     ConnectedClientsList(Modifier.fillMaxSize())
                 }
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(10.dp))
                 Row {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = screenSelectorViewModel::toCamera,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(25.dp),
                         colors = ButtonDefaults.buttonColors(Colors.PRIMARY)
