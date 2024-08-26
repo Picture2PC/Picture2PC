@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
@@ -50,10 +51,11 @@ fun CameraScreen(
                 contentDescription = "Taken Picture",
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .height(175.dp)
+                    .height(200.dp)
                     .clickable(onClick = screenSelectorViewModel::toBigPicture)
                     .clip(RoundedCornerShape(20.dp))
                     .border(3.dp, color = Colors.PRIMARY, shape = RoundedCornerShape(20.dp))
+                    .alpha(0.8f)
             )
         Column(
             modifier = Modifier.align(Alignment.BottomCenter)
