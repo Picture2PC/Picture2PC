@@ -25,13 +25,11 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
-import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
-import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
+fun MainScreen() {
     Column(
         Modifier
             .fillMaxSize()
