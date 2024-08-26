@@ -24,8 +24,8 @@ fun ConnectableStateSwitch(
                 checkedTrackColor = Colors.PRIMARY,
                 checkedThumbColor = Colors.TEXT,
                 uncheckedTrackColor = Colors.BACKGROUND,
-                uncheckedThumbColor = Colors.TEXT,
-                uncheckedBorderColor = Colors.TEXT
+                uncheckedThumbColor = Colors.TEXT.copy(0.5f),
+                uncheckedBorderColor = Colors.TEXT.copy(0.5f)
             )
         )
     }
