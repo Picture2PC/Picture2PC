@@ -102,7 +102,7 @@ fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinIn
                     ) {
                         Text(
                             "Take Picture",
-                            style = TextStyles.NORMAL.copy(fontSize = 16.sp)
+                            style = TextStyles.NORMAL
                         )
                     }
                 }

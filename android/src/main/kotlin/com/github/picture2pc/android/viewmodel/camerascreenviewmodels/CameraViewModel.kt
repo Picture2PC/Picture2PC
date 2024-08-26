@@ -15,7 +15,7 @@ class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter
 ) {
-    val takenImages: SharedFlow<Bitmap>
+    val takenImage: SharedFlow<Bitmap>
         get() {
             return pictureManager.takenImages
         }
