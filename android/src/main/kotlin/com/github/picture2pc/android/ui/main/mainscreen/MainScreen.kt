@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.picture2pc.android.R
+import com.github.picture2pc.android.ui.main.mainscreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
@@ -69,7 +68,7 @@ fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinIn
         ) {
             Column(
                 Modifier
-                    .padding(30.dp)
+                    .padding(20.dp)
                     .fillMaxWidth()
             ) {
                 Row { ServerNameInputField() }
@@ -94,17 +93,7 @@ fun MainScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinIn
                 }
                 Spacer(Modifier.height(10.dp))
                 Row {
-                    Button(
-                        onClick = screenSelectorViewModel::toCamera,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(25.dp),
-                        colors = ButtonDefaults.buttonColors(Colors.PRIMARY)
-                    ) {
-                        Text(
-                            "Take Picture",
-                            style = TextStyles.NORMAL
-                        )
-                    }
+                    BottomOfScreen()
                 }
             }
         }

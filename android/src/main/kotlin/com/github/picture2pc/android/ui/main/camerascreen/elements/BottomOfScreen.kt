@@ -20,7 +20,7 @@ import com.github.picture2pc.common.ui.TextStyles
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun PictureButtons(
+fun BottomOfScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {

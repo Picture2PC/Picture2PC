@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.android.ui.main.camerascreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
-import com.github.picture2pc.android.ui.main.camerascreen.elements.PictureButtons
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
@@ -35,7 +35,7 @@ fun CameraScreen(
 ) {
     val image = cameraViewModel.takenImage.collectAsState(initial = null).value
 
-    Box(modifier = modifier.padding(30.dp)) {
+    Box(modifier = modifier.padding(20.dp)) {
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Max)
@@ -44,7 +44,7 @@ fun CameraScreen(
         ) {
             CameraPreview(cameraViewModel = cameraViewModel)
         }
-        if (image != null) {
+        if (image != null)
             Image(
                 bitmap = image.asImageBitmap(),
                 contentDescription = "Taken Picture",
@@ -55,7 +55,6 @@ fun CameraScreen(
                     .clip(RoundedCornerShape(20.dp))
                     .border(3.dp, color = Colors.PRIMARY, shape = RoundedCornerShape(20.dp))
             )
-        }
         Column(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
@@ -66,7 +65,7 @@ fun CameraScreen(
                 thickness = 4.dp,
                 color = Colors.PRIMARY
             )
-            PictureButtons()
+            BottomOfScreen()
         }
     }
 }
