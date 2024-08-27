@@ -1,5 +1,6 @@
 package com.github.picture2pc.android.ui.main.camerascreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,13 +20,15 @@ import com.github.picture2pc.android.ui.main.camerascreen.elements.BottomOfScree
 import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
 import com.github.picture2pc.android.ui.main.camerascreen.elements.DisplayImage
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
+import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun CameraScreen(
     modifier: Modifier = Modifier,
-    cameraViewModel: CameraViewModel = rememberKoinInject()
+    cameraViewModel: CameraViewModel = rememberKoinInject(),
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     val image = cameraViewModel.takenImage.collectAsState(initial = null).value
 
@@ -52,5 +55,8 @@ fun CameraScreen(
             )
             BottomOfScreen()
         }
+    }
+    BackHandler {
+        screenSelectorViewModel.toMain()
     }
 }

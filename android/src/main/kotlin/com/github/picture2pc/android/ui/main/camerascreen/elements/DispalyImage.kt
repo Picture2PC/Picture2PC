@@ -36,7 +36,7 @@ fun DisplayImage(
     Image(
         bitmap = image.asImageBitmap(),
         contentDescription = "Taken Picture",
-        modifier = Modifier
+        modifier = modifier
             .offset {
                 IntOffset(
                     imageOffsetX.floatValue.roundToInt(),
