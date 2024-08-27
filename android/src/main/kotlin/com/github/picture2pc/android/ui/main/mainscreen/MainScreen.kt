@@ -36,9 +36,7 @@ fun MainScreen() {
             Modifier
                 .padding(40.dp)
                 .fillMaxWidth()
-        ) {
-            Banner()
-        }
+        ) { Banner() }
         Row(
             Modifier
                 .fillMaxSize()
