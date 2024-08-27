@@ -57,6 +57,7 @@ fun CameraScreen(
         }
     }
     BackHandler {
+        println("BackHandler")
         screenSelectorViewModel.toMain()
     }
 }
