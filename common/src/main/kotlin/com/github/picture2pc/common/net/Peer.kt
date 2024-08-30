@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.net2
+package com.github.picture2pc.common.net
 
 import kotlinx.serialization.Serializable
 

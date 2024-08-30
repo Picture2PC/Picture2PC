@@ -1,7 +1,7 @@
 package com.github.picture2pc.desktop.net.datatransmitter.impl
 
-import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
-import com.github.picture2pc.common.net2.payloads.TcpPayload
+import com.github.picture2pc.common.net.impl.tcp.TcpPayloadTransceiver
+import com.github.picture2pc.common.net.payloads.TcpPayload
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
 import kotlinx.coroutines.CoroutineScope

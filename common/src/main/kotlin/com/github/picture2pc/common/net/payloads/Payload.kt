@@ -1,7 +1,7 @@
-package com.github.picture2pc.common.net2.payloads
+package com.github.picture2pc.common.net.payloads
 
-import com.github.picture2pc.common.net2.NetworkPayloadTransceiver
-import com.github.picture2pc.common.net2.Peer
+import com.github.picture2pc.common.net.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net.Peer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

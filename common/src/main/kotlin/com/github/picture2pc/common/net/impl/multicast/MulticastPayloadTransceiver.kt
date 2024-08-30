@@ -1,8 +1,8 @@
-package com.github.picture2pc.common.net2.impl.multicast
+package com.github.picture2pc.common.net.impl.multicast
 
 
-import com.github.picture2pc.common.net2.NetworkPayloadTransceiver
-import com.github.picture2pc.common.net2.payloads.Payload
+import com.github.picture2pc.common.net.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive

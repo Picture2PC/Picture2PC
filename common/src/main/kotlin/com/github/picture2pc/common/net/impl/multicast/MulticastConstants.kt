@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.net2.impl.multicast
+package com.github.picture2pc.common.net.impl.multicast
 
 object MulticastConstants {
     const val ADDRESS = "232.242.119.181"

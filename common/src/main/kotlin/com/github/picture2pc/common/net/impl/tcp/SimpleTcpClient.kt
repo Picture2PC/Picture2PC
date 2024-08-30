@@ -1,9 +1,10 @@
-package com.github.picture2pc.common.net2.impl.tcp
+package com.github.picture2pc.common.net.impl.tcp
 
-import com.github.picture2pc.common.net2.Peer
-import com.github.picture2pc.common.net2.impl.tcp.TcpConstants.CONNECION_TIMEOUT
-import com.github.picture2pc.common.net2.payloads.Payload
-import com.github.picture2pc.common.net2.payloads.TcpPayload
+import com.github.picture2pc.common.net.Peer
+import com.github.picture2pc.common.net.PeerState
+import com.github.picture2pc.common.net.impl.tcp.TcpConstants.CONNECION_TIMEOUT
+import com.github.picture2pc.common.net.payloads.Payload
+import com.github.picture2pc.common.net.payloads.TcpPayload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -34,8 +35,8 @@ class SimpleTcpClient(
     private var timeoutJob: Job? = null
 ) : CoroutineScope //, DefaultDataPayloadTransceiver()
 {
-    private val _clientState: MutableStateFlow<ClientState> = MutableStateFlow(ClientState.PENDING)
-    val clientState: StateFlow<ClientState> = _clientState.asStateFlow()
+    private val _peerState: MutableStateFlow<PeerState> = MutableStateFlow(PeerState.PENDING)
+    val peerState: StateFlow<PeerState> = _peerState.asStateFlow()
 
     val socketAddress
         get() = jvmSocket.localSocketAddress as InetSocketAddress
@@ -45,7 +46,7 @@ class SimpleTcpClient(
         get() = jvmSocket.isConnected && !jvmSocket.isClosed
 
     fun startReceiving() {
-        _clientState.value = ClientState.CONNECTED
+        _peerState.value = PeerState.CONNECTED
         timeoutJob = getTimeoutJob()
         launch {
             while (isActive) {
@@ -62,8 +63,8 @@ class SimpleTcpClient(
             }
         }
 
-        _clientState.onEach {
-            if (it == ClientState.RECEIVING) {
+        _peerState.onEach {
+            if (it == PeerState.RECEIVING_PAYLOAD) {
                 timeoutJob!!.cancelAndJoin()
                 timeoutJob = getTimeoutJob()
             }
@@ -106,7 +107,7 @@ class SimpleTcpClient(
                     .write(ByteBuffer.allocate(Int.SIZE_BYTES).putInt(message.available()).array())
                 message.copyTo(jvmSocket.getOutputStream())
             } catch (e: Exception) {
-                _clientState.value = ClientState.ERROR_WHILE_SENDING
+                _peerState.value = PeerState.ERROR_WHILE_SENDING
                 simpleTcpServer.disconnect(targetPeer)
                 message.close()
                 return@coroutineScope false
@@ -117,7 +118,7 @@ class SimpleTcpClient(
     }
 
     suspend fun close() {
-        _clientState.value = ClientState.DISCONNECTED
+        _peerState.value = PeerState.DISCONNECTED
         coroutineScope {
             try {
                 jvmSocket.close()
@@ -130,11 +131,11 @@ class SimpleTcpClient(
     suspend fun receivePacket(): Payload? {
         try {
             val sizeBuff = ByteArray(Int.SIZE_BYTES)
-            _clientState.emit(ClientState.WAITING_FOR_DATA)
+            _peerState.emit(PeerState.WAITING_FOR_DATA)
             coroutineScope {
                 jvmSocket.getInputStream().read(sizeBuff, 0, Int.SIZE_BYTES)
             }
-            _clientState.emit(ClientState.RECEIVING)
+            _peerState.emit(PeerState.RECEIVING_PAYLOAD)
             yield()
             val size = ByteBuffer.wrap(sizeBuff).int
             check(size > 0) { "Size is not positive" }
@@ -146,14 +147,14 @@ class SimpleTcpClient(
                         .read(byteArray, copied, size - copied)
                 }
             }
-            _clientState.emit(ClientState.CONNECTED)
+            _peerState.emit(PeerState.CONNECTED)
             yield()
             return Payload.fromInputStream(
                 byteArray.inputStream(),
                 socketAddress
             )
         } catch (e: Exception) {
-            _clientState.emit(ClientState.ERROR_WHILE_RECIEVING)
+            _peerState.emit(PeerState.ERROR_WHILE_RECEIVING)
             return null
         }
     }
