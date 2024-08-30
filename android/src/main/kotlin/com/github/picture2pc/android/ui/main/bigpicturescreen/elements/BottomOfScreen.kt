@@ -27,7 +27,7 @@ fun BottomOfScreen(
             colors = IconButtonDefaults.iconButtonColors(Colors.PRIMARY)
         ) {
             Icon(
-                painter = painterResource(R.drawable.outline_home_24),
+                painter = painterResource(R.drawable.home),
                 contentDescription = "Home"
             )
         }
