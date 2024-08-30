@@ -23,6 +23,7 @@ import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Path
 import org.jetbrains.skiko.toBufferedImage
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -34,6 +35,7 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 import androidx.compose.ui.geometry.Rect as MathRect
+
 
 class PicturePreparationImpl(
     override val coroutineContext: CoroutineContext
@@ -157,7 +159,12 @@ class PicturePreparationImpl(
     }
 
     override fun setOriginalPicture(picture: Bitmap) {
-        originalBitmap = picture
+        val mat = picture.toMat()
+        if (picture.width > picture.height) {
+            Core.rotate(mat, mat, Core.ROTATE_90_CLOCKWISE)
+        }
+
+        originalBitmap = mat.toBitmap()
         bounds = MathRect(
             Offset(0f, 0f),
             Offset(picture.width.toFloat(), picture.height.toFloat())

@@ -34,17 +34,16 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun Picture(
-    picDisVM: PictureDisplayViewModel = rememberKoinInject(),
+    pDVM: PictureDisplayViewModel = rememberKoinInject(),
 ) {
-    val pictureBitmap = picDisVM.currentPicture.value
-    val overlayBitmap = picDisVM.overlayPicture.value
-    val pP = picDisVM.pP
+    val pictureBitmap = pDVM.currentPicture.value
+    val overlayBitmap = pDVM.overlayPicture.value
 
     // Main Picture
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
-        modifier = Modifier.onSizeChanged { size -> pP.calculateRatio(size) }
+        modifier = Modifier.onSizeChanged { size -> pDVM.pP.calculateRatio(size) }
     )
 
     // Clicked Points Overlay
@@ -55,37 +54,36 @@ fun Picture(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragStart: Offset ->
-                        picDisVM.movementHandler.setDragStart(dragStart)
+                        pDVM.movementHandler.setDragStart(dragStart)
                     },
                     onDrag = { change, dragAmount ->
-                        picDisVM.movementHandler.handleDrag(change, dragAmount)
+                        pDVM.movementHandler.handleDrag(change, dragAmount)
                     },
-                    onDragEnd = { picDisVM.movementHandler.endDrag() }
+                    onDragEnd = { pDVM.movementHandler.endDrag() }
                 )
             }
             .pointerInput(Unit) {
-                detectTapGestures { offset ->
-                    picDisVM.movementHandler.handleClick(offset)
-                }
+                detectTapGestures { offset -> pDVM.movementHandler.handleClick(offset) }
             }
             .pointerHoverIcon(
-                if (picDisVM.movementHandler.dragActive.value) PointerIcon(customCursor())
+                if (pDVM.movementHandler.dragActive.value) PointerIcon(customCursor())
                 else PointerIcon.Default
             )
     )
 
     // Zoom Overlay
-    if (!picDisVM.movementHandler.dragActive.value) return
-    val offset = picDisVM.calculateOffset(picDisVM.rotationState.value)
+    if (!pDVM.movementHandler.dragActive.value) return
+    val offset = pDVM.calculateOffset(pDVM.rotationState.value)
     Box(
         Modifier
             .offset(offset.first.dp, offset.second.dp)
             .border(2.dp, Colors.PRIMARY, CircleShape)
     ) {
-        val point = picDisVM.movementHandler.currentDragPoint.value.translate(
-            picDisVM.rotationState.value,
-            picDisVM.pP.bounds
+        val point = pDVM.movementHandler.currentDragPoint.value.translate(
+            pDVM.rotationState.value,
+            pDVM.pP.bounds
         )
+
         Canvas(Modifier.size(140.dp).align(Alignment.Center)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
                 translate(
@@ -101,8 +99,8 @@ fun Picture(
                 }
             }
         }
-        Canvas(
-            Modifier.size(10.dp).align(Alignment.Center)
-        ) { drawCircle(Colors.PRIMARY, style = Stroke(width = 2f)) }
+        Canvas(Modifier.size(10.dp).align(Alignment.Center)) {
+            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
+        }
     }
 }

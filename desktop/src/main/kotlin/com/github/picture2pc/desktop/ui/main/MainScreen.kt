@@ -103,7 +103,9 @@ fun MainScreen(
                                 .background(Colors.ACCENT, Shapes.BUTTON)
                                 .fillMaxWidth()
                                 .wrapContentHeight()
-                        ) { connectionInfo(serversSectionViewModel) }
+                        ) {
+                            connectionInfo(serversSectionViewModel)
+                        }
                     }
 
                     // DEBUG BUTTONS
@@ -126,7 +128,9 @@ fun MainScreen(
                             Icons.Desktop.INFO,
                             Colors.ACCENT,
                             Modifier.align(Alignment.BottomEnd),
-                        ) { showConnections.value = !showConnections.value }
+                        ) {
+                            showConnections.value = !showConnections.value
+                        }
                     }
                 }
             }
@@ -142,7 +146,9 @@ fun MainScreen(
                             .padding(Spacers.NORMAL)
                             .fillMaxSize(),
                         Alignment.Center
-                    ) { Picture() }
+                    ) {
+                        Picture()
+                    }
                 }
 
                 // Rotation Buttons
