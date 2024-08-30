@@ -1,5 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Desktop" type="JetRunConfigurationType" activateToolWindowBeforeRun="false">
+    <envs>
+      <env name="_JAVA_OPTIONS" value="-Djava.net.preferIPv4Stack=true" />
+    </envs>
     <option name="MAIN_CLASS_NAME" value="com.github.picture2pc.desktop.MainKt" />
     <module name="Picture2PC.desktop.main" />
     <shortenClasspath name="NONE" />
