@@ -34,7 +34,8 @@ fun BottomOfScreen(
         ) {
             Icon(
                 painter = painterResource(R.drawable.baseline_arrow_back_24),
-                contentDescription = "Back to main screen"
+                contentDescription = "Back to main screen",
+                tint = Colors.TEXT
             )
         }
         Button(
@@ -51,7 +52,8 @@ fun BottomOfScreen(
         ) {
             Icon(
                 painter = painterResource(flashMode.resourceInt),
-                contentDescription = "Change flash mode"
+                contentDescription = "Change flash mode",
+                tint = Colors.TEXT
             )
         }
     }

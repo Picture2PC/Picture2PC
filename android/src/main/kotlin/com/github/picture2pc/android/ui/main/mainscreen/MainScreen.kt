@@ -21,7 +21,7 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.Banner
 import com.github.picture2pc.android.ui.main.mainscreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
-import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
+import com.github.picture2pc.android.ui.main.mainscreen.elements.NameInputField
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
 
@@ -48,7 +48,7 @@ fun MainScreen() {
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Row { ServerNameInputField() }
+                Row { NameInputField() }
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column { ConnectableStateSwitch() }

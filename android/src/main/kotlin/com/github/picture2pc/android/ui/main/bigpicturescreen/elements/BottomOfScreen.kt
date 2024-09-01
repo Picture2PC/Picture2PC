@@ -28,7 +28,8 @@ fun BottomOfScreen(
         ) {
             Icon(
                 painter = painterResource(R.drawable.outline_home_24),
-                contentDescription = "Home"
+                contentDescription = "Home",
+                tint = Colors.TEXT
             )
         }
         Button(

@@ -21,7 +21,7 @@ import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun ServerNameInputField(
+fun NameInputField(
     modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
     val nameInput by viewModel.serverName.collectAsState()
