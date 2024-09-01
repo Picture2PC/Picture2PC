@@ -10,11 +10,12 @@ import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.isInBounds
 import com.github.picture2pc.desktop.extention.translate
+import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlin.math.atan2
 
 enum class DraggingSpeed(val iconPath: String, val speed: Float) {
-    SLOW(Desktop.SLOW, 0.25f),
-    FAST(Desktop.FAST, 0.5f);
+    SLOW(Desktop.SLOW, Settings.SLOW_DRAGGING_SPEED),
+    FAST(Desktop.FAST, Settings.HIGH_DRAGGING_SPEED);
 
     fun next(): DraggingSpeed = when (this) {
         SLOW -> FAST
