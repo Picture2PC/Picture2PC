@@ -21,9 +21,10 @@ import com.github.picture2pc.common.ui.Style
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
+fun connectionInfo(serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()) {
     val availableServers = serversSectionViewModel.availableServers.collectAsState().value
     Column {
         Text(

@@ -11,12 +11,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
-import com.github.picture2pc.common.ui.Icons
+import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.desktop.data.next
@@ -28,12 +29,14 @@ import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDi
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
+
 @Composable
 fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
     pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     serversSectionViewModel.refreshServers() // Notify all Servers that the client is online
+    val draggingSpeed = remember { pDVM.movementHandler.draggingSpeed }
 
     Box(
         Modifier
@@ -66,7 +69,7 @@ fun MainScreen(
                     Row {
                         TooltipIconButton(
                             Descriptions.ROTATE_LEFT,
-                            Icons.Desktop.ROTATE_LEFT,
+                            Desktop.ROTATE_LEFT,
                             Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
@@ -77,11 +80,25 @@ fun MainScreen(
 
                         TooltipIconButton(
                             Descriptions.ROTATE_RIGHT,
-                            Icons.Desktop.ROTATE_RIGHT,
+                            Desktop.ROTATE_RIGHT,
                             Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(true)
+                        }
+                    }
+                }
+
+                // Zoom Speed Buttons
+                Box(Modifier.align(Alignment.TopEnd).offset(-Spacers.NORMAL, Spacers.NORMAL)) {
+                    Row {
+                        TooltipIconButton(
+                            description = Descriptions.DRAGGING_SPEED,
+                            icon = draggingSpeed.value.iconPath,
+                            color = Colors.ACCENT,
+                        )
+                        {
+                            draggingSpeed.value = draggingSpeed.value.next()
                         }
                     }
                 }
