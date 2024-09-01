@@ -3,6 +3,8 @@ package com.github.picture2pc.desktop.ui.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,17 +19,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Data
+import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
@@ -43,6 +50,7 @@ import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDi
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
@@ -50,6 +58,9 @@ fun MainScreen(
 ) {
     serversSectionViewModel.refreshServers() // Notify all Servers that the client is online
     val showConnections = remember { mutableStateOf(false) }
+    val clientName = remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         Modifier
@@ -67,6 +78,11 @@ fun MainScreen(
                     .fillMaxHeight()
                     .width(246.dp)
                     .background(Colors.SECONDARY, Shapes.WINDOW)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = { focusManager.clearFocus() }
+                    ),
             ) {
                 // Items in the Sidebar
                 Column(Modifier.padding(Spacers.NORMAL)) {
@@ -91,6 +107,27 @@ fun MainScreen(
                     Row { QualitySelector() }
                     Spacer(Modifier.height(Spacers.SMALL))
                     */
+
+                    // Client Name
+                    OutlinedTextField(
+                        value = clientName.value,
+                        onValueChange = { clientName.value = it },
+                        label = { Text("Name") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(Heights.BUTTON + 10.dp),
+                        singleLine = true,
+                        shape = Shapes.BUTTON,
+                        textStyle = TextStyles.NORMAL,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = Colors.PRIMARY,
+                            unfocusedBorderColor = Colors.PRIMARY,
+                            cursorColor = Colors.ACCENT,
+                            focusedLabelColor = Colors.TEXT,
+                            unfocusedLabelColor = Colors.TEXT.copy(alpha = 0.8f),
+                        ),
+                    )
+                    Spacer(Modifier.height(Spacers.LARGE))
 
                     // IMAGE INTERACTION BUTTONS
                     Row { ImageInteractionButtons() }
