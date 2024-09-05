@@ -43,9 +43,10 @@ class PictureDisplayViewModel(
 
     init {
         pictures.onEach {
-            if (totalPictures.value == 0) pP.setOriginalPicture(
-                it.toComposeImageBitmap().asSkiaBitmap()
-            )
+            if (totalPictures.value == 0) {
+                val wasRotated = pP.setOriginalPicture(it.toComposeImageBitmap().asSkiaBitmap())
+                if (wasRotated) rotationState.value = RotationState.ROTATION_270
+            }
             totalPictures.value = pictures.replayCache.size
         }.launchIn(this)
     }

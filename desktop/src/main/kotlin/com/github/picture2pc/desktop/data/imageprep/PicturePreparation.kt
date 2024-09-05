@@ -27,7 +27,7 @@ interface PicturePreparation {
         resetOverlay: Boolean = true
     )
 
-    fun setOriginalPicture(picture: Bitmap)
+    fun setOriginalPicture(picture: Bitmap): Boolean
     fun updateEditedBitmap()
 
     fun drawCircle(pair: Pair<Float, Float>, filled: Boolean = false)

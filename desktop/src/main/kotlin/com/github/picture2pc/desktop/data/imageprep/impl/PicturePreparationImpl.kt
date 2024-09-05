@@ -158,10 +158,12 @@ class PicturePreparationImpl(
         return bitmap
     }
 
-    override fun setOriginalPicture(picture: Bitmap) {
+    override fun setOriginalPicture(picture: Bitmap): Boolean {
+        var wasRotated = false
         val mat = picture.toMat()
         if (picture.width > picture.height) {
             Core.rotate(mat, mat, Core.ROTATE_90_CLOCKWISE)
+            wasRotated = true
         }
 
         originalBitmap = mat.toBitmap()
@@ -170,6 +172,7 @@ class PicturePreparationImpl(
             Offset(picture.width.toFloat(), picture.height.toFloat())
         )
         reset()
+        return wasRotated
     }
 
     override fun drawPolygon(pairs: MutableList<Pair<Float, Float>>) {
