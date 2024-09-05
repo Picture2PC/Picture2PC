@@ -78,18 +78,14 @@ class PictureDisplayViewModel(
         )
 
         if (currentDP.first in 0f..radius) {
-            println("hitting x left")
             offsetPair = Pair(radius - bound.width / 2, offsetPair.second)
         } else if (currentDP.first in bound.width - radius..bound.width) {
-            println("hitting x right")
             offsetPair = Pair(bound.width / 2 - radius, offsetPair.second)
         }
 
         if (currentDP.second in 0f..radius) {
-            println("hitting y top")
             offsetPair = Pair(offsetPair.first, radius - bound.height / 2)
         } else if (currentDP.second in bound.height - radius..bound.height) {
-            println("hitting y bottom")
             offsetPair = Pair(offsetPair.first, bound.height / 2 - radius)
         }
 
