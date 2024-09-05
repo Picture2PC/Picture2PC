@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
@@ -86,12 +87,12 @@ fun ImageInteractionButtons(
                     },
                     Modifier.fillMaxWidth().height(Heights.BUTTON),
                     shape = Shapes.BUTTON,
-                    colors = Colors.BUTTON_SECONDARY,
+                    colors = Colors.BUTTON_PRIMARY,
                 ) { Text("Do All", style = TextStyles.NORMAL) }
             }
 
             Divider(
-                Modifier.padding(horizontal = Spacers.NORMAL),
+                Modifier.padding(horizontal = Spacers.NORMAL).clip(Shapes.BUTTON),
                 Heights.DIVIDER,
                 Colors.SECONDARY
             )

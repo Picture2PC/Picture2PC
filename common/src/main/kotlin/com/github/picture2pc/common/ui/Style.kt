@@ -35,8 +35,6 @@ object Style {
 
         val BUTTON_PRIMARY: ButtonColors
             @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
-        val BUTTON_SECONDARY: ButtonColors
-            @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
 
         object States {
             val PENDING = Color(0xFF3557C8)
@@ -77,7 +75,6 @@ object Style {
 
         object Borders {
             val BORDER_STANDARD = 2.dp
-            val BORDER_THICK = 3.dp
         }
 
         val StateIndicator = 6.dp

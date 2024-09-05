@@ -23,10 +23,12 @@ import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Path
 import org.jetbrains.skiko.toBufferedImage
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
+import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import kotlin.coroutines.CoroutineContext
@@ -70,6 +72,15 @@ class PicturePreparationImpl(
         updateEditedBitmap()
     }
 
+    override fun invert() {
+        if (editedBitmap.value.isEmpty) return
+        val mat = editedBitmap.value.toMat()
+        Core.bitwise_not(mat, mat)
+        val rotatedMat = hueRotateMat(mat)
+        _editedBitmap.value = rotatedMat.toBitmap()
+        updateEditedBitmap()
+    }
+
     override fun crop() {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
@@ -79,12 +90,20 @@ class PicturePreparationImpl(
         val br = clicks[2] // Bottom Right
         val bl = clicks[3] // Bottom Left
 
-        val widthA = sqrt((tr.first - tl.first).pow(2) + (tr.second - tl.second).pow(2))
-        val widthB = sqrt((br.first - bl.first).pow(2) + (br.second - bl.second).pow(2))
+        val widthA = sqrt(
+            (tr.first - tl.first).pow(2) + (tr.second - tl.second).pow(2)
+        )
+        val widthB = sqrt(
+            (br.first - bl.first).pow(2) + (br.second - bl.second).pow(2)
+        )
         val maxWidth = max(widthA, widthB).toDouble()
 
-        val heightA = sqrt((tr.first - br.first).pow(2) + (tr.second - br.second).pow(2))
-        val heightB = sqrt((tl.first - bl.first).pow(2) + (tl.second - bl.second).pow(2))
+        val heightA = sqrt(
+            (tr.first - br.first).pow(2) + (tr.second - br.second).pow(2)
+        )
+        val heightB = sqrt(
+            (tl.first - bl.first).pow(2) + (tl.second - bl.second).pow(2)
+        )
         val maxHeight = max(heightA, heightB).toDouble()
 
         val mat = editedBitmap.value.toMat()
@@ -148,7 +167,9 @@ class PicturePreparationImpl(
         val bitmap = Bitmap().apply {
             allocPixels(
                 ImageInfo.makeN32(
-                    editedBitmap.value.width, editedBitmap.value.height, ColorAlphaType.UNPREMUL
+                    editedBitmap.value.width,
+                    editedBitmap.value.height,
+                    ColorAlphaType.UNPREMUL
                 )
             )
             erase(Color.TRANSPARENT)
@@ -198,5 +219,28 @@ class PicturePreparationImpl(
         for (point in clicks) {
             drawCircle(point, filled = true)
         }
+    }
+
+    private fun hueRotateMat(mat: Mat, hueShift: Double = 180.0): Mat {
+        // Convert to HSV color space
+        val hsvMat = Mat()
+        Imgproc.cvtColor(mat, hsvMat, Imgproc.COLOR_BGR2HSV)
+
+        // Split the channels
+        val channels = mutableListOf<Mat>()
+        Core.split(hsvMat, channels)
+
+        // Apply the hue rotation
+        Core.add(channels[0], Scalar(hueShift), channels[0])
+        Core.normalize(channels[0], channels[0], 0.0, 255.0, Core.NORM_MINMAX)
+
+        // Merge the channels back
+        Core.merge(channels, hsvMat)
+
+        // Convert back to BGR color space
+        val resultMat = Mat()
+        Imgproc.cvtColor(hsvMat, resultMat, Imgproc.COLOR_HSV2BGR)
+
+        return resultMat
     }
 }

@@ -3,6 +3,7 @@ package com.github.picture2pc.desktop.ui.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -94,7 +95,23 @@ fun MainScreen(
 
                     // IMAGE INTERACTION BUTTONS
                     Row { ImageInteractionButtons() }
-                    Spacer(Modifier.height(Spacers.LARGE))
+                    Spacer(Modifier.height(Spacers.NORMAL))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Colors.PRIMARY, Shapes.BUTTON),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TooltipIconButton(
+                            description = Descriptions.DARK,
+                            icon = Icons.Desktop.DARK,
+                        ) {
+                            pDVM.pP.invert()
+                        }
+                    }
+                    Spacer(Modifier.height(Spacers.NORMAL))
 
                     // CONNECTION INFO
                     if (showConnections.value) {
@@ -122,10 +139,10 @@ fun MainScreen(
                     // CONNECTION INFO TOGGLE BUTTON
                     Box(Modifier.fillMaxSize()) {
                         TooltipIconButton(
-                            Descriptions.INFO,
-                            Icons.Desktop.INFO,
-                            Colors.ACCENT,
-                            Modifier.align(Alignment.BottomEnd),
+                            description = Descriptions.INFO,
+                            icon = Icons.Desktop.INFO,
+                            color = Colors.ACCENT,
+                            modifier = Modifier.align(Alignment.BottomEnd),
                         ) { showConnections.value = !showConnections.value }
                     }
                 }
@@ -156,7 +173,6 @@ fun MainScreen(
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(false)
                         }
-
                         Spacer(Modifier.width(Spacers.SMALL))
 
                         TooltipIconButton(

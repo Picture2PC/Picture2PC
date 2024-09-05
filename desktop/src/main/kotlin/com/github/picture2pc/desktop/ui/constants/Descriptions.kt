@@ -13,4 +13,5 @@ object Descriptions {
     const val CROP = "Crop"
 
     const val INFO = "Connection info"
+    const val DARK = "Dark mode"
 }

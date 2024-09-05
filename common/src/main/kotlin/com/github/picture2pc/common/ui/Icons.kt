@@ -11,6 +11,7 @@ object Icons {
         const val ROTATE_RIGHT = "icons/desktop/rotate_right.svg"
         const val ROTATE_LEFT = "icons/desktop/rotate_left.svg"
         const val INFO = "icons/desktop/info.svg"
+        const val DARK = "icons/desktop/invert_colors.svg"
     }
 
     object Mobile {

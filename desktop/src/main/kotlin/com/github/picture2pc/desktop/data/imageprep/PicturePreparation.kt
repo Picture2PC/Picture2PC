@@ -19,6 +19,7 @@ interface PicturePreparation {
     fun calculateRatio(displayPictureSize: IntSize)
 
     fun contrast()
+    fun invert()
     fun crop()
     fun copy()
     fun reset(
