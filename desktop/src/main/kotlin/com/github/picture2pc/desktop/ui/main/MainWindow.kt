@@ -8,6 +8,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
+import com.github.picture2pc.desktop.ui.theme.P2PC_Desktop_Theme
 import com.github.picture2pc.desktop.ui.util.getIcon
 import java.awt.Toolkit
 
@@ -26,13 +27,15 @@ fun MainWindow(
         size = DpSize(windowWidth.dp, windowHeight.dp)
     )
 
-    Window(
-        onCloseRequest = onCloseRequest,
-        icon = getIcon(Icons.Logo.STANDARD),
-        title = Data.APP_NAME,
-        state = centerWindowState
-    ) {
-        window.minimumSize = Data.MINIMUM_WINDOW_SIZE
-        MainScreen()
+    P2PC_Desktop_Theme {
+        Window(
+            onCloseRequest = onCloseRequest,
+            icon = getIcon(Icons.LOGO),
+            title = Data.APP_NAME,
+            state = centerWindowState
+        ) {
+            window.minimumSize = Data.MINIMUM_WINDOW_SIZE
+            MainScreen()
+        }
     }
 }

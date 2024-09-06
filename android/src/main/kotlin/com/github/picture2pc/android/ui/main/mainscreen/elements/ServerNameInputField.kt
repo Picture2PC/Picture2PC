@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,33 +15,27 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
-import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun ServerNameInputField(
-    modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
+    modifier: Modifier = Modifier, broadcastViewModel: BroadcastViewModel = rememberKoinInject()
 ) {
-    val nameInput by viewModel.serverName.collectAsState()
+    val nameInput by broadcastViewModel.serverName.collectAsState()
 
     OutlinedTextField(
         value = nameInput,
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
-        onValueChange = viewModel::nameChanged,
-        placeholder = { Text("Unknown", color = Colors.TEXT.copy(0.5f)) },
-        label = { Text("Name", color = Colors.TEXT) },
+        onValueChange = broadcastViewModel::nameChanged,
+        placeholder = { Text("Unknown") },
+        label = { Text("Name") },
         shape = RoundedCornerShape(20.dp),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Sentences,
             autoCorrectEnabled = true,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = { viewModel.saveName(nameInput) }),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Colors.PRIMARY,
-            unfocusedBorderColor = Colors.PRIMARY,
-            cursorColor = Colors.ACCENT,
-        )
+        keyboardActions = KeyboardActions(onDone = { broadcastViewModel.saveName(nameInput) })
     )
 }

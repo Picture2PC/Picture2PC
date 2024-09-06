@@ -9,7 +9,7 @@ import com.github.picture2pc.desktop.ui.util.getIcon
 @Composable
 fun ApplicationScope.OpenExitTray(openAction: () -> Unit, exitAction: () -> Unit) {
     Tray(
-        icon = getIcon(Icons.Logo.STANDARD),
+        icon = getIcon(Icons.LOGO),
         onAction = openAction,
         tooltip = "Picture2PC",
         menu = {

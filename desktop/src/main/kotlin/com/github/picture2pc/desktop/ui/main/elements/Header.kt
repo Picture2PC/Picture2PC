@@ -19,7 +19,7 @@ import com.github.picture2pc.desktop.ui.util.getIcon
 fun Header() {
     Row {
         Image(
-            getIcon(Icons.Logo.STANDARD),
+            getIcon(Icons.LOGO),
             "Logo",
             Modifier.width(75.dp)
         )

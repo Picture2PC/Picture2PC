@@ -13,27 +13,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.github.picture2pc.android.R
 import com.github.picture2pc.android.ui.main.mainscreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ServerNameInputField
-import com.github.picture2pc.common.ui.Colors
-import com.github.picture2pc.common.ui.TextStyles
 
 @Composable
 fun MainScreen() {
     Column(
         Modifier
             .fillMaxSize()
-            .background(Colors.SECONDARY, RoundedCornerShape(25.dp))
+            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(25.dp))
     ) {
         Row(
             Modifier
@@ -53,7 +51,7 @@ fun MainScreen() {
                     Text(
                         "Picture2PC",
                         Modifier.align(Alignment.Center),
-                        style = TextStyles.HEADER1.copy(fontSize = 32.sp)
+                        style = MaterialTheme.typography.headlineLarge
                     )
                 }
             }
@@ -61,8 +59,8 @@ fun MainScreen() {
         Row(
             Modifier
                 .fillMaxSize()
-                .background(Colors.BACKGROUND)
-                .border(4.dp, Colors.PRIMARY, RoundedCornerShape(25.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(25.dp))
         ) {
             Column(
                 Modifier
@@ -81,7 +79,7 @@ fun MainScreen() {
                     Column {
                         Text(
                             "Connectable",
-                            style = TextStyles.NORMAL.copy(fontSize = 20.sp)
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }

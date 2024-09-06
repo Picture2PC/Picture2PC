@@ -14,6 +14,7 @@ repositories {
 dependencies {
     implementation(libs.koin.android)
     implementation(libs.core.ktx)
+    implementation(libs.ui.text.google.fonts)
 
     val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
     implementation(composeBom)
