@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -39,11 +38,11 @@ fun Sidebar(
     Box(
         Modifier
             .fillMaxHeight()
-            .width(246.dp)
+            .width(Settings.SIDEBAR_WIDTH.dp)
             .background(Colors.SECONDARY, Shapes.WINDOW)
     ) {
         // Items in the Sidebar
-        Column(Modifier.padding(Spacers.NORMAL)) {
+        Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
             Header()
             Spacer(Modifier.height(Spacers.LARGE))
 
@@ -52,8 +51,14 @@ fun Sidebar(
 
             // CONNECTION INFO
             if (showConnections.value) {
-                connectionInfo(Modifier.fillMaxWidth().background(Colors.ACCENT, Shapes.BUTTON))
-            }
+                connectionInfo(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .background(Colors.ACCENT, Shapes.BUTTON)
+                )
+                Spacer(Modifier.height(Spacers.NORMAL))
+            } else Spacer(Modifier.weight(1f))
 
             // DEBUG BUTTONS
             Button(serversSectionViewModel::refreshServers) {
@@ -69,12 +74,12 @@ fun Sidebar(
             }
 
             // CONNECTION INFO TOGGLE BUTTON
-            Box(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxWidth()) {
                 TooltipIconButton(
                     Descriptions.INFO,
                     Icons.Desktop.INFO,
                     Colors.ACCENT,
-                    Modifier.align(Alignment.BottomEnd),
+                    Modifier.align(Alignment.BottomEnd)
                 ) { showConnections.value = !showConnections.value }
             }
         }
