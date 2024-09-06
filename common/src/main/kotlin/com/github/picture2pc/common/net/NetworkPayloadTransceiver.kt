@@ -1,6 +1,6 @@
-package com.github.picture2pc.common.net2
+package com.github.picture2pc.common.net
 
-import com.github.picture2pc.common.net2.payloads.Payload
+import com.github.picture2pc.common.net.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow

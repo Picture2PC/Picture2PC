@@ -1,9 +1,9 @@
-package com.github.picture2pc.common.net2.impl.tcp
+package com.github.picture2pc.common.net.impl.tcp
 
-import com.github.picture2pc.common.net2.Peer
-import com.github.picture2pc.common.net2.impl.tcp.TcpConstants.CONNECION_TIMEOUT
-import com.github.picture2pc.common.net2.payloads.Payload
-import com.github.picture2pc.common.net2.payloads.TcpPayload
+import com.github.picture2pc.common.net.Peer
+import com.github.picture2pc.common.net.PeerState
+import com.github.picture2pc.common.net.payloads.Payload
+import com.github.picture2pc.common.net.payloads.TcpPayload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -129,7 +129,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
         return client.sendMessage(payload.asInputStream())
     }
 
-    fun getPeerStateAsFlow(peer: Peer): StateFlow<ClientState>? {
-        return peerToClientMap.getOrDefault(peer, null)?.clientState
+    fun getPeerStateAsFlow(peer: Peer): StateFlow<PeerState>? {
+        return peerToClientMap.getOrDefault(peer, null)?.peerState
     }
 }

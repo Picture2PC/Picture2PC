@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.github.picture2pc.common.net2.Peer
+import com.github.picture2pc.common.net.Peer
 
 @Composable
 fun Client(clientData: Peer) {

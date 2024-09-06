@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.net2.impl.multicast
+package com.github.picture2pc.common.net.impl.multicast
 
 import org.koin.dsl.module
 import java.net.InetSocketAddress

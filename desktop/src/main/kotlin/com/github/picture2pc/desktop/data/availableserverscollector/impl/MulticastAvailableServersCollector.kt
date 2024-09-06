@@ -1,10 +1,10 @@
 package com.github.picture2pc.desktop.data.availableserverscollector.impl
 
-import com.github.picture2pc.common.net2.Peer
-import com.github.picture2pc.common.net2.impl.multicast.MulticastPayloadTransceiver
-import com.github.picture2pc.common.net2.impl.tcp.ClientState
-import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
-import com.github.picture2pc.common.net2.payloads.MulticastPayload
+import com.github.picture2pc.common.net.Peer
+import com.github.picture2pc.common.net.PeerState
+import com.github.picture2pc.common.net.impl.multicast.MulticastPayloadTransceiver
+import com.github.picture2pc.common.net.impl.tcp.TcpPayloadTransceiver
+import com.github.picture2pc.common.net.payloads.MulticastPayload
 import com.github.picture2pc.desktop.data.availableserverscollector.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +40,7 @@ class MulticastAvailableServersCollector(
         }
     }
 
-    override fun getClientState(peer: Peer): StateFlow<ClientState>? {
+    override fun getClientState(peer: Peer): StateFlow<PeerState>? {
         return tcpPayloadTransceiver.getPeerStateAsStateFlow(peer)
     }
 }   

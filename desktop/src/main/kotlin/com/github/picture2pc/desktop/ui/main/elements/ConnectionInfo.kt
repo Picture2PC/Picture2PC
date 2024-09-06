@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.github.picture2pc.common.net2.impl.tcp.ClientState
+import com.github.picture2pc.common.net.PeerState
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.StateColors
@@ -50,8 +50,8 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
 }
 
 @Composable
-fun connection(name: String, clientStateFlow: StateFlow<ClientState>?) {
-    val clientState = clientStateFlow?.collectAsState()
+fun connection(name: String, peerStateFlow: StateFlow<PeerState>?) {
+    val clientState = peerStateFlow?.collectAsState()
     Row(Modifier.padding(start = Spacers.NORMAL, end = Spacers.NORMAL, top = Spacers.SMALL)) {
         Text(name, color = Colors.TEXT, style = TextStyles.NORMAL)
         Spacer(Modifier.weight(1f))

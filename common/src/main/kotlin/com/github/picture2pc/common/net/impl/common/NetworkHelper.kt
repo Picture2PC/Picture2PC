@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.net2.impl.common
+package com.github.picture2pc.common.net.impl.common
 
 import java.net.Inet4Address
 import java.net.NetworkInterface
