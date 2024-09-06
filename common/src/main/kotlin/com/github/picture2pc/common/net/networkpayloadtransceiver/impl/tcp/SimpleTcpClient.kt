@@ -6,6 +6,7 @@ import com.github.picture2pc.common.net.data.packet.Packet
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.data.serialization.asByteArray
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
 import kotlinx.coroutines.CoroutineScope
@@ -82,6 +83,12 @@ class SimpleTcpClient(
             return false
         }
         return true
+    }
+
+    private fun getByteArray(payload: Payload): ByteArray {
+        val data = payload.asByteArray()
+        val packet = Packet(TcpPayload::class.qualifiedName!!, data.size, payload.sourcePeer)
+        return packet.asByteArray().plus(Byte.MIN_VALUE).plus(data)
     }
 
     private suspend fun handlePing() {

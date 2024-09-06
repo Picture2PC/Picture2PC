@@ -7,6 +7,7 @@ import com.github.picture2pc.common.net.extentions.getDefaultNetworkInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.InetSocketAddress
@@ -36,8 +37,8 @@ internal class SimpleMulticastSocket(
         if (!isAvailable) {
             return false
         }
+        val len = message.size
         return coroutineScope {
-            val len = message.size
             require(len < MulticastConstants.PACKET_SIZE) { "Must be less than PACKET_SIZE" }
             val datagramPacket = DatagramPacket(message, len, inetSocketAddress)
             return@coroutineScope kotlin.runCatching { jvmMulticastSocket.send(datagramPacket) }.isSuccess
@@ -55,14 +56,22 @@ internal class SimpleMulticastSocket(
         val byteArray = ByteArray(MulticastConstants.PACKET_SIZE)
         val datagramPacket = DatagramPacket(byteArray, byteArray.size, inetSocketAddress)
         try {
-            coroutineScope {
+            withContext(coroutineContext) {
                 jvmMulticastSocket.receive(datagramPacket)
             }
         } catch (e: SocketTimeoutException) {
             kotlin.runCatching {
                 coroutineScope {
                     val new = getDefaultNetworkInterface()
+                    kotlin.runCatching {
+                        coroutineScope {
+                            if (new != jvmMulticastSocket.networkInterface) {
+                                jvmMulticastSocket.networkInterface = new
+                                jvmMulticastSocket.joinGroup(inetSocketAddress, null)
 
+                            }
+                        }
+                    }
                     if (new != jvmMulticastSocket.networkInterface) {
                         jvmMulticastSocket.networkInterface = new
                         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
