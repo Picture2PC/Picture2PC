@@ -25,7 +25,7 @@ class ServersSectionViewModel(
                 _availablePeers.value = (it.map { peer ->
                     ServerEntryState(
                         peer,
-                        peer.name,
+                        "123",
                         availableServersCollector.getClientState(peer)
                             ?: return@onEach
                     )

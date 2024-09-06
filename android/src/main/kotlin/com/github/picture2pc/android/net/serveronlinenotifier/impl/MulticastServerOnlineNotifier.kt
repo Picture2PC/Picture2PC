@@ -4,7 +4,6 @@ import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRep
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.peer.Peer
-import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.MulticastPayloadTransceiver
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +44,6 @@ class MulticastServerOnlineNotifier(
     }
 
     private suspend fun emitServerOnline(serverName: String, peer: Peer = Peer.any()) {
-        NetworkPayloadTransceiver.name = serverName
         multicastPayloadTransceiver.sendPayload(
             MulticastPayload.PeerTcpOnline(
                 tcpPayloadTransceiver.inetSocketAddress.port,

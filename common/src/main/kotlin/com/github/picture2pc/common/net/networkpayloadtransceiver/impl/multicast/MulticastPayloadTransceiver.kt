@@ -2,6 +2,7 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicas
 
 
 import com.github.picture2pc.common.net.data.payload.Payload
+import com.github.picture2pc.common.net.data.serialization.asByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -9,7 +10,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.io.ByteArrayInputStream
 import kotlin.coroutines.CoroutineContext
 
 class MulticastPayloadTransceiver internal constructor(
@@ -39,6 +39,6 @@ class MulticastPayloadTransceiver internal constructor(
     }
 
     override suspend fun _sendPayload(payload: Payload): Boolean {
-        return multicastSocket?.sendMessage(ByteArrayInputStream(payload.asByteArray())) ?: false
+        return multicastSocket?.sendMessage(payload.asByteArray()) ?: false
     }
 }

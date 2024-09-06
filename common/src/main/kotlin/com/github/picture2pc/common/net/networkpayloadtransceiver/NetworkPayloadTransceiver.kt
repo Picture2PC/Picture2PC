@@ -3,8 +3,8 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -20,10 +20,8 @@ abstract class NetworkPayloadTransceiver : CoroutineScope {
         }
     }
 
-    private var lock = MutableStateFlow(0)
-    private var lockQueue = 0
     suspend fun sendPayload(payload: Payload): Boolean {
-        return _sendPayload(payload)
+        return coroutineScope { _sendPayload(payload) }
     }
 
     protected abstract suspend fun _sendPayload(payload: Payload): Boolean

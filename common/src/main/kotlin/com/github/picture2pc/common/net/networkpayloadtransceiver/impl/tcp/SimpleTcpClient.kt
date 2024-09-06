@@ -2,24 +2,26 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
 import com.github.picture2pc.common.net.data.client.Client
 import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.data.packet.Packet
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.yield
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -41,58 +43,50 @@ class SimpleTcpClient(
 
     fun startReceiving() {
         _clientStateFlow.value = ClientState.CONNECTED
-//        timeoutJob = getTimeoutJob()
+        timeoutJob = getTimeoutJob()
         launch {
             while (isActive) {
-                val packet = receivePacket()
-                if (packet == null) {
-                    disconnect()
-                    break
-                }
+                val packet = receivePacket() ?: break
                 if (packet is TcpPayload.Ping) {
-//                    handlePing()
+                    handlePing()
                     continue
                 }
                 _receivedPayloads.tryEmit(packet)
             }
         }
-
-//        _clientStateFlow.onEach {
-//            if (it is ClientState.RECEIVING_PAYLOAD) {
-//                timeoutJob!!.cancelAndJoin()
-//                timeoutJob = getTimeoutJob()
-//            }
-//        }.launchIn(this)
     }
 
-//    private fun getTimeoutJob(): Job {
-//        return launch {
-//            delay(TcpConstants.PINGTIME)
-//            if (!sendMessage(TcpPayload.Ping(targetPeer).asInputStream())) {
-//                simpleTcpServer.disconnect(targetPeer)
-//                return@launch
-//            }
-//            delay(TcpConstants.PINGTIMEOUT - TcpConstants.PINGTIME)
-//            simpleTcpServer.disconnect(targetPeer)
-//        }
-//    }
+    private fun getTimeoutJob(): Job {
+        return launch {
+            delay(TcpConstants.PINGTIME)
+            sendMessage(TcpPayload.Ping(peer))
+            delay(TcpConstants.PINGTIMEOUT - TcpConstants.PINGTIME)
+            _clientStateFlow.value = ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING("Ping timeout")
+        }
+    }
 
     suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
-        coroutineScope {
+        if (coroutineScope {
             return@coroutineScope withTimeoutOrNull(CONNECION_TIMEOUT)
             {
-                jvmSocket.connect(inetSocketAddress)
+                kotlin.runCatching {
+                    jvmSocket.connect(inetSocketAddress)
+                }.onFailure {
+                    return@withTimeoutOrNull null
+                }
                 return@withTimeoutOrNull true
             }
-        } ?: return false
+            } == null) {
+            _clientStateFlow.value =
+                ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Connection timeout")
+            return false
+        }
         return true
     }
 
-//    private suspend fun handlePing() {
-//        if (!sendMessage(TcpPayload.Pong(targetPeer).asInputStream())) {
-//            simpleTcpServer.disconnect(targetPeer)
-//        }
-//    }
+    private suspend fun handlePing() {
+        sendMessage(TcpPayload.Pong(peer))
+    }
 
     suspend fun sendMessage(message: Payload): Boolean {
         val data = getByteArray(message)
@@ -130,12 +124,12 @@ class SimpleTcpClient(
             coroutineScope {
                 do {
                     jvmSocket.getInputStream().read(sizeBuff, offset, 1)
-                } while (sizeBuff[offset++] != 0.toByte())
-                val test = jvmSocket.getInputStream().read(sizeBuff, 0, 1)
+                } while (sizeBuff[offset++] != Byte.MIN_VALUE)
             }
+            val p = Packet.fromByteArray(sizeBuff.copyOf(offset))
             _clientStateFlow.value = ClientState.RECEIVING_PAYLOAD(0.1f)
-            yield()
-            val size = ByteBuffer.wrap(sizeBuff).int
+            timeoutJob?.cancelAndJoin()
+            val size = p.len
             check(size > 0) { "Size is not positive" }
             val byteArray = ByteArray(size)
             var copied = 0
@@ -145,9 +139,9 @@ class SimpleTcpClient(
                         .read(byteArray, copied, size - copied)
                 }
             }
-            _clientStateFlow.value = ClientState.RECEIVING_PAYLOAD(0.9f)
-            yield()
-            return TcpPayload.Pong(targetPeer = Peer.any())
+            timeoutJob = getTimeoutJob()
+            _clientStateFlow.value = ClientState.CONNECTED
+            return Payload.fromByteArray(byteArray)
         } catch (e: Exception) {
             _clientStateFlow.value = ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(e.message ?: "")
             return null

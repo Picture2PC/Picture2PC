@@ -15,7 +15,7 @@ fun Client(clientData: Peer) {
         Modifier
             .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = clientData.name, fontSize = 20.sp)
+        Text(text = clientData.uuid, fontSize = 20.sp)
         Text(text = "clientData.address")
 
     }

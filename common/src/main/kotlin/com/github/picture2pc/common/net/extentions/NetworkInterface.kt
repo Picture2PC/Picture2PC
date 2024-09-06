@@ -4,9 +4,7 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 
 fun getDefaultNetworkInterface(): NetworkInterface? {
-    val possible =
-        NetworkInterface.getNetworkInterfaces().asSequence().filter { isPossible(it) }
-            .toSet()
+    val possible = NetworkInterface.getNetworkInterfaces().asSequence().filter(::isPossible)
     return possible.maxWithOrNull(compareBy { it.inetAddresses.asSequence().count() })
 }
 

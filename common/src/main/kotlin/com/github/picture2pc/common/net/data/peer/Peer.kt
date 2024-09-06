@@ -19,12 +19,8 @@ open class Peer {
             return Peer("0", true)
         }
 
-        private val uuid: String = getKoin().getProperty("uuid", UUID.randomUUID().toString())
+        private val uuid: String = UUID.randomUUID().toString()
 
-        init {
-            if (getKoin().getProperty("uuid", "") == "")
-                getKoin().setProperty("uuid", uuid)
-        }
 
         fun getSelf(): Peer {
             return Peer(uuid, false)

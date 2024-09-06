@@ -2,19 +2,18 @@ package com.github.picture2pc.common.net.data.client
 
 import androidx.compose.ui.graphics.Color
 import com.github.picture2pc.common.ui.StateColors
-import jdk.jfr.Percentage
 
 sealed class ClientState(val color: Color, val displayName: String) {
-    data object ONLINE :
+    object ONLINE :
         ClientState(StateColors.CONNECTED, "Online")
 
-    data object CONNECTED :
+    object CONNECTED :
         ClientState(StateColors.CONNECTED, "Connected")
 
-    data class SENDING_PAYLOAD(@Percentage val percentage: Float) :
+    data class SENDING_PAYLOAD(val percentage: Float) :
         ClientState(StateColors.RECEIVING, "Sending")
 
-    data class RECEIVING_PAYLOAD(@Percentage val percentage: Float) :
+    data class RECEIVING_PAYLOAD(val percentage: Float) :
         ClientState(StateColors.RECEIVING, "Receiving")
 
     sealed class DISCONNECTED(
@@ -22,10 +21,10 @@ sealed class ClientState(val color: Color, val displayName: String) {
         private val disconnectMessage: String
     ) :
         ClientState(disconnectColor, disconnectMessage) {
-        data object NO_ERROR :
+        object NO_ERROR :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected")
 
-        data object TIMEOUT :
+        object TIMEOUT :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected due to timeout")
 
         data class OTHER_ERROR(val errorMessage: String) :
