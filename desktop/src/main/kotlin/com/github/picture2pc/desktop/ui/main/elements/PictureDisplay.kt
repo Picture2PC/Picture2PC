@@ -103,6 +103,8 @@ fun Picture(
         }
         Canvas(
             Modifier.size(10.dp).align(Alignment.Center)
-        ) { drawCircle(Colors.PRIMARY, style = Stroke(width = 2f)) }
+        ) {
+            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
+        }
     }
 }
