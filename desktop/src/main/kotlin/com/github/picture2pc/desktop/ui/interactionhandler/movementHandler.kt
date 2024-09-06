@@ -4,12 +4,24 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
+import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.isInBounds
 import com.github.picture2pc.desktop.extention.translate
+import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlin.math.atan2
+
+enum class DraggingSpeed(val iconPath: String, val speed: Float) {
+    SLOW(Desktop.FAST, Settings.SLOW_DRAGGING_SPEED),
+    FAST(Desktop.SLOW, Settings.HIGH_DRAGGING_SPEED);
+
+    fun next(): DraggingSpeed = when (this) {
+        SLOW -> FAST
+        FAST -> SLOW
+    }
+}
 
 class MovementHandler(
     private val rotation: MutableState<RotationState>,
@@ -20,6 +32,8 @@ class MovementHandler(
     var currentDragPoint: MutableState<Pair<Float, Float>> = mutableStateOf(Pair(0f, 0f))
     var dragActive: MutableState<Boolean> = mutableStateOf(false)
     private var movedPoint = false
+
+    val draggingSpeed = mutableStateOf(DraggingSpeed.FAST)
 
     fun handleClick(offset: Offset) {
         val point = Pair(offset.x * pP.ratio, offset.y * pP.ratio).translate(
@@ -82,9 +96,11 @@ class MovementHandler(
         if (change.id.value.toInt() != 0) return
         if (currentDragPoint.value == Pair(0f, 0f)) currentDragPoint.value = dragStartPoint
 
+        println(draggingSpeed.value.speed)
+
         currentDragPoint.value = Pair(
-            currentDragPoint.value.first + (dragAmount.x / 2) * pP.ratio,
-            currentDragPoint.value.second + (dragAmount.y / 2) * pP.ratio
+            currentDragPoint.value.first + (dragAmount.x * draggingSpeed.value.speed) * pP.ratio,
+            currentDragPoint.value.second + (dragAmount.y * draggingSpeed.value.speed) * pP.ratio
         )
 
         dragActive.value = currentDragPoint.value.isInBounds(pP.bounds)
