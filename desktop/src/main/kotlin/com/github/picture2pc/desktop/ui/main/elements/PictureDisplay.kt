@@ -83,8 +83,7 @@ fun Picture(
             pDVM.rotationState.value,
             pDVM.pP.bounds
         )
-
-        Canvas(Modifier.size(140.dp).align(Alignment.Center)) {
+        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp).align(Alignment.Center)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
                 translate(
                     left = -(point.first * Settings.SCALE) + 110,

@@ -9,6 +9,7 @@ import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.div
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
+import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,15 +67,29 @@ class PictureDisplayViewModel(
     ): Pair<Float, Float> {
         val ratio = pP.ratio
         val bound = pP.bounds / ratio
+        val radius = Settings.ZOOM_DIAMETER.toFloat() / 2
+
         val currentDP = (movementHandler.currentDragPoint.value / ratio).translate(
-            rotationState,
-            bound
+            rotationState, bound
         )
 
-        val offsetPair = Pair(
+        var offsetPair = Pair(
             currentDP.first - (bound.width / 2),
             currentDP.second - (bound.height / 2)
         )
+
+        if (currentDP.first in 0f..radius) {
+            offsetPair = Pair(radius - bound.width / 2, offsetPair.second)
+        } else if (currentDP.first in bound.width - radius..bound.width) {
+            offsetPair = Pair(bound.width / 2 - radius, offsetPair.second)
+        }
+
+        if (currentDP.second in 0f..radius) {
+            offsetPair = Pair(offsetPair.first, radius - bound.height / 2)
+        } else if (currentDP.second in bound.height - radius..bound.height) {
+            offsetPair = Pair(offsetPair.first, bound.height / 2 - radius)
+        }
+
         return offsetPair
     }
 
