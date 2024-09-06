@@ -17,7 +17,7 @@ abstract class NetworkPayloadTransceiver : CoroutineScope {
     val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
 
     protected suspend fun receivedPayload(payload: Payload) {
-        if (payload.targetPeer == getSelf() || payload.targetPeer.isAny) {
+        if (payload.targetPeer == getSelf() || payload.targetPeer.isAny && payload.sourcePeer != getSelf()) {
             _receivedPayloads.emit(payload)
         }
     }
