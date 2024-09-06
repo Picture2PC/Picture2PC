@@ -12,15 +12,15 @@ import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import kotlin.coroutines.CoroutineContext
 
-@SuppressWarnings
+
 internal class SimpleMulticastSocket(
-    val inetSocketAddress: InetSocketAddress, override val coroutineContext: CoroutineContext,
+    private val inetSocketAddress: InetSocketAddress,
+    override val coroutineContext: CoroutineContext,
 ) : CoroutineScope {
     private val jvmMulticastSocket = java.net.MulticastSocket(inetSocketAddress.port)
 
     init {
-        // get networkinterface for local dns
-        jvmMulticastSocket.loopbackMode = true
+        // get network interface for local dns
         jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
         jvmMulticastSocket.networkInterface = NetworkHelper.getDefaultNetworkInterface()
         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
@@ -30,7 +30,7 @@ internal class SimpleMulticastSocket(
         get() = jvmMulticastSocket.isBound && !jvmMulticastSocket.isClosed
 
     suspend fun sendMessage(message: InputStream): Boolean {
-        // Currently only supports Messagesize < PACKET_SIZE
+        // Currently only supports Message-size < PACKET_SIZE
         if (!isAvailable) {
             return false
         }
@@ -45,7 +45,7 @@ internal class SimpleMulticastSocket(
         }
     }
 
-    fun close() {
+    private fun close() {
         jvmMulticastSocket.close()
     }
 
@@ -73,7 +73,6 @@ internal class SimpleMulticastSocket(
             close()
             return null
         }
-
         return Payload.fromInputStream(
             ByteArrayInputStream(datagramPacket.data),
             InetSocketAddress(datagramPacket.address, datagramPacket.port)
