@@ -24,9 +24,12 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun connectionInfo(serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()) {
+fun connectionInfo(
+    modifier: Modifier = Modifier,
+    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
+) {
     val availableServers = serversSectionViewModel.availableServers.collectAsState().value
-    Column {
+    Column(modifier = modifier) {
         Text(
             "Connections",
             Modifier.padding(Spacers.NORMAL),
