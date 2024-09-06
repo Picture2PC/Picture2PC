@@ -131,7 +131,10 @@ class MovementHandler(
         if (pP.clicks.size == 4) {
             pP.clicks.clear()
         }
-        pP.clicks.add(currentDragPoint.value.translate(rotation.value, pP.bounds))
+        val translatedPoint = currentDragPoint.value.translate(rotation.value, pP.bounds)
+        if (translatedPoint.isInBounds(pP.bounds)) {
+            pP.clicks.add(translatedPoint)
+        }
         pP.redrawAllPoints()
         if (pP.clicks.size == 4) {
             sortClicksToRectangle()
