@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.net.impl.tcp
+package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
 import org.koin.dsl.module
 

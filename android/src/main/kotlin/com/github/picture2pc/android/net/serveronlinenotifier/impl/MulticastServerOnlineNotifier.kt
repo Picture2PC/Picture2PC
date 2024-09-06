@@ -2,11 +2,11 @@ package com.github.picture2pc.android.net.serveronlinenotifier.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.serveronlinenotifier.ServerOnlineNotifier
-import com.github.picture2pc.common.net.NetworkPayloadTransceiver
-import com.github.picture2pc.common.net.Peer
-import com.github.picture2pc.common.net.impl.multicast.MulticastPayloadTransceiver
-import com.github.picture2pc.common.net.impl.tcp.TcpPayloadTransceiver
-import com.github.picture2pc.common.net.payloads.MulticastPayload
+import com.github.picture2pc.common.net.data.payload.MulticastPayload
+import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.MulticastPayloadTransceiver
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn

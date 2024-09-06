@@ -16,6 +16,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.koin.environmentProperties
 
 class MainActivity : ComponentActivity() {
 
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
             androidLogger()
             // Reference Android context
             androidContext(this@MainActivity)
+            environmentProperties()
 
             modules(appModule, coroutineContextProviderModule)
         }

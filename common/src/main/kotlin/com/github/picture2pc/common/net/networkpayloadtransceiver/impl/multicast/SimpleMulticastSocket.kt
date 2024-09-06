@@ -1,14 +1,15 @@
-package com.github.picture2pc.common.net.impl.multicast
+package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast
 
-import com.github.picture2pc.common.net.impl.common.NetworkHelper
-import com.github.picture2pc.common.net.payloads.Payload
+import com.github.picture2pc.common.net.data.payload.Payload
+import com.github.picture2pc.common.net.data.serialization.fromByteArray
+import com.github.picture2pc.common.net.extentions.getDefaultNetworkInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.DatagramPacket
 import java.net.InetSocketAddress
+import java.net.MulticastSocket
 import java.net.SocketTimeoutException
 import kotlin.coroutines.CoroutineContext
 
@@ -17,12 +18,12 @@ internal class SimpleMulticastSocket(
     private val inetSocketAddress: InetSocketAddress,
     override val coroutineContext: CoroutineContext,
 ) : CoroutineScope {
-    private val jvmMulticastSocket = java.net.MulticastSocket(inetSocketAddress.port)
+    private val jvmMulticastSocket = MulticastSocket(inetSocketAddress.port)
 
     init {
         // get network interface for local dns
         jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
-        jvmMulticastSocket.networkInterface = NetworkHelper.getDefaultNetworkInterface()
+        jvmMulticastSocket.networkInterface = getDefaultNetworkInterface()
         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
     }
 
@@ -61,7 +62,7 @@ internal class SimpleMulticastSocket(
         } catch (e: SocketTimeoutException) {
             coroutineScope {
                 kotlin.runCatching {
-                    val new = NetworkHelper.getDefaultNetworkInterface()
+                    val new = getDefaultNetworkInterface()
                     if (new != jvmMulticastSocket.networkInterface) {
                         jvmMulticastSocket.networkInterface = new
                         jvmMulticastSocket.joinGroup(inetSocketAddress, null)
@@ -73,9 +74,6 @@ internal class SimpleMulticastSocket(
             close()
             return null
         }
-        return Payload.fromInputStream(
-            ByteArrayInputStream(datagramPacket.data),
-            InetSocketAddress(datagramPacket.address, datagramPacket.port)
-        )
+        return Payload.fromByteArray(datagramPacket.data)
     }
 }

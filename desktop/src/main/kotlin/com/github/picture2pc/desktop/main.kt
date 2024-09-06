@@ -7,6 +7,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.newCoroutineContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.koin.environmentProperties
 import org.opencv.core.Core
 
 @OptIn(ExperimentalCoroutinesApi::class, InternalCoroutinesApi::class)
@@ -20,6 +21,7 @@ fun main() {
 
     startKoin {
         allowOverride(false)
+        environmentProperties()
         modules(appModule, coroutineContextProviderModule)
     }
 

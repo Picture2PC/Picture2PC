@@ -1,7 +1,7 @@
 package com.github.picture2pc.desktop.viewmodel.serversectionviewmodel
 
-import com.github.picture2pc.common.net.Peer
-import com.github.picture2pc.common.net.PeerState
+import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.desktop.data.availableserverscollector.AvailableServersCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +40,6 @@ class ServersSectionViewModel(
     data class ServerEntryState(
         val peer: Peer,
         val deviceName: String,
-        val connectionState: StateFlow<PeerState>
+        val connectionState: StateFlow<ClientState>
     )
 }

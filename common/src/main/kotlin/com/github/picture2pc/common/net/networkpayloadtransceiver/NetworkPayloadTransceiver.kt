@@ -1,15 +1,13 @@
-package com.github.picture2pc.common.net
+package com.github.picture2pc.common.net.networkpayloadtransceiver
 
-import com.github.picture2pc.common.net.payloads.Payload
+import com.github.picture2pc.common.net.data.payload.Payload
+import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
-import java.util.UUID
 
 @OptIn(ExperimentalSerializationApi::class)
 abstract class NetworkPayloadTransceiver : CoroutineScope {
@@ -17,7 +15,7 @@ abstract class NetworkPayloadTransceiver : CoroutineScope {
     val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
 
     protected suspend fun receivedPayload(payload: Payload) {
-        if (payload.targetPeer == getSelf() || payload.targetPeer.isAny && payload.sourcePeer != getSelf()) {
+        if (payload.targetPeer == Peer.getSelf() || (payload.targetPeer.isAny && payload.sourcePeer != Peer.getSelf())) {
             _receivedPayloads.emit(payload)
         }
     }
@@ -25,32 +23,14 @@ abstract class NetworkPayloadTransceiver : CoroutineScope {
     private var lock = MutableStateFlow(0)
     private var lockQueue = 0
     suspend fun sendPayload(payload: Payload): Boolean {
-
-        return coroutineScope {
-            val c = lockQueue++
-            while (lock.value != c) {
-                lock.singleOrNull()
-            }
-            //return false if failed
-            val res = _sendPayload(payload)
-            if (lock.value == lockQueue - 1) {
-                lockQueue = 0
-                lock.value = 0
-            } else
-                lock.value = c + 1
-
-            return@coroutineScope res
-        }
-
+        return _sendPayload(payload)
     }
 
     protected abstract suspend fun _sendPayload(payload: Payload): Boolean
 
     companion object {
-        val uuid = UUID.randomUUID().toString()
-        var name = "test"
-        fun getSelf(): Peer {
-            return Peer(name, uuid, false)
+        init {
+            System.setProperty("java.net.preferIPv4Stack", "true")
         }
     }
 }

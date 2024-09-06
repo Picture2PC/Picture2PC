@@ -1,9 +1,9 @@
-package com.github.picture2pc.common.net.impl.tcp
+package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
-import com.github.picture2pc.common.net.Peer
-import com.github.picture2pc.common.net.PeerState
-import com.github.picture2pc.common.net.payloads.Payload
-import com.github.picture2pc.common.net.payloads.TcpPayload
+import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.data.payload.Payload
+import com.github.picture2pc.common.net.data.payload.TcpPayload
+import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -47,7 +47,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             } catch (e: Exception) {
                 return false
             }
-        val client = SimpleTcpClient(get(), peer, this, jvmSocket)
+        val client = SimpleTcpClient(get(), peer, jvmSocket)
         addPeer(peer, client)
         val packet = client.receivePacket()
         if (packet == null || packet !is TcpPayload.Ping) {
@@ -64,7 +64,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         if (checkPeer(peer)) return false
-        val client = SimpleTcpClient(get(), peer, this)
+        val client = SimpleTcpClient(get(), peer)
         if (!coroutineScope {
                 return@coroutineScope client.connect(inetSocketAddress)
             }) return false
@@ -107,7 +107,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
 
     suspend fun disconnect(peer: Peer) {
         val client = peerToClientMap.getOrDefault(peer, null) ?: return
-        client.close()
+        client.disconnect()
         removePeer(peer)
     }
 
@@ -116,7 +116,7 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             return coroutineScope {
                 val jobs = peerToClientMap.values.map {
                     async {
-                        it.sendMessage(payload.asInputStream())
+                        it.sendMessage(payload)
                     }
                 }
                 jobs.forEach {
@@ -126,10 +126,10 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             }
         }
         val client = peerToClientMap.getOrDefault(payload.targetPeer, null) ?: return false
-        return client.sendMessage(payload.asInputStream())
+        return client.sendMessage(payload)
     }
 
-    fun getPeerStateAsFlow(peer: Peer): StateFlow<PeerState>? {
-        return peerToClientMap.getOrDefault(peer, null)?.peerState
+    fun getPeerStateAsFlow(peer: Peer): StateFlow<ClientState>? {
+        return peerToClientMap.getOrDefault(peer, null)?.clientStateFlow
     }
 }

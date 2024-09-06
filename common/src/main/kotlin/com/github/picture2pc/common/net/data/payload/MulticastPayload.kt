@@ -1,6 +1,6 @@
-package com.github.picture2pc.common.net.payloads
+package com.github.picture2pc.common.net.data.payload
 
-import com.github.picture2pc.common.net.Peer
+import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.serialization.Serializable
 import java.net.InetSocketAddress
 
@@ -9,7 +9,7 @@ sealed class MulticastPayload : Payload() {
     @Serializable
     data class PeerTcpOnline(val port: Int, override val targetPeer: Peer) : MulticastPayload() {
         val tcpServerSocketAddress: InetSocketAddress
-            get() = InetSocketAddress(receivedFromInetSocketAddress?.address, port)
+            get() = InetSocketAddress(receivedPayloadInfo?.senderInetSocketAddress?.address, port)
     }
 
     @Serializable

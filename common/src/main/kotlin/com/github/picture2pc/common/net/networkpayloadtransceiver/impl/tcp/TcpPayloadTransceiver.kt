@@ -1,9 +1,9 @@
-package com.github.picture2pc.common.net.impl.tcp
+package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
-import com.github.picture2pc.common.net.NetworkPayloadTransceiver
-import com.github.picture2pc.common.net.Peer
-import com.github.picture2pc.common.net.PeerState
-import com.github.picture2pc.common.net.payloads.Payload
+import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.data.payload.Payload
+import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -30,7 +30,7 @@ class TcpPayloadTransceiver(override val coroutineContext: CoroutineContext) : C
     val inetSocketAddress
         get() = tcpServer.socketAddress
 
-    fun getPeerStateAsStateFlow(peer: Peer): StateFlow<PeerState>? {
+    fun getPeerStateAsStateFlow(peer: Peer): StateFlow<ClientState>? {
         return tcpServer.getPeerStateAsFlow(peer)
     }
 

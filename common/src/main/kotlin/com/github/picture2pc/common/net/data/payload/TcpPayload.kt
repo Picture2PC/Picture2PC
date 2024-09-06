@@ -1,6 +1,6 @@
-package com.github.picture2pc.common.net.payloads
+package com.github.picture2pc.common.net.data.payload
 
-import com.github.picture2pc.common.net.Peer
+import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.ByteString
