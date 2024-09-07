@@ -65,8 +65,9 @@ class PicturePreparationImpl(
         )
         val paint = Paint().apply { colorFilter = ColorFilter.makeMatrix(cM) }
 
-        Canvas(_editedBitmap.value.makeClone())
-            .drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
+        val bitmap = clearBitmap()
+        Canvas(bitmap).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint).close()
+        _editedBitmap.value = bitmap
         updateEditedBitmap()
     }
 
