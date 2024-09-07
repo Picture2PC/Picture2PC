@@ -16,7 +16,7 @@ dependencies {
     implementation(compose.desktop.common)
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
-    implementation(libs.openpnp.opencv)
+    implementation(libs.quarkus.opencv)
     implementation(project(":common"))
 }
 
