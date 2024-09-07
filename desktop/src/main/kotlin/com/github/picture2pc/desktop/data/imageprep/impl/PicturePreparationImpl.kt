@@ -133,16 +133,20 @@ class PicturePreparationImpl(
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
+        if (displayPictureSize == IntSize(0, 0)) return
         this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
+        bounds = MathRect(
+            Offset(0f, 0f),
+            Offset(
+                displayPictureSize.width.toFloat() * ratio,
+                displayPictureSize.height.toFloat() * ratio
+            )
+        )
     }
 
     override fun updateEditedBitmap() {
         _editedBitmap.value = editedBitmap.value.makeClone()
-        bounds = MathRect(
-            Offset(0f, 0f),
-            Offset(editedBitmap.value.width.toFloat(), editedBitmap.value.height.toFloat())
-        )
     }
 
     private fun clearBitmap(): Bitmap {
@@ -159,10 +163,6 @@ class PicturePreparationImpl(
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        bounds = MathRect(
-            Offset(0f, 0f),
-            Offset(picture.width.toFloat(), picture.height.toFloat())
-        )
         reset()
     }
 

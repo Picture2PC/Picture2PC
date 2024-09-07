@@ -92,17 +92,14 @@ class MovementHandler(
         dragActive.value = false
     }
 
-    fun handleDrag(change: PointerInputChange, dragAmount: Offset) {
+    fun handleDrag(change: PointerInputChange) {
+        val ratio = pP.ratio
+        val currentPosition = change.position
+
         if (change.id.value.toInt() != 0) return
         if (currentDragPoint.value == Pair(0f, 0f)) currentDragPoint.value = dragStartPoint
 
-        println(draggingSpeed.value.speed)
-
-        currentDragPoint.value = Pair(
-            currentDragPoint.value.first + (dragAmount.x * draggingSpeed.value.speed) * pP.ratio,
-            currentDragPoint.value.second + (dragAmount.y * draggingSpeed.value.speed) * pP.ratio
-        )
-
+        currentDragPoint.value = Pair(currentPosition.x * ratio, currentPosition.y * ratio)
         dragActive.value = currentDragPoint.value.isInBounds(pP.bounds)
         pP.updateEditedBitmap()
     }

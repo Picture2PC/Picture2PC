@@ -57,8 +57,8 @@ fun Picture(
                     onDragStart = { dragStart: Offset ->
                         picDisVM.movementHandler.setDragStart(dragStart)
                     },
-                    onDrag = { change, dragAmount ->
-                        picDisVM.movementHandler.handleDrag(change, dragAmount)
+                    onDrag = { change, _ ->
+                        picDisVM.movementHandler.handleDrag(change)
                     },
                     onDragEnd = { picDisVM.movementHandler.endDrag() }
                 )

@@ -16,7 +16,7 @@ dependencies {
     implementation(compose.desktop.common)
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
-    implementation(libs.quarkus.opencv)
+    implementation(libs.opencv.v4550)
     implementation(project(":common"))
 }
 
@@ -26,6 +26,8 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Exe, TargetFormat.AppImage)
+            packageName = "Picture2PC"
+            packageVersion = "0.0.1"
         }
     }
 }
