@@ -1,20 +1,25 @@
 package com.github.picture2pc.desktop
 
 import com.github.picture2pc.desktop.di.appModule
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.newCoroutineContext
+import nu.pattern.OpenCV
 import org.koin.core.context.startKoin
-import org.koin.environmentProperties
-import org.opencv.core.Core
+import org.koin.dsl.module
 
-@OptIn(ExperimentalCoroutinesApi::class, InternalCoroutinesApi::class)
+
+@OptIn(InternalCoroutinesApi::class)
 fun main() {
-    //Load OpenCV native library
-    System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+    val coroutineContextProviderModule = module {
+        factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
+    }
+
+    OpenCV.loadLocally()
+    System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
 
     startKoin {
         allowOverride(false)
-        environmentProperties()
         modules(appModule)
     }
 

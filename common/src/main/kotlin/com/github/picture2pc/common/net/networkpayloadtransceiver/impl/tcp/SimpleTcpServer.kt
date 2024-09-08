@@ -56,7 +56,7 @@ class SimpleTcpServer(
         if (!isAvailable || checkPeer(peer)) return false
         val jvmSocket =
             try {
-                withTimeout(TcpConstants.CONNECION_TIMEOUT) {
+                withTimeout(CONNECION_TIMEOUT) {
                     jvmServerSocket.accept()
                 }
             } catch (e: Exception) {

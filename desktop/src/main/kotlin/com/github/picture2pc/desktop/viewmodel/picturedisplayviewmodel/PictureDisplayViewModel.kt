@@ -9,10 +9,17 @@ import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
 import com.github.picture2pc.desktop.ui.interactionhandler.DragHandler
+import com.github.picture2pc.desktop.extention.div
+import com.github.picture2pc.desktop.extention.translate
+import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
+import com.github.picture2pc.desktop.ui.constants.Settings
+import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -31,13 +38,11 @@ class PictureDisplayViewModel(
 
     val currentPicture = pP.editedBitmap
     val overlayPicture = pP.overlayBitmap
-    val zoomedBitmap = pP.zoomedBitmap
 
     val isSelectPicture = mutableStateOf(false)
     val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
 
-    val clickHandler = ClickHandler(rotationState, pP)
-    val dragHandler = DragHandler(pP, clickHandler)
+    val movementHandler = MovementHandler(rotationState, pP)
 
     init {
         pictures.onEach {
@@ -55,9 +60,47 @@ class PictureDisplayViewModel(
         if (newIndex < 0 || newIndex > pictures.replayCache.size - 1) return
 
         selectedPictureIndex.value = newIndex
-        pP.setOriginalPicture(
-            pictures.replayCache[newIndex].toComposeImageBitmap().asSkiaBitmap()
+        pP.setOriginalPicture(pictures.replayCache[newIndex].toComposeImageBitmap().asSkiaBitmap())
+    }
+
+    fun calculateOffset(
+        rotationState: RotationState
+    ): Pair<Float, Float> {
+        val ratio = pP.ratio
+        val bound = pP.bounds / ratio
+        val radius = Settings.ZOOM_DIAMETER.toFloat() / 2
+
+        val currentDP = (movementHandler.currentDragPoint.value / ratio).translate(
+            rotationState, bound
         )
+
+        var offsetPair = Pair(
+            currentDP.first - (bound.width / 2),
+            currentDP.second - (bound.height / 2)
+        )
+
+        if (currentDP.first in 0f..radius) {
+            offsetPair = Pair(radius - bound.width / 2, offsetPair.second)
+        } else if (currentDP.first in bound.width - radius..bound.width) {
+            offsetPair = Pair(bound.width / 2 - radius, offsetPair.second)
+        }
+
+        if (currentDP.second in 0f..radius) {
+            offsetPair = Pair(offsetPair.first, radius - bound.height / 2)
+        } else if (currentDP.second in bound.height - radius..bound.height) {
+            offsetPair = Pair(offsetPair.first, bound.height / 2 - radius)
+        }
+
+        return offsetPair
+    }
+
+    private fun openImage(path: String): Image {
+        val file = File(path)
+        val bufferedImage = ImageIO.read(file)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
+        val imageBytes = byteArrayOutputStream.toByteArray()
+        return makeFromEncoded(imageBytes)
     }
 
     fun loadTestImage() {
@@ -66,12 +109,8 @@ class PictureDisplayViewModel(
             print("Enter test image num: ")
             imgNum = readln()
         }
-        val file = File("common/src/main/res/test_images/${imgNum}.png")
-        val bufferedImage = ImageIO.read(file)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
-        val imageBytes = byteArrayOutputStream.toByteArray()
-        val testImage = makeFromEncoded(imageBytes)
+
+        val testImage = openImage("common/src/main/res/test_images/${imgNum}.png")
 
         // Add the test image to the pictures flow
 

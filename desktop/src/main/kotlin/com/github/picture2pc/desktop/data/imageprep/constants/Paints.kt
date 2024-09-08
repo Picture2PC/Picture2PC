@@ -6,11 +6,12 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
 object Paints {
-    val stroke = Paint().apply {
+    val STROKE = Paint().apply {
         color = Colors.PRIMARY.toArgb()
         mode = PaintMode.STROKE
     }
-    val fill = Paint().apply {
+
+    val FILL = Paint().apply {
         color = Colors.SECONDARY.toArgb()
         mode = PaintMode.FILL
     }
