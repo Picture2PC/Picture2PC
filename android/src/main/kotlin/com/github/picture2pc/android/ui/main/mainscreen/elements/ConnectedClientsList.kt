@@ -42,8 +42,9 @@ fun ConnectedClientsList(
         Row {
             LazyColumn {
                 items(connections) { client ->
+                    val clientName = client.name.collectAsState()
                     Text(
-                        text = client.name,
+                        text = clientName.value,
                         style = TextStyles.NORMAL.copy(fontSize = 20.sp)
                     )
                 }
