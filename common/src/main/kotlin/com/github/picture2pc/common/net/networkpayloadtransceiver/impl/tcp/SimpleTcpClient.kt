@@ -9,6 +9,7 @@ import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.data.serialization.getByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.MAX_PACKET_SIZE
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -24,6 +25,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.net.InetSocketAddress
 import java.net.Socket
+import kotlin.math.max
+import kotlin.math.min
 
 @OptIn(ExperimentalSerializationApi::class)
 class SimpleTcpClient(
@@ -94,15 +97,18 @@ class SimpleTcpClient(
 
     suspend fun sendMessage(message: Payload): Boolean {
         val data = message.getByteArray()
+        var size = 0
+        val packetSize = max(data.size / 100, MAX_PACKET_SIZE)
         kotlin.runCatching {
             withContext(ioDispatcher) {
                 //send data in 100 steps
-                val step = data.size / 100
-                for (i in 0 until 100) {
-                    jvmSocket.getOutputStream().write(data, i * step, step)
-                    _clientStateFlow.value = ClientState.SENDING_PAYLOAD(i / 100f)
+                while (size < data.size) {
+                    jvmSocket.getOutputStream().write(data, size, min(data.size - size, packetSize))
+                    _clientStateFlow.value = ClientState.SENDING_PAYLOAD(size / data.size.toFloat())
+                    size += min(data.size - size, packetSize)
                 }
             }
+            _clientStateFlow.value = ClientState.CONNECTED
         }.onFailure {
             _clientStateFlow.value =
                 ClientState.DISCONNECTED.ERROR_WHILE_SENDING(it.message ?: "")
@@ -133,6 +139,7 @@ class SimpleTcpClient(
                 } while (sizeBuff[offset++] != Byte.MIN_VALUE)
             }
             val p = Packet.fromByteArray(sizeBuff.copyOf(offset))
+            val type = Class.forName(p.type).kotlin
             timeoutJob?.cancelAndJoin()
             val size = p.len
             check(size > 0) { "Size is not positive" }
@@ -141,7 +148,7 @@ class SimpleTcpClient(
             withContext(ioDispatcher) {
                 while (copied < size) {
                     _clientStateFlow.value = ClientState.RECEIVING_PAYLOAD(
-                        Class.forName(p.type).kotlin,
+                        type,
                         copied / size.toFloat()
                     )
                     copied += jvmSocket.getInputStream()
