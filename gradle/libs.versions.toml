@@ -6,7 +6,7 @@ datastorePreferences = "1.1.1"
 kotlin = "1.8.20"
 androidGradlePlugin = "8.5.2"
 composeMultiplatformPlugin = "1.4.0"
-ui = "1.7.0-beta07"
+ui = "1.7.0"
 koin = "3.4.3"
 kotlinxSerializationJson = "1.6.2"
 opencvVersion = "4.5.5-0"
@@ -24,7 +24,7 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version = "1.0.3" } # Version different for who knows what reason
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerializationJson" }
-material3 = { module = "androidx.compose.material3:material3", version = "1.3.0-beta05" }
+material3 = { module = "androidx.compose.material3:material3", version = "1.3.0" }
 openpnp-opencv = { module = "org.openpnp:opencv", version.ref = "opencvVersion" }
 org-jetbrains-kotlin-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui" }

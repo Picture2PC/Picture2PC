@@ -8,9 +8,11 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesDefaults
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 
 
 private object PreferenceKeys {
@@ -20,9 +22,8 @@ private object PreferenceKeys {
 
 class DataStoreServerPreferencesRepository(
     private val context: Context,
-    override val coroutineContext: CoroutineContext
-) :
-    CoroutineScope, ServerPreferencesRepository() {
+    private val backgroundScope: CoroutineScope,
+) : ServerPreferencesRepository() {
 
     companion object {
         private val Context.settingsDataStore by preferencesDataStore(
@@ -30,27 +31,36 @@ class DataStoreServerPreferencesRepository(
         )
     }
 
-
-    override val name: Flow<String> = context.settingsDataStore.data.map { preferences ->
+    override val name = context.settingsDataStore.data.map { preferences ->
         preferences[PreferenceKeys.NAME] ?: ServerPreferencesDefaults.NAME
-    }
+    }.stateIn(
+        scope = backgroundScope,
+        started = SharingStarted.Eagerly,
+        initialValue = "<LOADING>"
+    )
 
-    override val connectable: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
+    override val connectable = context.settingsDataStore.data.map { preferences ->
         preferences[PreferenceKeys.CONNECTABLE] ?: ServerPreferencesDefaults.CONNECTABLE
-    }
+    }.stateIn(
+        scope = backgroundScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
 
 
     override suspend fun setName(name: String) {
-        context.settingsDataStore.edit { preferences ->
-            preferences[PreferenceKeys.NAME] = name
+        withContext(Dispatchers.IO) {
+            context.settingsDataStore.edit { preferences ->
+                preferences[PreferenceKeys.NAME] = name
+            }
         }
     }
 
     override suspend fun setConnectable(connectable: Boolean) {
-        context.settingsDataStore.edit { preferences ->
-            preferences[PreferenceKeys.CONNECTABLE] = connectable
+        withContext(Dispatchers.IO) {
+            context.settingsDataStore.edit { preferences ->
+                preferences[PreferenceKeys.CONNECTABLE] = connectable
+            }
         }
     }
-
-
 }

@@ -4,27 +4,35 @@ import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.MulticastConstants
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import java.net.InetSocketAddress
-import kotlin.coroutines.CoroutineContext
 
-class TcpPayloadTransceiver(override val coroutineContext: CoroutineContext) : CoroutineScope,
-    KoinComponent,
-    NetworkPayloadTransceiver() {
+class TcpPayloadTransceiver(
+    private val backgroundScope: CoroutineScope,
+    private val tcpServer: SimpleTcpServer
+) : KoinComponent, NetworkPayloadTransceiver() {
+    override val available: Boolean
+        get() = tcpServer.isAvailable
 
-    private val tcpServer: SimpleTcpServer = get()
-    val connectedPeers
+    override suspend fun start() {
+        while (kotlin.runCatching { tcpServer.start() }.isFailure) {
+            delay(MulticastConstants.RETRY_DELAY)
+        }
+    }
+
+    val connectedPeers: StateFlow<List<Peer>>
         get() = tcpServer.connectedPeers
 
     init {
         tcpServer.receivedNetworkPackets.onEach {
             receivedPayload(it)
-        }.launchIn(this)
+        }.launchIn(backgroundScope)
     }
 
     val inetSocketAddress
@@ -34,12 +42,11 @@ class TcpPayloadTransceiver(override val coroutineContext: CoroutineContext) : C
         return tcpServer.getPeerStateAsFlow(peer)
     }
 
-    suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress? = null) {
+    suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress? = null): Boolean {
         if (inetSocketAddress == null) {
-            tcpServer.accept(peer)
-            return
+            return tcpServer.accept(peer)
         }
-        tcpServer.connect(peer, inetSocketAddress)
+        return tcpServer.connect(peer, inetSocketAddress)
     }
 
     override suspend fun _sendPayload(payload: Payload): Boolean {

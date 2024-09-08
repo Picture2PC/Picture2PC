@@ -19,7 +19,7 @@ import org.koin.compose.rememberKoinInject
 @Composable
 fun ConnectedClientsList(modifier: Modifier, viewModel: ClientsViewModel = rememberKoinInject()) {
 
-    val connections by viewModel.serverEntries.collectAsState(emptyList())
+    val connections by viewModel.serverEntries.collectAsState()
 
     LazyColumn(
         modifier = modifier.background(Color.DarkGray, RoundedCornerShape(12.dp)),

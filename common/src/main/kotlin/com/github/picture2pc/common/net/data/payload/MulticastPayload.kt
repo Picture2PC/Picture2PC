@@ -7,13 +7,14 @@ import java.net.InetSocketAddress
 @Serializable
 sealed class MulticastPayload : Payload() {
     @Serializable
-    data class PeerTcpOnline(val port: Int, override val targetPeer: Peer) : MulticastPayload() {
+    data class PeerTcpOnline(val port: Int, val clientName: String, override val targetPeer: Peer) :
+        MulticastPayload() {
         val tcpServerSocketAddress: InetSocketAddress
             get() = InetSocketAddress(receivedPayloadInfo?.senderInetSocketAddress?.address, port)
     }
 
     @Serializable
-    class ListPeers : MulticastPayload() {
+    data class ListPeers(val clientName: String) : MulticastPayload() {
         override val targetPeer: Peer = Peer.any()
     }
 }

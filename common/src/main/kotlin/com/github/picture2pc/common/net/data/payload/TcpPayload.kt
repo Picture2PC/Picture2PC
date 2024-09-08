@@ -13,8 +13,13 @@ sealed class TcpPayload : Payload() {
 
     @Serializable
     data class Pong(override val targetPeer: Peer) : TcpPayload()
-
     // ------------Internal--------------
+
+    @Serializable
+    data class RequestName(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class NameUpdate(val name: String, override val targetPeer: Peer) : TcpPayload()
 
     @Serializable
     data class Picture @OptIn(ExperimentalSerializationApi::class) constructor(

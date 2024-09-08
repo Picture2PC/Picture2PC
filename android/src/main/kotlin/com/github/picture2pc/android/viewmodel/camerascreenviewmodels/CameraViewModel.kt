@@ -4,15 +4,19 @@ import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.github.picture2pc.android.data.takeimage.PictureManager
+import com.github.picture2pc.android.extentions.toByteArray
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.ui.Icons
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter
-) {
+) : ViewModel() {
     val takenImages: SharedFlow<Bitmap>
         get() {
             return pictureManager.takenImages
@@ -34,7 +38,9 @@ class CameraViewModel(
     }
 
     fun sendImage() {
-        dataTransmitter.send(getLastImage())
+        viewModelScope.launch {
+            dataTransmitter.sendPicture(getLastImage().toByteArray())
+        }
     }
 
     fun switchFlashMode() {

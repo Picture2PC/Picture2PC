@@ -3,6 +3,7 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -11,35 +12,48 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import java.net.InetSocketAddress
-import kotlin.coroutines.CoroutineContext
+import kotlin.collections.set
 
-class SimpleTcpServer(override val coroutineContext: CoroutineContext) : CoroutineScope,
+class SimpleTcpServer(
+    private val backgroundScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher
+) :
     KoinComponent {
-    private val jvmServerSocket = java.net.ServerSocket()
+    private lateinit var jvmServerSocket: java.net.ServerSocket
     private val peerToClientMap = mutableMapOf<Peer, SimpleTcpClient>()
 
-    val _receivedNetworkPackets = MutableSharedFlow<Payload>()
+    val _receivedNetworkPackets = MutableSharedFlow<Payload>(0, 1)
     val receivedNetworkPackets: SharedFlow<Payload> = _receivedNetworkPackets.asSharedFlow()
 
     private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
-    val connectedPeers: SharedFlow<List<Peer>> = _connectedPeers.asSharedFlow()
+    val connectedPeers: StateFlow<List<Peer>> = _connectedPeers.asStateFlow()
+
+    val isAvailable: Boolean
+        get() = this::jvmServerSocket.isInitialized && jvmServerSocket.isBound && !jvmServerSocket.isClosed
 
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
 
-    init {
-        jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
-        jvmServerSocket.soTimeout = 1000
+
+    suspend fun start() {
+        withContext(ioDispatcher)
+        {
+            jvmServerSocket = java.net.ServerSocket()
+            jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
+            jvmServerSocket.soTimeout = 1000
+        }
     }
 
+
     suspend fun accept(peer: Peer): Boolean {
-        if (checkPeer(peer)) return false
+        if (!isAvailable || checkPeer(peer)) return false
         val jvmSocket =
             try {
                 withTimeout(TcpConstants.CONNECION_TIMEOUT) {
@@ -48,15 +62,15 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
             } catch (e: Exception) {
                 return false
             }
-        val client = SimpleTcpClient(get(), peer, jvmSocket)
+        val client = SimpleTcpClient(backgroundScope, ioDispatcher, peer, jvmSocket)
         addPeer(peer, client)
         client.startReceiving()
         return true
     }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
-        if (checkPeer(peer)) return false
-        val client = SimpleTcpClient(get(), peer)
+        if (!isAvailable || checkPeer(peer)) return false
+        val client = SimpleTcpClient(backgroundScope, ioDispatcher, peer)
         if (!coroutineScope {
                 return@coroutineScope client.connect(inetSocketAddress)
             }) return false
@@ -65,34 +79,8 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
         return true
     }
 
-    private fun addPeer(peer: Peer, client: SimpleTcpClient) {
-        peerToClientMap[peer] = client
-        _connectedPeers.value = peerToClientMap.keys.toList()
-        client.clientStateFlow.onEach {
-            if (it is ClientState.DISCONNECTED) {
-                client.disconnect()
-                removePeer(peer)
-            }
-        }.launchIn(this)
-    }
-
-    private fun removePeer(peer: Peer) {
-        peerToClientMap.remove(peer)
-        _connectedPeers.value = peerToClientMap.keys.toList()
-    }
-
-    private fun checkPeer(peer: Peer): Boolean {
-        if (peerToClientMap.containsKey(peer)) {
-            if (!peerToClientMap[peer]!!.isConnected) {
-                removePeer(peer)
-                return false
-            }
-            return true
-        }
-        return false
-    }
-
     suspend fun sendPayload(payload: Payload): Boolean {
+        if (!isAvailable) return false
         if (payload.targetPeer.isAny) {
             return coroutineScope {
                 val jobs = peerToClientMap.values.map {
@@ -113,4 +101,35 @@ class SimpleTcpServer(override val coroutineContext: CoroutineContext) : Corouti
     fun getPeerStateAsFlow(peer: Peer): StateFlow<ClientState>? {
         return peerToClientMap.getOrDefault(peer, null)?.clientStateFlow
     }
+
+    private fun addPeer(peer: Peer, client: SimpleTcpClient) {
+        peerToClientMap[peer] = client
+        _connectedPeers.value = peerToClientMap.keys.toList()
+        client.clientStateFlow.onEach {
+            if (it is ClientState.DISCONNECTED) {
+                client.disconnect()
+                removePeer(peer)
+            }
+        }.launchIn(backgroundScope)
+        client.receivedPayloads.onEach {
+            _receivedNetworkPackets.tryEmit(it)
+        }.launchIn(backgroundScope)
+    }
+
+    private fun removePeer(peer: Peer) {
+        peerToClientMap.remove(peer)
+        _connectedPeers.value = peerToClientMap.keys.toList()
+    }
+
+    private fun checkPeer(peer: Peer): Boolean {
+        if (peerToClientMap.containsKey(peer)) {
+            if (!peerToClientMap[peer]!!.isConnected) {
+                removePeer(peer)
+                return false
+            }
+            return true
+        }
+        return false
+    }
+
 }

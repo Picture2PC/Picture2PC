@@ -9,13 +9,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.github.picture2pc.android.di.appModule
 import com.github.picture2pc.android.ui.main.Screen
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.newCoroutineContext
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import org.koin.dsl.module
 import org.koin.environmentProperties
 
 class MainActivity : ComponentActivity() {
@@ -26,9 +23,6 @@ class MainActivity : ComponentActivity() {
         if (!hasRequiredPermissions()) {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSONS, 0)
         }
-        val coroutineContextProviderModule = module {
-            factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
-        }
         startKoin {
             // Log Koin into Android logger
             androidLogger()
@@ -36,7 +30,7 @@ class MainActivity : ComponentActivity() {
             androidContext(this@MainActivity)
             environmentProperties()
 
-            modules(appModule, coroutineContextProviderModule)
+            modules(appModule)
         }
 
         setContent {

@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Spacers
-import com.github.picture2pc.common.ui.StateColors
 import com.github.picture2pc.common.ui.Style
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
@@ -42,7 +41,7 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
             )
         } else {
             availableServers.forEach {
-                connection(it.deviceName, it.connectionState)
+                connection(it.name, it.deviceState)
             }
         }
         Spacer(Modifier.height(Spacers.NORMAL))
@@ -50,21 +49,22 @@ fun connectionInfo(serversSectionViewModel: ServersSectionViewModel) {
 }
 
 @Composable
-fun connection(name: String, clientStateFlow: StateFlow<ClientState>?) {
-    val clientState = clientStateFlow?.collectAsState()
+fun connection(name: StateFlow<String>, clientStateFlow: StateFlow<ClientState>) {
+    val clientName = name.collectAsState()
+    val clientState = clientStateFlow.collectAsState()
     Row(Modifier.padding(start = Spacers.NORMAL, end = Spacers.NORMAL, top = Spacers.SMALL)) {
-        Text(name, color = Colors.TEXT, style = TextStyles.NORMAL)
+        Text(clientName.value, color = Colors.TEXT, style = TextStyles.NORMAL)
         Spacer(Modifier.weight(1f))
 
         Text(
-            clientState?.value?.displayName ?: "null",
+            clientState.value.displayName,
             color = Colors.TEXT,
             style = TextStyles.NORMAL
         )
         Spacer(Modifier.width(Spacers.SMALL))
 
         Canvas(Modifier.size(Style.Dimensions.StateIndicator).align(Alignment.CenterVertically)) {
-            drawCircle(clientState?.value?.color ?: StateColors.DISCONNECTED)
+            drawCircle(clientState.value.color)
         }
     }
 }
