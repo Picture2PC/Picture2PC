@@ -1,0 +1,89 @@
+package com.github.picture2pc.desktop.ui.main.elements
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Icons
+import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.common.ui.Spacers
+import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.constants.Settings
+import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
+import org.koin.compose.rememberKoinInject
+
+@Composable
+fun Sidebar(
+    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
+    pDVM: PictureDisplayViewModel = rememberKoinInject()
+) {
+    val showConnections = remember { mutableStateOf(false) }
+
+    Box(
+        Modifier
+            .fillMaxHeight()
+            .width(Settings.SIDEBAR_WIDTH.dp)
+            .background(Colors.SECONDARY, Shapes.WINDOW)
+    ) {
+        // Items in the Sidebar
+        Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
+            Header()
+            Spacer(Modifier.height(Spacers.LARGE))
+
+            Row { ImageInteractionButtons() }
+            Spacer(Modifier.height(Spacers.LARGE))
+
+            // CONNECTION INFO
+            if (showConnections.value) {
+                connectionInfo(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .background(Colors.ACCENT, Shapes.BUTTON)
+                )
+                Spacer(Modifier.height(Spacers.NORMAL))
+            } else Spacer(Modifier.weight(1f))
+
+            // DEBUG BUTTONS
+            Button(serversSectionViewModel::refreshServers) {
+                Text("Refresh Servers")
+            }
+            Row {
+                Button({ pDVM.loadTestImage() }) { Text("Load Test Image") }
+                Checkbox(
+                    pDVM.isSelectPicture.value,
+                    { pDVM.isSelectPicture.value = !pDVM.isSelectPicture.value },
+                    Modifier.align(Alignment.CenterVertically)
+                )
+            }
+
+            // CONNECTION INFO TOGGLE BUTTON
+            Box(Modifier.fillMaxWidth()) {
+                TooltipIconButton(
+                    Descriptions.INFO,
+                    Icons.Desktop.INFO,
+                    Colors.ACCENT,
+                    Modifier.align(Alignment.BottomEnd)
+                ) { showConnections.value = !showConnections.value }
+            }
+        }
+    }
+}

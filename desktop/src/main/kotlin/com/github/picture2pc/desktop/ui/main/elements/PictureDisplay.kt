@@ -57,8 +57,8 @@ fun Picture(
                     onDragStart = { dragStart: Offset ->
                         picDisVM.movementHandler.setDragStart(dragStart)
                     },
-                    onDrag = { change, dragAmount ->
-                        picDisVM.movementHandler.handleDrag(change, dragAmount)
+                    onDrag = { change, _ ->
+                        picDisVM.movementHandler.handleDrag(change)
                     },
                     onDragEnd = { picDisVM.movementHandler.endDrag() }
                 )
@@ -86,7 +86,7 @@ fun Picture(
             picDisVM.rotationState.value,
             picDisVM.pP.bounds
         )
-        Canvas(Modifier.size(140.dp).align(Alignment.Center)) {
+        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp).align(Alignment.Center)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
                 translate(
                     left = -(point.first * Settings.SCALE) + 110,
@@ -103,6 +103,8 @@ fun Picture(
         }
         Canvas(
             Modifier.size(10.dp).align(Alignment.Center)
-        ) { drawCircle(Colors.PRIMARY, style = Stroke(width = 2f)) }
+        ) {
+            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
+        }
     }
 }

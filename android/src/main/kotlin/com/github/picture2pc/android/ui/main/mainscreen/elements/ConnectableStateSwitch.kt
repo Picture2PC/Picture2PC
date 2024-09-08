@@ -14,7 +14,7 @@ import org.koin.compose.rememberKoinInject
 fun ConnectableStateSwitch(
     viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
-    val connectableSwitch by viewModel.serverConnectable.collectAsState()
+    val connectableSwitch by viewModel.connectable.collectAsState()
 
     Row {
         Switch(

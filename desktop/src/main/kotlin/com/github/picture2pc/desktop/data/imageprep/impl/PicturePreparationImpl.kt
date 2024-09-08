@@ -12,7 +12,6 @@ import com.github.picture2pc.desktop.data.imageprep.constants.UnstratifiedValues
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -29,15 +28,12 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 import androidx.compose.ui.geometry.Rect as MathRect
 
-class PicturePreparationImpl(
-    override val coroutineContext: CoroutineContext
-) : PicturePreparation, CoroutineScope {
+class PicturePreparationImpl : PicturePreparation {
     //Bitmaps for the original, edited, overlay and drag overlay images
     override var originalBitmap: Bitmap = Bitmap()
 
@@ -65,8 +61,9 @@ class PicturePreparationImpl(
         )
         val paint = Paint().apply { colorFilter = ColorFilter.makeMatrix(cM) }
 
-        Canvas(_editedBitmap.value.makeClone())
-            .drawImage(editedBitmap.value.toImage(), 0f, 0f, paint)
+        val bitmap = clearBitmap()
+        Canvas(bitmap).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint).close()
+        _editedBitmap.value = bitmap
         updateEditedBitmap()
     }
 
@@ -132,16 +129,20 @@ class PicturePreparationImpl(
     }
 
     override fun calculateRatio(displayPictureSize: IntSize) {
+        if (displayPictureSize == IntSize(0, 0)) return
         this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
+        bounds = MathRect(
+            Offset(0f, 0f),
+            Offset(
+                displayPictureSize.width.toFloat() * ratio,
+                displayPictureSize.height.toFloat() * ratio
+            )
+        )
     }
 
     override fun updateEditedBitmap() {
         _editedBitmap.value = editedBitmap.value.makeClone()
-        bounds = MathRect(
-            Offset(0f, 0f),
-            Offset(editedBitmap.value.width.toFloat(), editedBitmap.value.height.toFloat())
-        )
     }
 
     private fun clearBitmap(): Bitmap {
@@ -158,10 +159,6 @@ class PicturePreparationImpl(
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        bounds = MathRect(
-            Offset(0f, 0f),
-            Offset(picture.width.toFloat(), picture.height.toFloat())
-        )
         reset()
     }
 

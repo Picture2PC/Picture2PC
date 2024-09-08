@@ -1,12 +1,11 @@
 package com.github.picture2pc.android.viewmodel.mainscreenviewmodels
 
-import com.github.picture2pc.common.net2.impl.tcp.TcpPayloadTransceiver
-import kotlinx.coroutines.CoroutineScope
-import kotlin.coroutines.CoroutineContext
+import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
+import kotlinx.coroutines.flow.StateFlow
 
 class ClientsViewModel(
-    tcpPayloadTransceiver: TcpPayloadTransceiver,
-    override val coroutineContext: CoroutineContext
-) : CoroutineScope {
-    val serverEntries = tcpPayloadTransceiver.connectedPeers
+    private val dataTransmitter: DataTransmitter
+) {
+    val serverEntries: StateFlow<List<DefaultDevice>> = dataTransmitter.connectedDevices
 }
