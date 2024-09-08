@@ -63,7 +63,7 @@ class SimpleTcpClient(
             delay(TcpConstants.PINGTIME)
             sendMessage(TcpPayload.Ping(peer))
             delay(TcpConstants.PINGTIMEOUT - TcpConstants.PINGTIME)
-            _clientStateFlow.value = ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING("Ping timeout")
+            _clientStateFlow.value = ClientState.DISCONNECTED.TIMEOUT
         }
     }
 
