@@ -15,10 +15,10 @@ import com.github.picture2pc.desktop.ui.util.getIcon
 
 @Composable
 fun TooltipIconButton(
+    modifier: Modifier = Modifier,
     description: String,
     icon: String,
     color: Color = Colors.PRIMARY,
-    modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {

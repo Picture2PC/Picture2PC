@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -20,10 +21,11 @@ import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun ServerNameInputField(
+fun NameInputField(
     modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
 ) {
     val nameInput by viewModel.serverName.collectAsState()
+    val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
         value = nameInput,
@@ -38,8 +40,13 @@ fun ServerNameInputField(
             autoCorrectEnabled = true,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = { viewModel.saveName(nameInput) }),
+        keyboardActions = KeyboardActions(onDone = {
+            viewModel.saveName(nameInput)
+            focusManager.clearFocus()
+        }),
         colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Colors.TEXT,
+            unfocusedTextColor = Colors.TEXT,
             focusedBorderColor = Colors.PRIMARY,
             unfocusedBorderColor = Colors.PRIMARY,
             cursorColor = Colors.ACCENT,

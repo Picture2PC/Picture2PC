@@ -53,7 +53,7 @@ fun Sidebar(
 
             // CONNECTION INFO
             if (showConnections.value) {
-                connectionInfo(
+                ConnectionInfo(
                     Modifier
                         .weight(1f)
                         .fillMaxSize()
@@ -78,10 +78,10 @@ fun Sidebar(
             // CONNECTION INFO TOGGLE BUTTON
             Box(Modifier.fillMaxWidth()) {
                 TooltipIconButton(
+                    Modifier.align(Alignment.BottomEnd),
                     Descriptions.INFO,
                     Icons.Desktop.INFO,
                     Colors.ACCENT,
-                    Modifier.align(Alignment.BottomEnd)
                 ) { showConnections.value = !showConnections.value }
             }
         }

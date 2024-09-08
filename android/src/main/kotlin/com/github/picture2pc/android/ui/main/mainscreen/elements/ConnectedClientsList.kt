@@ -3,6 +3,8 @@ package com.github.picture2pc.android.ui.main.mainscreen.elements
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,8 +27,7 @@ fun ConnectedClientsList(
     modifier: Modifier = Modifier,
     viewModel: ClientsViewModel = rememberKoinInject()
 ) {
-
-    val connections by viewModel.serverEntries.collectAsState()
+    val connections by viewModel.serverEntries.collectAsState(emptyList())
 
     Column(
         modifier = modifier
@@ -39,6 +40,7 @@ fun ConnectedClientsList(
                 style = TextStyles.NORMAL.copy(fontSize = 22.sp, fontWeight = FontWeight.Bold)
             )
         }
+        Spacer(modifier = Modifier.height(10.dp))
         Row {
             LazyColumn {
                 items(connections) { client ->

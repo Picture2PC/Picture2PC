@@ -43,8 +43,8 @@ fun ImageInteractionButtons(
     Column {
         Row {
             TooltipIconButton(
-                Descriptions.RESET,
-                Icons.Desktop.RESET,
+                description = Descriptions.RESET,
+                icon = Icons.Desktop.RESET,
                 buttonModifier = Modifier.width(75.dp)
             ) { pDVM.pP.reset() }
             Spacer(spacerSize)
@@ -53,15 +53,15 @@ fun ImageInteractionButtons(
                 Row(Modifier.background(Colors.PRIMARY, Shapes.BUTTON).fillMaxWidth()) {
                     Spacer(Modifier.width(Spacers.LARGE))
                     TooltipIconButton(
-                        Descriptions.PREVIOUS_PICTURE,
-                        Icons.Desktop.PREVIOUS_PICTURE
+                        description = Descriptions.PREVIOUS_PICTURE,
+                        icon = Icons.Desktop.PREVIOUS_PICTURE
                     ) { pDVM.adjustCurrentPictureIndex(-1) }
 
                     Spacer(Modifier.weight(1f))
 
                     TooltipIconButton(
-                        Descriptions.NEXT_PICTURE,
-                        Icons.Desktop.NEXT_PICTURE
+                        description = Descriptions.NEXT_PICTURE,
+                        icon = Icons.Desktop.NEXT_PICTURE
                     ) { pDVM.adjustCurrentPictureIndex(1) }
                     Spacer(Modifier.width(Spacers.LARGE))
                 }
@@ -99,20 +99,20 @@ fun ImageInteractionButtons(
             Row {
                 Spacer(Modifier.weight(1f))
                 TooltipIconButton(
-                    Descriptions.CONTRAST,
-                    Icons.Desktop.CONTRAST
+                    description = Descriptions.CONTRAST,
+                    icon = Icons.Desktop.CONTRAST
                 ) { pDVM.pP.contrast() }
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
-                    Descriptions.COPY,
-                    Icons.Desktop.COPY
+                    description = Descriptions.COPY,
+                    icon = Icons.Desktop.COPY
                 ) { pDVM.pP.copy() }
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
-                    Descriptions.CROP,
-                    Icons.Desktop.CROP
+                    description = Descriptions.CROP,
+                    icon = Icons.Desktop.CROP
                 ) { pDVM.pP.crop() }
                 Spacer(Modifier.weight(1f))
             }

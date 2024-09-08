@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
         if (!hasRequiredPermissions()) {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSONS, 0)
         }
+
         startKoin {
             // Log Koin into Android logger
             androidLogger()
