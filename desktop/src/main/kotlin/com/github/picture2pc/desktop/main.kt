@@ -9,7 +9,6 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.opencv.core.Core
 
-
 @OptIn(InternalCoroutinesApi::class)
 fun main() {
     module {
