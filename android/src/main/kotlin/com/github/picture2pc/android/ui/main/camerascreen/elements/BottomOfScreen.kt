@@ -33,7 +33,7 @@ fun BottomOfScreen(
             colors = IconButtonDefaults.iconButtonColors(Colors.PRIMARY)
         ) {
             Icon(
-                painter = painterResource(R.drawable.baseline_arrow_back_24),
+                painter = painterResource(R.drawable.arrow_back),
                 contentDescription = "Back to main screen",
                 tint = Colors.TEXT
             )

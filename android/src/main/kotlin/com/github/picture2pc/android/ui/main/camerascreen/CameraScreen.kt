@@ -41,8 +41,7 @@ fun CameraScreen(
         ) {
             CameraPreview(cameraViewModel = cameraViewModel)
         }
-        if (image != null)
-            DisplayImage(image = image)
+        if (image != null) DisplayImage(image = image)
         Column(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
@@ -57,7 +56,6 @@ fun CameraScreen(
         }
     }
     BackHandler {
-        println("BackHandler")
         screenSelectorViewModel.toMain()
     }
 }

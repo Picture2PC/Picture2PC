@@ -20,7 +20,7 @@ import com.github.picture2pc.common.ui.TextStyles
 @Composable
 fun Banner() {
     Column(Modifier.height(100.dp)) {
-        Image(painterResource(R.drawable.app_icon_standard), "Logo")
+        Image(painterResource(R.drawable.app_icon), "Logo")
     }
     Spacer(Modifier.width(20.dp))
     Column {

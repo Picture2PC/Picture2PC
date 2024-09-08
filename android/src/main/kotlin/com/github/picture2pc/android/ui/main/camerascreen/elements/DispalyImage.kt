@@ -1,7 +1,6 @@
 package com.github.picture2pc.android.ui.main.camerascreen.elements
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,8 +50,7 @@ fun DisplayImage(
                         if (imageOffsetX.floatValue < size.width / 2) {
                             imageOffsetX.floatValue = 0f
                         } else {
-                            imageOffsetX.floatValue = size.width + 30.dp.toPx()
-                            Log.d("DisplayImage", size.width.toString())
+                            imageOffsetX.floatValue = size.width + 55.dp.toPx()
                         }
                         imageOffsetY.floatValue = 0f
                     }

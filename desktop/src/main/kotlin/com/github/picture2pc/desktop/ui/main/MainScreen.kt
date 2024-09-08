@@ -68,9 +68,9 @@ fun MainScreen(
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
                     Row {
                         TooltipIconButton(
-                            Descriptions.ROTATE_LEFT,
-                            Desktop.ROTATE_LEFT,
-                            Colors.ACCENT,
+                            description = Descriptions.ROTATE_LEFT,
+                            icon = Desktop.ROTATE_LEFT,
+                            color = Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(false)
@@ -79,9 +79,9 @@ fun MainScreen(
                         Spacer(Modifier.width(Spacers.SMALL))
 
                         TooltipIconButton(
-                            Descriptions.ROTATE_RIGHT,
-                            Desktop.ROTATE_RIGHT,
-                            Colors.ACCENT,
+                            description = Descriptions.ROTATE_RIGHT,
+                            icon = Desktop.ROTATE_RIGHT,
+                            color = Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(true)
