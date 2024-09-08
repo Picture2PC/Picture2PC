@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -25,14 +26,17 @@ import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun CameraScreen(
-    modifier: Modifier = Modifier,
+fun VerticalCameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     val image = cameraViewModel.takenImage.collectAsState(initial = null).value
 
-    Box(modifier = modifier.padding(20.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Max)

@@ -25,7 +25,7 @@ compose.desktop {
         mainClass = "com.github.picture2pc.desktop.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Exe, TargetFormat.AppImage)
+            targetFormats(TargetFormat.Exe, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Picture2PC"
             packageVersion = "0.0.1"
         }

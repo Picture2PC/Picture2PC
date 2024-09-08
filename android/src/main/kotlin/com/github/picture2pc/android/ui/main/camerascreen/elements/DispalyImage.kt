@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
@@ -25,7 +26,6 @@ import kotlin.math.roundToInt
 
 @Composable
 fun DisplayImage(
-    modifier: Modifier = Modifier,
     image: Bitmap,
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
@@ -35,23 +35,18 @@ fun DisplayImage(
     Image(
         bitmap = image.asImageBitmap(),
         contentDescription = "Taken Picture",
-        modifier = modifier
+        modifier = Modifier
+            .getBaseModifier(image.width, image.height)
             .offset {
                 IntOffset(
                     imageOffsetX.floatValue.roundToInt(),
                     imageOffsetY.floatValue.roundToInt()
                 )
             }
-            .height(200.dp)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
-                        // Snap to top start or top end
-                        if (imageOffsetX.floatValue < size.width / 2) {
-                            imageOffsetX.floatValue = 0f
-                        } else {
-                            imageOffsetX.floatValue = size.width + 55.dp.toPx()
-                        }
+                        imageOffsetX.floatValue = 0f
                         imageOffsetY.floatValue = 0f
                     }
                 ) { change, dragAmount ->
@@ -65,4 +60,12 @@ fun DisplayImage(
             .border(3.dp, color = Colors.PRIMARY, shape = RoundedCornerShape(20.dp))
             .alpha(0.8f)
     )
+}
+
+private fun Modifier.getBaseModifier(width: Int, height: Int): Modifier {
+    return if (width > height) {
+        width(200.dp)
+    } else {
+        height(200.dp)
+    }
 }

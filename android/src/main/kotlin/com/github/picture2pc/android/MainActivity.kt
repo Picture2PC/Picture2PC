@@ -1,5 +1,6 @@
 package com.github.picture2pc.android
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!hasRequiredPermissions()) {
-            ActivityCompat.requestPermissions(this, CAMERAX_PERMISSONS, 0)
+            ActivityCompat.requestPermissions(this, CAMERAX_PERMISSIONS, 0)
         }
 
         startKoin {
@@ -46,8 +47,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun hasRequiredPermissions() = CAMERAX_PERMISSONS.all {
-        return CAMERAX_PERMISSONS.all {
+    private fun hasRequiredPermissions() = CAMERAX_PERMISSIONS.all {
+        return CAMERAX_PERMISSIONS.all {
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 it
@@ -56,8 +57,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        private val CAMERAX_PERMISSONS = arrayOf(
-            android.Manifest.permission.CAMERA,
+        private val CAMERAX_PERMISSIONS = arrayOf(
+            Manifest.permission.CAMERA,
         )
     }
 }

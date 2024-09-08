@@ -36,6 +36,7 @@ fun Sidebar(
     pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     val showConnections = remember { mutableStateOf(false) }
+    val isReleaseBuild = System.getProperty("releaseBuild")?.toBoolean() ?: false
 
     Box(
         Modifier

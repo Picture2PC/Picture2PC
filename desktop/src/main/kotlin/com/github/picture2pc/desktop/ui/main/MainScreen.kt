@@ -75,7 +75,6 @@ fun MainScreen(
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(false)
                         }
-
                         Spacer(Modifier.width(Spacers.SMALL))
 
                         TooltipIconButton(

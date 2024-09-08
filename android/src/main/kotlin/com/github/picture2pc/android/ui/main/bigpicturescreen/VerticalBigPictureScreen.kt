@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -26,13 +27,17 @@ import com.github.picture2pc.common.ui.Colors
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun BigPictureScreen(
+fun VerticalBigPictureScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     val image = cameraViewModel.takenImage.collectAsState(initial = null).value
 
-    Box(modifier = Modifier.padding(20.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
         Row(modifier = Modifier.align(Alignment.Center)) {
             if (image != null)
                 Image(
