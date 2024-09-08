@@ -15,11 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.jetbrains.skia.Image
-import org.jetbrains.skia.Image.Companion.makeFromEncoded
-import java.io.ByteArrayOutputStream
-import java.io.File
-import javax.imageio.ImageIO
 
 class PictureDisplayViewModel(
     private val viewModelScope: CoroutineScope,
@@ -88,27 +83,5 @@ class PictureDisplayViewModel(
         }
 
         return offsetPair
-    }
-
-    private fun openImage(path: String): Image {
-        val file = File(path)
-        val bufferedImage = ImageIO.read(file)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        ImageIO.write(bufferedImage, "png", byteArrayOutputStream)
-        val imageBytes = byteArrayOutputStream.toByteArray()
-        return makeFromEncoded(imageBytes)
-    }
-
-    fun loadTestImage() {
-        var imgNum = "3"
-        if (isSelectPicture.value) {
-            print("Enter test image num: ")
-            imgNum = readln()
-        }
-
-        val testImage = openImage("common/src/main/res/test_images/${imgNum}.png")
-
-        // Add the test image to the pictures flow
-
     }
 }

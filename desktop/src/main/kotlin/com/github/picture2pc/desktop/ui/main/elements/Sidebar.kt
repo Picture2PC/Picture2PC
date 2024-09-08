@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -26,17 +25,14 @@ import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.constants.Settings
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun Sidebar(
     serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
-    pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     val showConnections = remember { mutableStateOf(false) }
-    val isReleaseBuild = System.getProperty("releaseBuild")?.toBoolean() ?: false
 
     Box(
         Modifier
@@ -66,14 +62,6 @@ fun Sidebar(
             // DEBUG BUTTONS
             Button(serversSectionViewModel::refreshServers) {
                 Text("Refresh Servers")
-            }
-            Row {
-                Button({ pDVM.loadTestImage() }) { Text("Load Test Image") }
-                Checkbox(
-                    pDVM.isSelectPicture.value,
-                    { pDVM.isSelectPicture.value = !pDVM.isSelectPicture.value },
-                    Modifier.align(Alignment.CenterVertically)
-                )
             }
 
             // CONNECTION INFO TOGGLE BUTTON
