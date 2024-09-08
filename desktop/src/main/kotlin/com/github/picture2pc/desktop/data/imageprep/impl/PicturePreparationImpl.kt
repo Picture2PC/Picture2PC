@@ -12,7 +12,6 @@ import com.github.picture2pc.desktop.data.imageprep.constants.UnstratifiedValues
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -29,15 +28,12 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 import androidx.compose.ui.geometry.Rect as MathRect
 
-class PicturePreparationImpl(
-    override val coroutineContext: CoroutineContext
-) : PicturePreparation, CoroutineScope {
+class PicturePreparationImpl : PicturePreparation {
     //Bitmaps for the original, edited, overlay and drag overlay images
     override var originalBitmap: Bitmap = Bitmap()
 

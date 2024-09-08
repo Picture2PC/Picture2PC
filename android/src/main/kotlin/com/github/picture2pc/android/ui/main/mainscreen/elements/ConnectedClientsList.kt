@@ -26,7 +26,7 @@ fun ConnectedClientsList(
     viewModel: ClientsViewModel = rememberKoinInject()
 ) {
 
-    val connections by viewModel.serverEntries.collectAsState(emptyList())
+    val connections by viewModel.serverEntries.collectAsState()
 
     Column(
         modifier = modifier

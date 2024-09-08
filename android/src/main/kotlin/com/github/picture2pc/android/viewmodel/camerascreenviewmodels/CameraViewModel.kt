@@ -2,19 +2,23 @@ package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.github.picture2pc.android.data.takeimage.PictureManager
+import com.github.picture2pc.android.extentions.toByteArray
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter
-) {
+) : ViewModel() {
     val takenImage: SharedFlow<Bitmap>
         get() {
             return pictureManager.takenImages
@@ -36,7 +40,9 @@ class CameraViewModel(
     }
 
     fun sendImage() {
-        dataTransmitter.send(getLastImage())
+        viewModelScope.launch {
+            dataTransmitter.sendPicture(getLastImage().toByteArray())
+        }
     }
 
     fun switchFlashMode() {

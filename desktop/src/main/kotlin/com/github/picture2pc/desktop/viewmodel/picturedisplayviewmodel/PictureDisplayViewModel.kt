@@ -4,8 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.ui.interactionhandler.ClickHandler
+import com.github.picture2pc.desktop.ui.interactionhandler.DragHandler
 import com.github.picture2pc.desktop.extention.div
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.net.datatransmitter.DataReceiver
@@ -21,13 +24,12 @@ import org.jetbrains.skia.Image.Companion.makeFromEncoded
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
-import kotlin.coroutines.CoroutineContext
 
 class PictureDisplayViewModel(
-    private val dataReceiver: DataReceiver,
+    private val viewModelScope: CoroutineScope,
+    private val dataReceiver: DataTransmitter,
     val pP: PicturePreparation,
-    override val coroutineContext: CoroutineContext
-) : CoroutineScope {
+) {
     private val pictures = dataReceiver.pictures
 
     //MutableStateFlow because needs to be updated for Screen
@@ -48,7 +50,7 @@ class PictureDisplayViewModel(
                 it.toComposeImageBitmap().asSkiaBitmap()
             )
             totalPictures.value = pictures.replayCache.size
-        }.launchIn(this)
+        }.launchIn(viewModelScope)
     }
 
 
@@ -111,8 +113,6 @@ class PictureDisplayViewModel(
         val testImage = openImage("common/src/main/res/test_images/${imgNum}.png")
 
         // Add the test image to the pictures flow
-        CoroutineScope(coroutineContext).launch {
-            dataReceiver.addPicture(testImage)
-        }
+
     }
 }

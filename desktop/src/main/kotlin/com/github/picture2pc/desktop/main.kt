@@ -8,6 +8,7 @@ import nu.pattern.OpenCV
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
+
 @OptIn(InternalCoroutinesApi::class)
 fun main() {
     val coroutineContextProviderModule = module {
@@ -19,7 +20,7 @@ fun main() {
 
     startKoin {
         allowOverride(false)
-        modules(appModule, coroutineContextProviderModule)
+        modules(appModule)
     }
 
     runDesktopApp()
