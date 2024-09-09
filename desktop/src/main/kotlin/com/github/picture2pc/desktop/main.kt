@@ -4,7 +4,6 @@ import com.github.picture2pc.desktop.di.appModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.newCoroutineContext
-import nu.pattern.OpenCV
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.opencv.core.Core
@@ -15,7 +14,9 @@ fun main() {
         factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
     }
 
-    OpenCV.loadLocally()
+    println(System.getProperty("java.library.path"))
+    println(System.getProperty("user.dir"))
+
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 
     startKoin {
