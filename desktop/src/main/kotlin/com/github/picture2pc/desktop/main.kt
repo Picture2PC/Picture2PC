@@ -14,9 +14,6 @@ fun main() {
         factory { Dispatchers.IO.newCoroutineContext(Dispatchers.IO) }
     }
 
-    println(System.getProperty("java.library.path"))
-    println(System.getProperty("user.dir"))
-
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 
     startKoin {
