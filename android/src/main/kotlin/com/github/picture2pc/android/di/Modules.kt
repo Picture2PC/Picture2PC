@@ -1,6 +1,8 @@
 package com.github.picture2pc.android.di
 
 import androidx.lifecycle.SavedStateHandle
+import com.github.picture2pc.android.data.edgedetection.EdgeDetect
+import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
 import com.github.picture2pc.android.data.takeimage.PictureManager
@@ -38,8 +40,9 @@ val appModule = module {
 
 
     single { BroadcastViewModel(get()) }
+    single<EdgeDetect> { YOLOv8SegEdgeDetect() }
     single { ClientsViewModel(get()) }
-    single<PictureManager> { CameraPictureManager(get()) }
+    single<PictureManager> { CameraPictureManager(get(), get()) }
     single { CameraViewModel(get(), get()) }
     single { ScreenSelectorViewModel() }
 
