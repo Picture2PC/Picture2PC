@@ -22,6 +22,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import org.opencv.android.Utils
+import org.opencv.core.Mat
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -84,7 +88,24 @@ class CameraPictureManager(
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
-                edgeDetect.detect(image.toBitmap())
+                val b = image.toBitmap()
+                val rgb = Mat()
+                Utils.bitmapToMat(b, rgb)
+                val rects = edgeDetect.detect(b)
+                for (rect in rects) {
+                    // Draw rect on bitmap
+                    Imgproc.rectangle(
+                        rgb,
+                        rect.tl(),
+                        rect.br(),
+                        Scalar(255.0, 0.0, 0.0),
+                        10
+                    )
+                }
+                lifecycleOwner.lifecycleScope.launch {
+                    Utils.matToBitmap(rgb, b)
+                    _takenImages.emit(b)
+                }
                 image.close()
             }
             edgeDetect.load(context)

@@ -2,9 +2,9 @@ package com.github.picture2pc.android.data.edgedetection
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Point
+import org.opencv.core.Rect2d
 
 interface EdgeDetect {
     fun load(context: Context)
-    fun detect(bit: Bitmap): List<Point>
+    fun detect(bit: Bitmap): List<Rect2d>
 }
