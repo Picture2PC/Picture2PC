@@ -6,7 +6,6 @@ import com.github.picture2pc.android.R
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import org.opencv.android.Utils
 import org.opencv.core.Core
-import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.core.MatOfFloat
@@ -109,7 +108,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
 
         // Convert BGR to RGB and normalize to [0,1]
         Imgproc.cvtColor(paddedImg, paddedImg, Imgproc.COLOR_BGR2RGB)
-        paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
+//        paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
 
         // Transpose HWC to CHW (channel first format)
         val channels = mutableListOf<Mat>()
@@ -117,7 +116,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         val chwImg = Mat()
         Core.merge(channels, chwImg)
 
-        return Triple(paddedImg, ratio, Pair(padW, padH))
+        return Triple(chwImg, ratio, Pair(padW, padH))
     }
 
 
