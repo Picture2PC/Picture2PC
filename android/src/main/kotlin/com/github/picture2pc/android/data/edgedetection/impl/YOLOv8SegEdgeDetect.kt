@@ -12,14 +12,17 @@ import org.opencv.core.MatOfFloat
 import org.opencv.core.MatOfInt
 import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfRect2d
+import org.opencv.core.Rect
 import org.opencv.core.Rect2d
 import org.opencv.core.Scalar
 import org.opencv.core.Size
+import org.opencv.core.times
 import org.opencv.dnn.Dnn
 import org.opencv.dnn.Net
 import org.opencv.imgproc.Imgproc
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 class YOLOv8SegEdgeDetect : EdgeDetect {
     private lateinit var documentModel: Net
@@ -37,7 +40,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         documentModel = loadModel(context)
     }
 
-    override fun detect(bit: Bitmap): List<Rect2d> {
+    override fun detect(bit: Bitmap): Mat {
         val rgb = Mat()
         Utils.bitmapToMat(bit, rgb)
         val res = preprocess(rgb, 256, 256)
@@ -47,17 +50,16 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         documentModel.setInput(blob)
         documentModel.forward(result, documentModel.unconnectedOutLayersNames)
 
-        val (boxes, masks, _) = postprocess(
+        val (boxes, masks, om) = postprocess(
             result,
             rgb,
             res.second,
             res.third.first,
             res.third.second,
             0.4f,
-            0.1f
+            0.45f
         )
-        println(boxes)
-        return boxes
+        return om
     }
 
     private fun preprocess(
@@ -67,7 +69,6 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
     ): Triple<Mat, Pair<Double, Double>, Pair<Double, Double>> {
         // Resize and pad input image using letterbox approach
         val shape = Size(img.cols().toDouble(), img.rows().toDouble()) // original image shape
-        println(shape)
         val newShape = Size(modelWidth.toDouble(), modelHeight.toDouble())
         val r = minOf(newShape.height / shape.height, newShape.width / shape.width)
         val ratio = Pair(r, r)
@@ -119,8 +120,79 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         return Triple(chwImg, ratio, Pair(padW, padH))
     }
 
+    private fun processMask(protos: Mat, mask: Mat, box: Rect2d, imShape: Size): Mat {
+        val maskResized = Mat()
+        var new = protos.reshape(0, intArrayOf(32, 64 * 64))
+        new = new.t() * mask.t()
+//        val max = Core.minMaxLoc(new).maxVal
+//        Core.divide(max, new, new)
+        new = scaleMask(new.reshape(0, intArrayOf(64, 64)), imShape, null)
 
-    fun postprocess(
+        return new
+    }
+
+    fun scaleMask(masks: Mat, im0Shape: Size, ratioPad: DoubleArray?): Mat {
+        /**
+         * Takes a mask and resizes it to the original image size.
+         *
+         * @param masks (Mat): resized and padded masks/images, [h, w, num]/[h, w, 3].
+         * @param im0Shape (Size): the original image shape.
+         * @param ratioPad (DoubleArray?): the ratio of the padding to the original image.
+         * @return masks (Mat): The masks that are being returned.
+         */
+
+        val im1Shape = masks.size() // Get the current size of the mask
+        val gain: Double
+        val padX: Double
+        val padY: Double
+
+        if (ratioPad == null) { // calculate from im0_shape
+            gain = minOf(
+                im1Shape.height / im0Shape.height,
+                im1Shape.width / im0Shape.width
+            ) // gain = old / new
+            padX = (im1Shape.width - im0Shape.width * gain) / 2.0 // width padding
+            padY = (im1Shape.height - im0Shape.height * gain) / 2.0 // height padding
+        } else {
+            padX = ratioPad[0]
+            padY = ratioPad[1]
+        }
+
+        // Calculate top-left and bottom-right coordinates for cropping
+        val top = (padY - 0.1).roundToInt()
+        val left = (padX - 0.1).roundToInt()
+        val bottom = (im1Shape.height - padY + 0.1).roundToInt()
+        val right = (im1Shape.width - padX + 0.1).roundToInt()
+
+        // Ensure masks are at least 2-dimensional
+        if (masks.dims() < 2) {
+            throw IllegalArgumentException("`len of masks shape` should be 2 or 3, but got ${masks.dims()}")
+        }
+
+        // Crop the mask to remove padding
+        val croppedMask = Mat(masks, Rect(left, top, right - left, bottom - top))
+
+        val resizedMask = Mat()
+        Imgproc.resize(
+            croppedMask,
+            resizedMask,
+            im0Shape,
+            0.0,
+            0.0,
+            Imgproc.INTER_LINEAR
+        )
+
+        // If the mask has only 2 dimensions, add a third dimension
+        if (resizedMask.channels() == 1 && resizedMask.dims() == 2) {
+            val expandedMask = Mat()
+            Core.merge(listOf(resizedMask), expandedMask) // Add a single channel
+            return expandedMask
+        }
+
+        return resizedMask
+    }
+
+    private fun postprocess(
         preds: MutableList<Mat>,
         im0: Mat,
         ratio: Pair<Double, Double>,
@@ -164,7 +236,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         Dnn.NMSBoxes(boxes, confidences, confThreshold, iouThreshold, indices)
 
         val outputBoxes = mutableListOf<Rect2d>()
-        val outputMasks = Mat()
+        var outputMasks = Mat()
         val segments = mutableListOf<MatOfPoint>()
         if (indices.size().area() > 0) {
             for (i in 0 until indices.size().area().toInt()) {
@@ -190,11 +262,15 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
                 box.width = max(0.0, min(box.width, im0.cols() - 1.0))
                 box.height = max(0.0, min(box.height, im0.rows() - 1.0))
 
+                box.width -= box.x
+                box.height -= box.y
+
                 outputBoxes.add(box)
 
                 // Process masks (this depends on how you manage masks in Kotlin, assuming a `processMask` function exists)
                 val mask = mergedX[idx][3] as Mat
-//                val maskProcessed = processMask(protos.row(0), mask, box, im0.size())
+                outputMasks =
+                    processMask(protos.reshape(1, intArrayOf(32, 64, 64)), mask, box, im0.size())
 //                segments.add(masks2segments(maskProcessed))
             }
         }
