@@ -75,7 +75,6 @@ fun MainScreen(
                             pDVM.rotationState.value =
                                 pDVM.rotationState.value.next(false)
                         }
-
                         Spacer(Modifier.width(Spacers.SMALL))
 
                         TooltipIconButton(
@@ -96,8 +95,7 @@ fun MainScreen(
                             description = Descriptions.DRAGGING_SPEED,
                             icon = draggingSpeed.value.iconPath,
                             color = Colors.ACCENT,
-                        )
-                        {
+                        ) {
                             draggingSpeed.value = draggingSpeed.value.next()
                         }
                     }

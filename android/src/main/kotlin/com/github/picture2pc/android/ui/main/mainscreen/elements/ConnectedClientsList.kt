@@ -36,19 +36,26 @@ fun ConnectedClientsList(
     ) {
         Row {
             Text(
-                text = "Connected Peers",
+                text = "Connections",
                 style = TextStyles.NORMAL.copy(fontSize = 22.sp, fontWeight = FontWeight.Bold)
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row {
-            LazyColumn {
-                items(connections) { client ->
-                    val clientName = client.name.collectAsState()
-                    Text(
-                        text = clientName.value,
-                        style = TextStyles.NORMAL.copy(fontSize = 20.sp)
-                    )
+            if (connections.isEmpty()) {
+                Text(
+                    text = "No connections",
+                    style = TextStyles.NORMAL.copy(fontSize = 20.sp)
+                )
+            } else {
+                LazyColumn {
+                    items(connections) { client ->
+                        val clientName = client.name.collectAsState()
+                        Text(
+                            text = clientName.value,
+                            style = TextStyles.NORMAL.copy(fontSize = 20.sp)
+                        )
+                    }
                 }
             }
         }
