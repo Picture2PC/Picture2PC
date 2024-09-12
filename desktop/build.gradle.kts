@@ -16,17 +16,20 @@ dependencies {
     implementation(compose.desktop.common)
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
-    implementation(libs.opencv.v4550)
+    implementation(libs.opencv)
+
     implementation(project(":common"))
 }
 
 compose.desktop {
     application {
         mainClass = "com.github.picture2pc.desktop.MainKt"
+        jvmArgs += listOf("-Djava.library.path=libs")
 
         nativeDistributions {
-            targetFormats(TargetFormat.Exe, TargetFormat.AppImage)
-            packageName = "Picture2PC"
+            modules("java.instrument", "java.management", "jdk.unsupported")
+            targetFormats(TargetFormat.Exe, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = rootProject.name
             packageVersion = "0.0.1"
         }
     }

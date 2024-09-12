@@ -51,8 +51,9 @@ object Style {
     }
 
     object Shapes {
-        val WINDOW = RoundedCornerShape(12.dp)
         val BUTTON = RoundedCornerShape(10.dp)
+        val WINDOW = RoundedCornerShape(12.dp)
+        val MOBILE = RoundedCornerShape(25.dp)
     }
 
     object TextStyles {
@@ -68,6 +69,7 @@ object Style {
             val MEDIUM = 8.dp
             val NORMAL = 10.dp
             val LARGE = 15.dp
+            val EXTRA_LARGE = 20.dp
         }
 
         object Heights {
@@ -77,7 +79,7 @@ object Style {
 
         object Borders {
             val BORDER_STANDARD = 2.dp
-            val BORDER_THICK = 3.dp
+            val BORDER_THICK = 4.dp
         }
 
         val StateIndicator = 6.dp
