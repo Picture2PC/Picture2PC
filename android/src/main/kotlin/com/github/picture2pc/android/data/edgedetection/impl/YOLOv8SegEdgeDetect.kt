@@ -6,6 +6,7 @@ import com.github.picture2pc.android.R
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import org.opencv.android.Utils
 import org.opencv.core.Core
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.core.MatOfFloat
@@ -108,7 +109,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
 
         // Convert BGR to RGB and normalize to [0,1]
         Imgproc.cvtColor(paddedImg, paddedImg, Imgproc.COLOR_BGR2RGB)
-        //paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
+        paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
 
         // Transpose HWC to CHW (channel first format)
         val channels = mutableListOf<Mat>()
@@ -138,7 +139,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         val filteredX = mutableListOf<Mat>()
         for (i in 0 until x.size(0)) {
             val row = x.row(i)
-            val conf = Core.minMaxLoc(row.colRange(4, 4 + x.cols() - nm)).maxVal // Max confidence
+            val conf = Core.minMaxLoc(row.colRange(4, 5)).maxVal // Max confidence
             if (conf > confThreshold) {
                 filteredX.add(row)
             }
@@ -148,11 +149,9 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         val mergedX = filteredX.map { row ->
             val box = Rect2d(row[0, 0][0], row[0, 1][0], row[0, 2][0], row[0, 3][0]) // Bounding box
             val maxConf =
-                Core.minMaxLoc(row.colRange(4, 4 + x.cols() - nm)).maxVal.toFloat() // Score
-            println(maxConf)
-            println(row)
+                Core.minMaxLoc(row.colRange(4, 5)).maxVal.toFloat() // Score
             val cls = Core.minMaxLoc(row.colRange(4, 4 + x.cols() - nm)).maxLoc // Class index
-            val mask = row.colRange(x.cols() - nm, x.cols())
+            val mask = row.colRange(5, 37)
             listOf(box, maxConf, cls, mask)
         }
         // Apply Non-Maximum Suppression (NMS)
