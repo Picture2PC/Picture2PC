@@ -23,9 +23,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.opencv.android.Utils
-import org.opencv.core.Core
-import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -77,45 +78,6 @@ class CameraPictureManager(
         )
     }
 
-    fun addWeightedToGreen(
-        mat: Mat,
-        rgb: Mat,
-        alpha: Double = 0.3,
-        beta: Double = 0.7,
-        gamma: Double = 0.0
-    ): Mat {
-        // Check if both matrices have the same size
-        if (mat.size() != rgb.size()) {
-            throw IllegalArgumentException("mat and rgb must have the same size")
-        }
-
-        // Split the RGB channels
-        val channels = mutableListOf<Mat>()
-        Core.split(rgb, channels) // channels[0] = blue, channels[1] = green, channels[2] = red
-
-        val matConverted = Mat()
-        mat.convertTo(matConverted, CvType.CV_8UC1, 255.0)
-        // Add weighted mat to the green channel
-        println("mat: $matConverted channel[1]: ${channels[1]}")
-        Core.addWeighted(
-            matConverted,
-            alpha,
-            channels[1],
-            beta,
-            gamma,
-            channels[1]
-        ) // Modify the green channel
-
-        // Merge the channels back into the RGB image
-        val result = Mat()
-        Core.merge(channels, result)
-
-        // Release the individual channel matrices to avoid memory leaks
-        channels.forEach { it.release() }
-
-        return result
-    }
-
     override fun setViewFinder(previewView: PreviewView) {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -131,14 +93,18 @@ class CameraPictureManager(
                 var rgb = Mat()
                 Utils.bitmapToMat(b, rgb)
                 val mat = edgeDetect.detect(b)
-                if (mat.empty()) {
-                    image.close()
-                    return@setAnalyzer
+                mat.minByOrNull { it.points.size }?.let {
+                    Imgproc.polylines(
+                        rgb,
+                        listOf(MatOfPoint(*it.points.toTypedArray())),
+                        true,
+                        Scalar(0.0, 255.0, 0.0),
+                        3
+                    )
                 }
 
                 lifecycleOwner.lifecycleScope.launch {
-                    mat.convertTo(mat, CvType.CV_8UC1, 255.0)
-                    Utils.matToBitmap(mat, b)
+                    Utils.matToBitmap(rgb, b)
                     _takenImages.emit(b)
                 }
                 image.close()

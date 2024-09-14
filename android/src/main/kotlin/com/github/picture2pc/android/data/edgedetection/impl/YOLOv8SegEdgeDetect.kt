@@ -3,15 +3,19 @@ package com.github.picture2pc.android.data.edgedetection.impl
 import android.content.Context
 import android.graphics.Bitmap
 import com.github.picture2pc.android.R
+import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import org.opencv.android.Utils
 import org.opencv.core.Core
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.core.MatOfFloat
 import org.opencv.core.MatOfInt
 import org.opencv.core.MatOfPoint
+import org.opencv.core.MatOfPoint2f
 import org.opencv.core.MatOfRect2d
+import org.opencv.core.Point
 import org.opencv.core.Rect
 import org.opencv.core.Rect2d
 import org.opencv.core.Scalar
@@ -40,7 +44,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         documentModel = loadModel(context)
     }
 
-    override fun detect(bit: Bitmap): Mat {
+    override fun detect(bit: Bitmap): List<DetectedBox> {
         val rgb = Mat()
         Utils.bitmapToMat(bit, rgb)
         val res = preprocess(rgb, 256, 256)
@@ -50,7 +54,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         documentModel.setInput(blob)
         documentModel.forward(result, documentModel.unconnectedOutLayersNames)
 
-        val (boxes, masks, om) = postprocess(
+        return postprocess(
             result,
             rgb,
             res.second,
@@ -59,7 +63,6 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
             0.4f,
             0.45f
         )
-        return om
     }
 
     private fun preprocess(
@@ -121,26 +124,24 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
     }
 
     private fun processMask(protos: Mat, mask: Mat, box: Rect2d, imShape: Size): Mat {
-        val maskResized = Mat()
-        var new = protos.reshape(0, intArrayOf(32, 64 * 64))
-        new = new.t() * mask.t()
-//        val max = Core.minMaxLoc(new).maxVal
-//        Core.divide(max, new, new)
-        new = scaleMask(new.reshape(0, intArrayOf(64, 64)), imShape, null)
+        return cropMask(
+            scaleMask(
+                (protos.reshape(0, intArrayOf(32, 64 * 64)).t() * mask.t()).reshape(
+                    0,
+                    intArrayOf(64, 64)
+                ), imShape, null
+            ), box
+        )
+    }
 
-        return new
+    fun cropMask(mask: Mat, box: Rect2d): Mat {
+        val maskCropped = Mat.zeros(mask.size(), mask.type())
+        val roi = Rect(box.x.toInt(), box.y.toInt(), box.width.toInt(), box.height.toInt())
+        Mat(mask, roi).copyTo(Mat(maskCropped, roi))
+        return maskCropped
     }
 
     fun scaleMask(masks: Mat, im0Shape: Size, ratioPad: DoubleArray?): Mat {
-        /**
-         * Takes a mask and resizes it to the original image size.
-         *
-         * @param masks (Mat): resized and padded masks/images, [h, w, num]/[h, w, 3].
-         * @param im0Shape (Size): the original image shape.
-         * @param ratioPad (DoubleArray?): the ratio of the padding to the original image.
-         * @return masks (Mat): The masks that are being returned.
-         */
-
         val im1Shape = masks.size() // Get the current size of the mask
         val gain: Double
         val padX: Double
@@ -182,14 +183,29 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
             Imgproc.INTER_LINEAR
         )
 
-        // If the mask has only 2 dimensions, add a third dimension
-        if (resizedMask.channels() == 1 && resizedMask.dims() == 2) {
-            val expandedMask = Mat()
-            Core.merge(listOf(resizedMask), expandedMask) // Add a single channel
-            return expandedMask
-        }
-
         return resizedMask
+    }
+
+    private fun mask2segments(mask: Mat): List<Point> {
+        val contours = mutableListOf<MatOfPoint>()
+        val hierarchy = Mat()
+        mask.convertTo(mask, CvType.CV_8UC1)
+        Imgproc.findContours(
+            mask,
+            contours,
+            hierarchy,
+            Imgproc.RETR_EXTERNAL,
+            Imgproc.CHAIN_APPROX_NONE
+        )
+        val contour = contours.maxByOrNull { Imgproc.contourArea(it) } ?: return emptyList()
+        val approx = MatOfPoint2f()
+        Imgproc.approxPolyDP(
+            MatOfPoint2f(*contour.toArray()),
+            approx,
+            Imgproc.arcLength(MatOfPoint2f(*contour.toArray()), true) * 0.01,
+            true
+        )
+        return approx.toList()
     }
 
     private fun postprocess(
@@ -201,7 +217,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         confThreshold: Float,
         iouThreshold: Float,
         nm: Int = 32
-    ): Triple<List<Rect2d>, List<MatOfPoint>, Mat> {
+    ): List<DetectedBox> {
         val x: Mat = preds[0].reshape(0, 37)
         val protos = preds[1]
         // Transpose the prediction matrix
@@ -235,9 +251,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         }
         Dnn.NMSBoxes(boxes, confidences, confThreshold, iouThreshold, indices)
 
-        val outputBoxes = mutableListOf<Rect2d>()
-        var outputMasks = Mat()
-        val segments = mutableListOf<MatOfPoint>()
+        val result = mutableListOf<DetectedBox>()
         if (indices.size().area() > 0) {
             for (i in 0 until indices.size().area().toInt()) {
                 val idx = indices[i, 0][0].toInt()
@@ -264,17 +278,17 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
 
                 box.width -= box.x
                 box.height -= box.y
+                val mask = processMask(
+                    protos.reshape(1, intArrayOf(32, 64, 64)),
+                    mergedX[idx][3] as Mat,
+                    box,
+                    im0.size()
+                )
 
-                outputBoxes.add(box)
-
-                // Process masks (this depends on how you manage masks in Kotlin, assuming a `processMask` function exists)
-                val mask = mergedX[idx][3] as Mat
-                outputMasks =
-                    processMask(protos.reshape(1, intArrayOf(32, 64, 64)), mask, box, im0.size())
-//                segments.add(masks2segments(maskProcessed))
+                result.add(DetectedBox(Rect(box.tl(), box.size()), mask2segments(mask), mask))
             }
         }
 
-        return Triple(outputBoxes, segments, outputMasks)
+        return result
     }
 }
