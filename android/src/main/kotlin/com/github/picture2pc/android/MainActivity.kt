@@ -25,18 +25,18 @@ class MainActivity : ComponentActivity() {
         if (!hasRequiredPermissions()) {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSIONS, 0)
         }
+        kotlin.runCatching {
+            startKoin {
+                // Log Koin into Android logger
+                androidLogger()
+                // Reference Android context
+                androidContext(this@MainActivity)
+                environmentProperties()
 
-        startKoin {
-            // Log Koin into Android logger
-            androidLogger()
-            // Reference Android context
-            androidContext(this@MainActivity)
-            environmentProperties()
-
-            modules(appModule)
+                modules(appModule)
+            }
+            OpenCVLoader.initLocal()
         }
-
-        OpenCVLoader.initLocal()
 
         setContent {
             Screen(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)

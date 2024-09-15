@@ -114,13 +114,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         Imgproc.cvtColor(paddedImg, paddedImg, Imgproc.COLOR_BGR2RGB)
 //        paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
 
-        // Transpose HWC to CHW (channel first format)
-        val channels = mutableListOf<Mat>()
-        Core.split(paddedImg, channels)
-        val chwImg = Mat()
-        Core.merge(channels, chwImg)
-
-        return Triple(chwImg, ratio, Pair(padW, padH))
+        return Triple(paddedImg, ratio, Pair(padW, padH))
     }
 
     private fun processMask(protos: Mat, mask: Mat, box: Rect2d, imShape: Size): Mat {
@@ -158,7 +152,6 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
             padX = ratioPad[0]
             padY = ratioPad[1]
         }
-
         // Calculate top-left and bottom-right coordinates for cropping
         val top = (padY - 0.1).roundToInt()
         val left = (padX - 0.1).roundToInt()
@@ -285,7 +278,14 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
                     im0.size()
                 )
 
-                result.add(DetectedBox(Rect(box.tl(), box.size()), mask2segments(mask), mask))
+                result.add(
+                    DetectedBox(
+                        Rect(box.tl(), box.size()),
+                        mask2segments(mask),
+                        mask,
+                        im0.size()
+                    )
+                )
             }
         }
 
