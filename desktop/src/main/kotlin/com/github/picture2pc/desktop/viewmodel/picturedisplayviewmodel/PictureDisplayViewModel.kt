@@ -2,6 +2,7 @@ package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
@@ -15,8 +16,22 @@ import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+
+class ClickManager {
+    private val _clicks = MutableStateFlow<List<Offset>>(emptyList())
+    val clicks: StateFlow<List<Offset>> = _clicks
+
+    fun addClick(click: Offset) {
+        _clicks.value += click
+    }
+
+    fun removeClick(click: Offset) {
+        _clicks.value -= click
+    }
+}
 
 class PictureDisplayViewModel(
     private val viewModelScope: CoroutineScope,
@@ -33,7 +48,9 @@ class PictureDisplayViewModel(
     val overlayPicture = pP.overlayBitmap
 
     val isSelectPicture = mutableStateOf(false)
-    val rotationState: MutableState<RotationState> = mutableStateOf(RotationState.ROTATION_0)
+    val rotationState: MutableState<RotationState> =
+        mutableStateOf(RotationState.ROTATION_0)
+    val clickManager = ClickManager()
 
     val movementHandler = MovementHandler(rotationState, pP)
 
@@ -56,7 +73,9 @@ class PictureDisplayViewModel(
     }
 
     private fun setPicture(payload: TcpPayload.Picture) {
-        pP.setOriginalPicture(payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap())
+        pP.setOriginalPicture(
+            payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
+        )
         pP.clicks.clear()
         println(payload.corners)
         pP.clicks.addAll(payload.corners.map {
