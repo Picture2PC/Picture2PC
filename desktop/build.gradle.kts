@@ -30,7 +30,10 @@ compose.desktop {
             modules("java.instrument", "java.management", "jdk.unsupported")
             targetFormats(TargetFormat.Exe, TargetFormat.Msi, TargetFormat.Deb)
             packageName = rootProject.name
-            packageVersion = "0.0.1"
+            packageVersion = version.toString()
+            windows {
+                shortcut = true
+            }
         }
     }
 }
