@@ -6,7 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -39,7 +41,6 @@ fun Picture(
     val pictureBitmap = picDisVM.currentPicture.value
     val overlayBitmap = picDisVM.overlayPicture.value
     val pP = picDisVM.pP
-
     // Main Picture
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
@@ -69,7 +70,9 @@ fun Picture(
                 }
             }
             .pointerHoverIcon(
-                if (picDisVM.movementHandler.dragActive.value) PointerIcon(customCursor())
+                if (picDisVM.movementHandler.dragActive.value) PointerIcon(
+                    customCursor()
+                )
                 else PointerIcon.Default
             )
     )
@@ -106,5 +109,14 @@ fun Picture(
         ) {
             drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
         }
+    }
+}
+
+@Composable
+fun PictureDisplay() {
+    Box(Modifier.fillMaxSize()) {
+        Box(Modifier.align(Alignment.TopStart).padding(10.dp)) { RotationButtons() }
+        Box(Modifier.align(Alignment.Center).padding(10.dp)) { Picture() }
+        Box(Modifier.align(Alignment.TopEnd).padding(10.dp)) { ZoomSpeedButton() }
     }
 }
