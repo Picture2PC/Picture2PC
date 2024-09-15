@@ -15,18 +15,17 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.opencv.android.Utils
-import org.opencv.core.Mat
-import org.opencv.core.MatOfPoint
-import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -45,6 +44,11 @@ class CameraPictureManager(
     )
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
+    private val _pictureCorners: MutableStateFlow<DetectedBox?> =
+        MutableStateFlow(null) //read and write
+    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+
+
     override fun switchFlashMode() {
         if (imageCapture.flashMode == FLASH_MODE_AUTO) {
             imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
@@ -86,27 +90,13 @@ class CameraPictureManager(
             }
 
             val analyzerUseCase = ImageAnalysis.Builder()
+                .setOutputImageRotationEnabled(true)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
-                val b = image.toBitmap()
-                var rgb = Mat()
-                Utils.bitmapToMat(b, rgb)
-                val mat = edgeDetect.detect(b)
-                mat.minByOrNull { it.points.size }?.let {
-                    Imgproc.polylines(
-                        rgb,
-                        listOf(MatOfPoint(*it.points.toTypedArray())),
-                        true,
-                        Scalar(0.0, 255.0, 0.0),
-                        3
-                    )
-                }
-
-                lifecycleOwner.lifecycleScope.launch {
-                    Utils.matToBitmap(rgb, b)
-                    _takenImages.emit(b)
-                }
+                val res = edgeDetect.detect(image.toBitmap()).minByOrNull { it.points.size }
+                if (res != null)
+                    _pictureCorners.value = res
                 image.close()
             }
             edgeDetect.load(context)

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.github.picture2pc.android.extentions.toByteArray
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
@@ -11,9 +12,9 @@ import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
@@ -26,6 +27,11 @@ class CameraViewModel(
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
+
+    val pictureCorners: StateFlow<DetectedBox?>
+        get() {
+            return pictureManager.pictureCorners
+        }
 
     fun getLastImage(): Bitmap {
         return pictureManager.takenImages.replayCache.last()
