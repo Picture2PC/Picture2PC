@@ -19,7 +19,7 @@ import com.github.picture2pc.common.ui.Shapes
 fun CameraPreview(
     cameraViewModel: CameraViewModel
 ) {
-    val pictureCorners = cameraViewModel.pictureCorners.collectAsState(null)
+    val pictureCorners = cameraViewModel.pictureCorners.collectAsState(null).value
     Box(
         modifier = Modifier
             .clip(Shapes.MOBILE) // Clip the content to a specific shape
@@ -37,14 +37,11 @@ fun CameraPreview(
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
-            val detectedBox = pictureCorners.value ?: return@Canvas
-            val ratioX = size.width / detectedBox.masks.width().toFloat()
-            val ratioY = size.height / detectedBox.masks.height().toFloat()
-            detectedBox.pointsBox.onEach {
+            pictureCorners?.pointsBox?.onEach {
                 drawCircle(
                     color = Color.Green,
                     radius = 10f,
-                    center = Offset(it.x.toFloat() * ratioX, it.y.toFloat() * ratioY),
+                    center = Offset((it.x * size.width).toFloat(), (it.y * size.height).toFloat()),
                     style = Fill
                 )
             }

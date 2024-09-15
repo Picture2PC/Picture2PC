@@ -10,6 +10,7 @@ import com.github.picture2pc.android.extentions.toByteArray
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
+import com.github.picture2pc.common.net.data.payload.TcpPayload
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,8 @@ class CameraViewModel(
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
 
+    private var lastCorners: List<Pair<Float, Float>>? = null
+
     val pictureCorners: StateFlow<DetectedBox?>
         get() {
             return pictureManager.pictureCorners
@@ -42,12 +45,17 @@ class CameraViewModel(
     }
 
     fun takeImage() {
+        if (pictureCorners.value != null)
+            lastCorners =
+                pictureCorners.value!!.pointsBox.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
     }
 
     fun sendImage() {
         viewModelScope.launch {
-            dataTransmitter.sendPicture(getLastImage().toByteArray())
+            lastCorners?.let {
+                dataTransmitter.sendPicture(TcpPayload.Picture(getLastImage().toByteArray(), it))
+            }
         }
     }
 

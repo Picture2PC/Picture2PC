@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.div
+import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
@@ -37,9 +39,8 @@ class PictureDisplayViewModel(
 
     init {
         pictures.onEach {
-            if (totalPictures.value == 0) pP.setOriginalPicture(
-                it.toComposeImageBitmap().asSkiaBitmap()
-            )
+            if (totalPictures.value == 0)
+                setPicture(it)
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }
@@ -51,7 +52,20 @@ class PictureDisplayViewModel(
         if (newIndex < 0 || newIndex > pictures.replayCache.size - 1) return
 
         selectedPictureIndex.value = newIndex
-        pP.setOriginalPicture(pictures.replayCache[newIndex].toComposeImageBitmap().asSkiaBitmap())
+        setPicture(pictures.replayCache[newIndex])
+    }
+
+    private fun setPicture(payload: TcpPayload.Picture) {
+        pP.setOriginalPicture(payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap())
+        pP.clicks.clear()
+        println(payload.corners)
+        pP.clicks.addAll(payload.corners.map {
+            Pair(
+                it.first * pP.editedBitmap.value.width,
+                it.second * pP.editedBitmap.value.height
+            )
+        })
+        pP.updateEditedBitmap()
     }
 
     fun calculateOffset(

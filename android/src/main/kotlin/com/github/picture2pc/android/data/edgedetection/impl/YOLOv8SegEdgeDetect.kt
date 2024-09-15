@@ -198,7 +198,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
             Imgproc.arcLength(MatOfPoint2f(*contour.toArray()), true) * 0.01,
             true
         )
-        return approx.toList()
+        return approx.toList().map { Point(it.x / mask.cols(), it.y / mask.rows()) }
     }
 
     private fun postprocess(
@@ -283,7 +283,6 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
                         Rect(box.tl(), box.size()),
                         mask2segments(mask),
                         mask,
-                        im0.size()
                     )
                 )
             }

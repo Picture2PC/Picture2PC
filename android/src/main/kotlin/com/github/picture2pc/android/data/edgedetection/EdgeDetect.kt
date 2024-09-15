@@ -7,7 +7,6 @@ import androidx.compose.ui.util.fastMinByOrNull
 import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Rect
-import org.opencv.core.Size
 
 interface EdgeDetect {
     fun load(context: Context)
@@ -18,7 +17,6 @@ data class DetectedBox(
     val box: Rect,
     val points: List<Point>,
     val masks: Mat,
-    val size: Size
 ) {
     // The box that contains the points
     val pointsBox: List<Point>
