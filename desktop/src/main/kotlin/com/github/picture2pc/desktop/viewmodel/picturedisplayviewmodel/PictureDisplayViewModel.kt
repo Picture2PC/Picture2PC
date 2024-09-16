@@ -31,6 +31,10 @@ class ClickManager {
     fun removeClick(click: Offset) {
         _clicks.value -= click
     }
+
+    fun clear() {
+        _clicks.value = emptyList()
+    }
 }
 
 class PictureDisplayViewModel(
@@ -76,14 +80,14 @@ class PictureDisplayViewModel(
         pP.setOriginalPicture(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
-        pP.clicks.clear()
-        println(payload.corners)
-        pP.clicks.addAll(payload.corners.map {
-            Pair(
-                it.first * pP.editedBitmap.value.width,
-                it.second * pP.editedBitmap.value.height
+        if (payload.corners == null) return
+        clickManager.clear()
+        payload.corners!!.map {
+            Offset(
+                it.first * pP.displayPictureSize.width,
+                it.second * pP.displayPictureSize.height
             )
-        })
+        }.forEach { clickManager.addClick(it) }
         pP.updateEditedBitmap()
     }
 

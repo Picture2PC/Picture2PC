@@ -45,17 +45,19 @@ class CameraViewModel(
     }
 
     fun takeImage() {
-        if (pictureCorners.value != null)
-            lastCorners =
-                pictureCorners.value!!.pointsBox.map { Pair(it.x.toFloat(), it.y.toFloat()) }
+        lastCorners =
+            pictureCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
     }
 
     fun sendImage() {
         viewModelScope.launch {
-            lastCorners?.let {
-                dataTransmitter.sendPicture(TcpPayload.Picture(getLastImage().toByteArray(), it))
-            }
+            dataTransmitter.sendPicture(
+                TcpPayload.Picture(
+                    getLastImage().toByteArray(),
+                    lastCorners
+                )
+            )
         }
     }
 
