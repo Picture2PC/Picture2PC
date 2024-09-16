@@ -24,7 +24,7 @@ sealed class TcpPayload : Payload() {
     @Serializable
     data class Picture @OptIn(ExperimentalSerializationApi::class) constructor(
         @ByteString val picture: ByteArray,
-        val corners: List<Pair<Float, Float>>,
+        val corners: List<Pair<Float, Float>>?,
         override val targetPeer: Peer = Peer.any()
     ) :
         TcpPayload() {
