@@ -16,26 +16,8 @@ import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-
-class ClickManager {
-    private val _clicks = MutableStateFlow<List<Offset>>(emptyList())
-    val clicks: StateFlow<List<Offset>> = _clicks
-
-    fun addClick(click: Offset) {
-        _clicks.value += click
-    }
-
-    fun removeClick(click: Offset) {
-        _clicks.value -= click
-    }
-
-    fun clear() {
-        _clicks.value = emptyList()
-    }
-}
 
 class PictureDisplayViewModel(
     private val viewModelScope: CoroutineScope,
@@ -43,20 +25,12 @@ class PictureDisplayViewModel(
     val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
-
-    //MutableStateFlow because needs to be updated for Screen
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
-
     val currentPicture = pP.editedBitmap
-    val overlayPicture = pP.overlayBitmap
-
-    val isSelectPicture = mutableStateOf(false)
     val rotationState: MutableState<RotationState> =
         mutableStateOf(RotationState.ROTATION_0)
-    val clickManager = ClickManager()
-
-    val movementHandler = MovementHandler(rotationState, pP)
+    val movementHandler = MovementHandler()
 
     init {
         pictures.onEach {
@@ -81,42 +55,40 @@ class PictureDisplayViewModel(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
         if (payload.corners == null) return
-        clickManager.clear()
-        payload.corners!!.map {
+        movementHandler.clear()
+        (payload.corners ?: return).map {
             Offset(
                 it.first * pP.displayPictureSize.width,
                 it.second * pP.displayPictureSize.height
             )
-        }.forEach { clickManager.addClick(it) }
+        }.forEach { movementHandler.addClick(it) }
         pP.updateEditedBitmap()
     }
 
-    fun calculateOffset(
-        rotationState: RotationState
-    ): Pair<Float, Float> {
+    fun calculateOffset(rotationState: RotationState): Offset {
         val ratio = pP.ratio
         val bound = pP.bounds / ratio
         val radius = Settings.ZOOM_DIAMETER.toFloat() / 2
 
-        val currentDP = (movementHandler.currentDragPoint.value / ratio).translate(
+        val currentDP = (movementHandler.dragPoint / ratio).translate(
             rotationState, bound
         )
 
-        var offsetPair = Pair(
-            currentDP.first - (bound.width / 2),
-            currentDP.second - (bound.height / 2)
+        var offsetPair = Offset(
+            currentDP.x - (bound.width / 2),
+            currentDP.y - (bound.height / 2)
         )
 
-        if (currentDP.first in 0f..radius) {
-            offsetPair = Pair(radius - bound.width / 2, offsetPair.second)
-        } else if (currentDP.first in bound.width - radius..bound.width) {
-            offsetPair = Pair(bound.width / 2 - radius, offsetPair.second)
+        if (currentDP.x in 0f..radius) {
+            offsetPair = Offset(radius - bound.width / 2, offsetPair.y)
+        } else if (currentDP.x in bound.width - radius..bound.width) {
+            offsetPair = Offset(bound.width / 2 - radius, offsetPair.y)
         }
 
-        if (currentDP.second in 0f..radius) {
-            offsetPair = Pair(offsetPair.first, radius - bound.height / 2)
-        } else if (currentDP.second in bound.height - radius..bound.height) {
-            offsetPair = Pair(offsetPair.first, bound.height / 2 - radius)
+        if (currentDP.y in 0f..radius) {
+            offsetPair = Offset(offsetPair.x, radius - bound.height / 2)
+        } else if (currentDP.y in bound.height - radius..bound.height) {
+            offsetPair = Offset(offsetPair.x, bound.height / 2 - radius)
         }
 
         return offsetPair

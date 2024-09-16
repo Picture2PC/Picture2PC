@@ -51,10 +51,16 @@ fun MainScreen(
             Sidebar()
             Spacer(Modifier.width(Spacers.NORMAL))
 
-            // PICTURE DISPLAY AREA
+            // Picture Display Area
             Box(Modifier.fillMaxSize()) {
                 // Picture Display
-                Column(Modifier.border(Borders.BORDER_STANDARD, Colors.PRIMARY, Shapes.WINDOW)) {
+                Column(
+                    Modifier.border(
+                        Borders.BORDER_STANDARD,
+                        Colors.PRIMARY,
+                        Shapes.WINDOW
+                    )
+                ) {
                     Box(
                         Modifier
                             .rotate(pDVM.rotationState.value.angle)
@@ -89,7 +95,11 @@ fun MainScreen(
                 }
 
                 // Zoom Speed Buttons
-                Box(Modifier.align(Alignment.TopEnd).offset(-Spacers.NORMAL, Spacers.NORMAL)) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(-Spacers.NORMAL, Spacers.NORMAL)
+                ) {
                     Row {
                         TooltipIconButton(
                             description = Descriptions.DRAGGING_SPEED,

@@ -2,6 +2,8 @@ package com.github.picture2pc.desktop.extention
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import com.github.picture2pc.desktop.data.RotationState
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -19,7 +21,7 @@ fun Offset.translate(
     }
 }
 
-fun Offset.isInBounds(rectangle: Rect): Boolean {
+fun Offset.isInBounds(rectangle: IntRect): Boolean {
     return !(
             this.x < rectangle.left ||
                     this.x > rectangle.right ||
@@ -30,11 +32,21 @@ fun Offset.isInBounds(rectangle: Rect): Boolean {
 
 fun Offset.distanceTo(secondPair: Offset): Float {
     return sqrt(
-        (secondPair.x - this.x).pow(2) +
-                (secondPair.y - this.y).pow(2)
+        (secondPair.x - this.x).pow(2) + (secondPair.y - this.y).pow(2)
     )
 }
 
 operator fun Offset.div(value: Number): Offset {
     return Offset(this.x / value.toFloat(), this.y / value.toFloat())
+}
+
+operator fun Offset.times(value: Number): Offset {
+    return Offset(this.x * value.toFloat(), this.y * value.toFloat())
+}
+
+operator fun Offset.minus(size: IntSize): Offset {
+    return Offset(
+        this.x - (size.width.toFloat() / 2),
+        this.y - (size.height.toFloat() / 2)
+    )
 }
