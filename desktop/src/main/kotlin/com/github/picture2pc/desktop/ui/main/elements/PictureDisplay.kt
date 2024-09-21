@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -36,11 +37,11 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun Picture(
-    picDisVM: PictureDisplayViewModel = rememberKoinInject(),
+    pDVM: PictureDisplayViewModel = rememberKoinInject(),
 ) {
-    val pictureBitmap = picDisVM.currentPicture.value
-    val overlayBitmap = picDisVM.overlayPicture.value
-    val pP = picDisVM.pP
+    val pictureBitmap = pDVM.currentPicture.value
+    val overlayBitmap = pDVM.overlayPicture.value
+    val pP = pDVM.pP
     // Main Picture
     Image(
         bitmap = pictureBitmap.asComposeImageBitmap(),
@@ -56,21 +57,21 @@ fun Picture(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragStart: Offset ->
-                        picDisVM.movementHandler.setDragStart(dragStart)
+                        pDVM.movementHandler.setDragStart(dragStart)
                     },
                     onDrag = { change, _ ->
-                        picDisVM.movementHandler.handleDrag(change)
+                        pDVM.movementHandler.handleDrag(change)
                     },
-                    onDragEnd = { picDisVM.movementHandler.endDrag() }
+                    onDragEnd = { pDVM.movementHandler.endDrag() }
                 )
             }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    picDisVM.movementHandler.handleClick(offset)
+                    pDVM.movementHandler.handleClick(offset)
                 }
             }
             .pointerHoverIcon(
-                if (picDisVM.movementHandler.dragActive.value) PointerIcon(
+                if (pDVM.movementHandler.dragActive.value) PointerIcon(
                     customCursor()
                 )
                 else PointerIcon.Default
@@ -78,16 +79,16 @@ fun Picture(
     )
 
     // Zoom Overlay
-    if (!picDisVM.movementHandler.dragActive.value) return
-    val offset = picDisVM.calculateOffset(picDisVM.rotationState.value)
+    if (!pDVM.movementHandler.dragActive.value) return
+    val offset = pDVM.calculateOffset(pDVM.rotationState.value)
     Box(
         Modifier
             .offset(offset.first.dp, offset.second.dp)
             .border(2.dp, Colors.PRIMARY, CircleShape)
     ) {
-        val point = picDisVM.movementHandler.currentDragPoint.value.translate(
-            picDisVM.rotationState.value,
-            picDisVM.pP.bounds
+        val point = pDVM.movementHandler.currentDragPoint.value.translate(
+            pDVM.rotationState.value,
+            pDVM.pP.bounds
         )
         Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp).align(Alignment.Center)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
@@ -113,10 +114,16 @@ fun Picture(
 }
 
 @Composable
-fun PictureDisplay() {
+fun PictureDisplay(
+    pDVM: PictureDisplayViewModel = rememberKoinInject(),
+) {
     Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier.align(Alignment.Center).padding(10.dp).rotate(
+                pDVM.rotationState.value.angle
+            )
+        ) { Picture() }
         Box(Modifier.align(Alignment.TopStart).padding(10.dp)) { RotationButtons() }
-        Box(Modifier.align(Alignment.Center).padding(10.dp)) { Picture() }
         Box(Modifier.align(Alignment.TopEnd).padding(10.dp)) { ZoomSpeedButton() }
     }
 }
