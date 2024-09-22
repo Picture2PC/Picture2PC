@@ -1,14 +1,14 @@
 package com.github.picture2pc.desktop.ui.interactionhandler
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toIntRect
-import androidx.compose.ui.unit.toRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.isInBounds
-import com.github.picture2pc.desktop.extention.minus
+import com.github.picture2pc.desktop.extention.toCenteredOrigin
+import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,21 +26,25 @@ enum class DraggingSpeed(val iconPath: String, val speed: Float) {
 }
 
 class MovementHandler {
+    // 0, 0 is the center of the picture
     private val _clicks = MutableStateFlow<List<Offset>>(emptyList())
     val clicks: StateFlow<List<Offset>> = _clicks
     private var dragStart: Offset = Offset(0f, 0f)
-    var dragPoint: Offset = Offset(0f, 0f)
+    private val _dragPoint = MutableStateFlow(Offset.Zero)
+    val dragPoint: StateFlow<Offset> get() = _dragPoint
     val dragging = MutableStateFlow(false)
     val dragActive = MutableStateFlow(false)
     val draggingSpeed = MutableStateFlow(DraggingSpeed.FAST)
 
-    private fun setClick(clicks: List<Offset>) {
+    fun setClicks(clicks: List<Offset>) {
         _clicks.value = clicks
     }
 
-    fun addClick(click: Offset) {
+    fun addClick(
+        click: Offset, rotationState: RotationState
+    ) {
         if (clicks.value.size == 4) clear()
-        _clicks.value += click
+        _clicks.value += click.translate(rotationState)
         if (clicks.value.size == 4) setToSorted()
     }
 
@@ -52,7 +56,7 @@ class MovementHandler {
         _clicks.value = emptyList()
     }
 
-    fun setToSorted() {
+    private fun setToSorted() {
         // Calculate the centroid of the four points
         val centroid = Offset(
             clicks.value.map { it.x }.average().toFloat(),
@@ -67,13 +71,16 @@ class MovementHandler {
             )
             Pair(point, angle)
         }
-        setClick(angles.sortedBy { it.second }.map { it.first })
+        setClicks(angles.sortedBy { it.second }.map { it.first })
     }
 
-    private fun getClosestPoint(point: Offset): Pair<Offset, Float> {
+    private fun getClosestPoint(
+        point: Offset,
+        rotationState: RotationState
+    ): Pair<Offset, Float> {
         val distances = mutableListOf<Float>()
         for (click in clicks.value) {
-            val distance = point.distanceTo(click)
+            val distance = point.translate(rotationState).distanceTo(click)
             distances.add(distance)
         }
         val shortestDistance = distances.minOrNull() ?: 0f
@@ -82,23 +89,30 @@ class MovementHandler {
     }
 
     //Dragging stuffs
-    fun setDrag(dragPoint: Offset, startingPoint: Boolean = false) {
-        val (closestPoint, distance) = getClosestPoint(dragPoint)
-        if (startingPoint &&
-            clicks.value.isNotEmpty() &&
-            distance < 20
-        ) dragStart = closestPoint
-        this.dragPoint = dragPoint
+    fun setDrag(
+        dragPoint: Offset,
+        pictureSize: Size,
+        rotationState: RotationState,
+        isStartingPoint: Boolean = false
+    ) {
+        if (clicks.value.isNotEmpty() && isStartingPoint) {
+            val (closestPoint, distance) = getClosestPoint(dragPoint, rotationState)
+            println(distance)
+            if (distance < 10) {
+                removeClick(closestPoint)
+                dragStart = closestPoint.toCenteredOrigin(pictureSize)
+            }
+        }
+        this._dragPoint.value = dragPoint.toCenteredOrigin(pictureSize)
+        dragging.value = true
     }
 
-    fun endDrag(pictureSize: IntSize, rotationState: RotationState) {
-        if (clicks.value.isEmpty()) return
-        if (!dragPoint.isInBounds(pictureSize.toIntRect())) return
-        removeClick(dragStart)
-        addClick(
-            dragPoint.minus(pictureSize).translate(
-                rotationState, pictureSize.toIntRect().toRect()
-            )
-        )
+    fun endDrag(
+        pictureSize: Size, rotationState: RotationState,
+    ) {
+        if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
+        ) return
+        addClick(dragPoint.value, rotationState)
+        dragging.value = false
     }
 }

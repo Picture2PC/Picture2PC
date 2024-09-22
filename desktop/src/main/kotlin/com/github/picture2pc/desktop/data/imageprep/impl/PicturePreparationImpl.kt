@@ -4,13 +4,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.geometry.Size
 import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
+import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -24,11 +24,11 @@ import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
+import org.opencv.core.Size as CvSize
 
 class PicturePreparationImpl : PicturePreparation {
     //Bitmaps for the original, edited, overlay and drag overlay images
@@ -39,8 +39,7 @@ class PicturePreparationImpl : PicturePreparation {
 
     //Important other variables
     override var ratio: Float = 1f
-    override var bounds = Rect(Offset(0f, 0f), 0f)
-    override var displayPictureSize = IntSize(0, 0)
+    override var displayPictureSize = Size(0f, 0f)
 
     override fun contrast() {
         if (editedBitmap.value.isEmpty) return
@@ -60,14 +59,13 @@ class PicturePreparationImpl : PicturePreparation {
     }
 
     override fun crop(clicks: List<Offset>) {
-        println(clicks)
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0] // Top Left
-        val tr = clicks[1] // Top Right
-        val br = clicks[2] // Bottom Right
-        val bl = clicks[3] // Bottom Left
+        val tl = clicks[0].toTopLeftOrigin(displayPictureSize) // Top Left
+        val tr = clicks[1].toTopLeftOrigin(displayPictureSize) // Top Right
+        val br = clicks[2].toTopLeftOrigin(displayPictureSize) // Bottom Right
+        val bl = clicks[3].toTopLeftOrigin(displayPictureSize) // Bottom Left
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
@@ -78,7 +76,7 @@ class PicturePreparationImpl : PicturePreparation {
         val maxHeight = max(heightA, heightB).toDouble()
 
         val mat = editedBitmap.value.toMat()
-        val dst = Mat(Size(maxWidth, maxHeight), CvType.CV_8UC3)
+        val dst = Mat(CvSize(maxWidth, maxHeight), CvType.CV_8UC3)
 
         val srcPoints = listOf(
             Point(tl.x.toDouble(), tl.y.toDouble()),
@@ -97,10 +95,14 @@ class PicturePreparationImpl : PicturePreparation {
             MatOfPoint2f(*srcPoints.toTypedArray()),
             MatOfPoint2f(*dstPoints.toTypedArray())
         )
-        Imgproc.warpPerspective(mat, dst, perspectiveTransform, Size(maxWidth, maxHeight))
+        Imgproc.warpPerspective(
+            mat,
+            dst,
+            perspectiveTransform,
+            CvSize(maxWidth, maxHeight)
+        )
 
         _editedBitmap.value = dst.toBitmap()
-        updateEditedBitmap()
     }
 
     override fun copy() {
@@ -113,17 +115,10 @@ class PicturePreparationImpl : PicturePreparation {
         updateEditedBitmap()
     }
 
-    override fun calculateRatio(displayPictureSize: IntSize) {
-        if (displayPictureSize == IntSize(0, 0)) return
+    override fun calculateRatio(displayPictureSize: Size) {
+        if (displayPictureSize == Size(0f, 0f)) return
         this.displayPictureSize = displayPictureSize
-        ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width.toFloat()
-        bounds = Rect(
-            Offset(0f, 0f),
-            Offset(
-                displayPictureSize.width * ratio,
-                displayPictureSize.height * ratio
-            )
-        )
+        ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
     }
 
     override fun updateEditedBitmap() {

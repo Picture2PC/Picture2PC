@@ -9,10 +9,7 @@ import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
-import com.github.picture2pc.desktop.extention.div
 import com.github.picture2pc.desktop.extention.toImage
-import com.github.picture2pc.desktop.extention.translate
-import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,36 +58,9 @@ class PictureDisplayViewModel(
                 it.first * pP.displayPictureSize.width,
                 it.second * pP.displayPictureSize.height
             )
-        }.forEach { movementHandler.addClick(it) }
+        }.forEach {
+            movementHandler.addClick(it, rotationState.value)
+        }
         pP.updateEditedBitmap()
-    }
-
-    fun calculateOffset(rotationState: RotationState): Offset {
-        val ratio = pP.ratio
-        val bound = pP.bounds / ratio
-        val radius = Settings.ZOOM_DIAMETER.toFloat() / 2
-
-        val currentDP = (movementHandler.dragPoint / ratio).translate(
-            rotationState, bound
-        )
-
-        var offsetPair = Offset(
-            currentDP.x - (bound.width / 2),
-            currentDP.y - (bound.height / 2)
-        )
-
-        if (currentDP.x in 0f..radius) {
-            offsetPair = Offset(radius - bound.width / 2, offsetPair.y)
-        } else if (currentDP.x in bound.width - radius..bound.width) {
-            offsetPair = Offset(bound.width / 2 - radius, offsetPair.y)
-        }
-
-        if (currentDP.y in 0f..radius) {
-            offsetPair = Offset(offsetPair.x, radius - bound.height / 2)
-        } else if (currentDP.y in bound.height - radius..bound.height) {
-            offsetPair = Offset(offsetPair.x, bound.height / 2 - radius)
-        }
-
-        return offsetPair
     }
 }

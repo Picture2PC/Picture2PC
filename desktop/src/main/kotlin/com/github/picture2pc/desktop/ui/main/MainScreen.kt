@@ -26,16 +26,13 @@ import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
-import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
 import org.koin.compose.rememberKoinInject
 
 
 @Composable
 fun MainScreen(
-    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
     pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
-    serversSectionViewModel.refreshServers() // Notify all Servers that the client is online
     val draggingSpeed = remember { pDVM.movementHandler.draggingSpeed }
 
     Box(
