@@ -107,6 +107,7 @@ class SimpleTcpServer(
         peerToClientMap[peer] = client
         _connectedPeers.value = peerToClientMap.keys.toList()
         client.clientStateFlow.onEach {
+            println("ClientState: $it")
             if (it is ClientState.DISCONNECTED) {
                 client.disconnect()
                 removePeer(peer)
