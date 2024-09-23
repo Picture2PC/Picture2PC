@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class PictureDisplayViewModel(
-    private val viewModelScope: CoroutineScope,
-    private val dataReceiver: DataTransmitter,
+    viewModelScope: CoroutineScope,
+    dataReceiver: DataTransmitter,
     val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
@@ -55,8 +55,8 @@ class PictureDisplayViewModel(
         movementHandler.clear()
         (payload.corners ?: return).map {
             Offset(
-                it.first * pP.displayPictureSize.width,
-                it.second * pP.displayPictureSize.height
+                (it.first -0.5f)* pP.displayPictureSize.width,
+                (it.second -0.5f)* pP.displayPictureSize.height
             )
         }.forEach {
             movementHandler.addClick(it, rotationState.value)
