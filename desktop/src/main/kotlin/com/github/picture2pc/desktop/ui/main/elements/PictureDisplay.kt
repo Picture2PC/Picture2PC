@@ -28,7 +28,9 @@ fun Picture(
     pDVM: PictureDisplayViewModel = rememberKoinInject(),
 ) {
     val pictureBitmap = pDVM.currentPicture.value
-    val clicks = pDVM.movementHandler.clicks.collectAsState().value
+    val clicks = pDVM.movementHandler.clicks.collectAsState().value.map {
+        it.denormalize(pDVM.displayPictureSize)
+    }
     val isDragging = pDVM.movementHandler.dragging.collectAsState().value
     val dragPoint = pDVM.movementHandler.dragPoint.collectAsState().value
 
@@ -37,13 +39,13 @@ fun Picture(
         bitmap = pictureBitmap.asComposeImageBitmap(),
         contentDescription = "Picture",
         modifier = Modifier
-            .onSizeChanged { size -> pDVM.pP.calculateRatio(size.toSize()) }
+            .onSizeChanged { size -> pDVM.calculateRatio(size.toSize()) }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     pDVM.movementHandler.addClick(
-                        offset - pDVM.pP.displayPictureSize,
+                        offset - pDVM.displayPictureSize,
                         pDVM.rotationState.value,
-                        pDVM.pP.displayPictureSize
+                        pDVM.displayPictureSize
                     )
                 }
             }
@@ -51,8 +53,8 @@ fun Picture(
                 detectDragGestures(
                     onDragStart = { dragStart ->
                         pDVM.movementHandler.setDrag(
-                            (dragStart - pDVM.pP.displayPictureSize).normalize(pDVM.pP.displayPictureSize),
-                            pDVM.pP.displayPictureSize,
+                            (dragStart - pDVM.displayPictureSize).normalize(pDVM.displayPictureSize),
+                            pDVM.displayPictureSize,
                             pDVM.rotationState.value,
                             true
                         )
@@ -60,13 +62,13 @@ fun Picture(
                     onDrag = { change, _ ->
                         pDVM.movementHandler.setDrag(
                             change.position,
-                            pDVM.pP.displayPictureSize,
+                            pDVM.displayPictureSize,
                             pDVM.rotationState.value
                         )
                     },
                     onDragEnd = {
                         pDVM.movementHandler.endDrag(
-                            pDVM.pP.displayPictureSize,
+                            pDVM.displayPictureSize,
                             pDVM.rotationState.value
                         )
                     }
@@ -79,18 +81,12 @@ fun Picture(
     )
 
     Canvas(Modifier) {
-        clicks.forEach {
-            drawCircle(
-                Colors.PRIMARY,
-                5f,
-                it.denormalize(pDVM.pP.displayPictureSize)
-            )
-        }
+        clicks.forEach { drawCircle(Colors.PRIMARY, 5f, it) }
         if (clicks.size == 4) {
-            val tl = clicks[0].denormalize(pDVM.pP.displayPictureSize)
-            val tr = clicks[1].denormalize(pDVM.pP.displayPictureSize)
-            val br = clicks[2].denormalize(pDVM.pP.displayPictureSize)
-            val bl = clicks[3].denormalize(pDVM.pP.displayPictureSize)
+            val tl = clicks[0]
+            val tr = clicks[1]
+            val br = clicks[2]
+            val bl = clicks[3]
             drawPath(
                 Path().apply {
                     moveTo(tl.x, tl.y)

@@ -47,7 +47,7 @@ fun ImageInteractionButtons(
                 icon = Icons.Desktop.RESET,
                 buttonModifier = Modifier.width(75.dp)
             ) {
-                pDVM.pP.resetEditedBitmap()
+                pDVM.reset()
                 pDVM.movementHandler.clear()
             }
             Spacer(spacerSize)
@@ -83,9 +83,9 @@ fun ImageInteractionButtons(
                 Button(
                     onClick = {
                         if (pDVM.movementHandler.clicks.value.size != 4) return@Button
-                        pDVM.pP.crop(pDVM.movementHandler.clicks.value)
-                        pDVM.pP.contrast()
-                        pDVM.pP.copy()
+                        pDVM.crop()
+                        pDVM.contrast()
+                        pDVM.copy()
                     },
                     Modifier.fillMaxWidth().height(Heights.BUTTON),
                     shape = Shapes.BUTTON,
@@ -104,20 +104,20 @@ fun ImageInteractionButtons(
                 TooltipIconButton(
                     description = Descriptions.CONTRAST,
                     icon = Icons.Desktop.CONTRAST
-                ) { pDVM.pP.contrast() }
+                ) { pDVM.contrast() }
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
                     description = Descriptions.COPY,
                     icon = Icons.Desktop.COPY
-                ) { pDVM.pP.copy() }
+                ) { pDVM.copy() }
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
                     description = Descriptions.CROP,
                     icon = Icons.Desktop.CROP
                 ) {
-                    pDVM.pP.crop(pDVM.movementHandler.clicks.value)
+                    pDVM.crop()
                 }
                 Spacer(Modifier.weight(1f))
             }

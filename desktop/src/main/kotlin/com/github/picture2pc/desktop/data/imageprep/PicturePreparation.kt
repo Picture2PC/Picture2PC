@@ -10,12 +10,11 @@ interface PicturePreparation {
     var editedBitmap: State<Bitmap>
 
     var ratio: Float
-    var displayPictureSize: Size
 
     fun calculateRatio(displayPictureSize: Size)
 
     fun contrast()
-    fun crop(clicks: List<Offset>)
+    fun crop(clicks: List<Offset>, displayPictureSize: Size)
     fun copy()
     fun resetEditedBitmap()
 

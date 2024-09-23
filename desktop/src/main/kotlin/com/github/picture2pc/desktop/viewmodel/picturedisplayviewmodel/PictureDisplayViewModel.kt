@@ -3,6 +3,7 @@ package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.onEach
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
     dataReceiver: DataTransmitter,
-    val pP: PicturePreparation,
+    private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
     val totalPictures = MutableStateFlow(0)
@@ -28,6 +29,7 @@ class PictureDisplayViewModel(
     val rotationState: MutableState<RotationState> =
         mutableStateOf(RotationState.ROTATION_0)
     val movementHandler = MovementHandler()
+    var displayPictureSize = Size(0f, 0f)
 
     init {
         pictures.onEach {
@@ -59,5 +61,27 @@ class PictureDisplayViewModel(
                 it.second - 0.5f
             )
         })
+    }
+
+    fun calculateRatio(displayPictureSize: Size) {
+        pP.calculateRatio(displayPictureSize)
+        this.displayPictureSize = displayPictureSize
+    }
+
+    fun reset() {
+        pP.resetEditedBitmap()
+        movementHandler.clear()
+    }
+
+    fun crop() {
+        pP.crop(movementHandler.clicks.value, displayPictureSize)
+    }
+
+    fun contrast() {
+        pP.contrast()
+    }
+
+    fun copy() {
+        pP.copy()
     }
 }

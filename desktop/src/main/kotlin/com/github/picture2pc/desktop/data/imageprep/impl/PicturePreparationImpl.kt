@@ -40,7 +40,6 @@ class PicturePreparationImpl : PicturePreparation {
 
     //Important other variables
     override var ratio: Float = 1f
-    override var displayPictureSize = Size(0f, 0f)
 
     override fun contrast() {
         if (editedBitmap.value.isEmpty) return
@@ -58,22 +57,22 @@ class PicturePreparationImpl : PicturePreparation {
         _editedBitmap.value = bitmap
     }
 
-    override fun crop(clicks: List<Offset>) {
+    override fun crop(clicks: List<Offset>, displayPictureSize: Size) {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0].denormalize(displayPictureSize)
+        val tl = clicks[0] // Top Left
+            .denormalize(displayPictureSize)
             .toTopLeftOrigin(displayPictureSize) * ratio
-        // Top Left
-        val tr = clicks[1].denormalize(displayPictureSize)
+        val tr = clicks[1] // Top Right
+            .denormalize(displayPictureSize)
             .toTopLeftOrigin(displayPictureSize) * ratio
-        // Top Right
-        val br = clicks[2].denormalize(displayPictureSize)
+        val br = clicks[2] // Bottom Right
+            .denormalize(displayPictureSize)
             .toTopLeftOrigin(displayPictureSize) * ratio
-        // Bottom Right
-        val bl = clicks[3].denormalize(displayPictureSize)
+        val bl = clicks[3] // Bottom Left
+            .denormalize(displayPictureSize)
             .toTopLeftOrigin(displayPictureSize) * ratio
-        // Bottom Left
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
@@ -124,7 +123,6 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
-        this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
     }
 
