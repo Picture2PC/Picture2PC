@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.minus
+import com.github.picture2pc.desktop.extention.normalize
 import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
@@ -50,7 +51,7 @@ fun Picture(
                 detectDragGestures(
                     onDragStart = { dragStart ->
                         pDVM.movementHandler.setDrag(
-                            dragStart - pDVM.pP.displayPictureSize,
+                            (dragStart - pDVM.pP.displayPictureSize).normalize(pDVM.pP.displayPictureSize),
                             pDVM.pP.displayPictureSize,
                             pDVM.rotationState.value,
                             true
@@ -86,12 +87,16 @@ fun Picture(
             )
         }
         if (clicks.size == 4) {
+            val tl = clicks[0].denormalize(pDVM.pP.displayPictureSize)
+            val tr = clicks[1].denormalize(pDVM.pP.displayPictureSize)
+            val br = clicks[2].denormalize(pDVM.pP.displayPictureSize)
+            val bl = clicks[3].denormalize(pDVM.pP.displayPictureSize)
             drawPath(
                 Path().apply {
-                    moveTo(clicks[0].x, clicks[0].y)
-                    lineTo(clicks[1].x, clicks[1].y)
-                    lineTo(clicks[2].x, clicks[2].y)
-                    lineTo(clicks[3].x, clicks[3].y)
+                    moveTo(tl.x, tl.y)
+                    lineTo(tr.x, tr.y)
+                    lineTo(br.x, br.y)
+                    lineTo(bl.x, bl.y)
                     close()
                 },
                 Colors.PRIMARY,

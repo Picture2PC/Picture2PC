@@ -82,7 +82,6 @@ class MovementHandler {
         val distances = mutableListOf<Float>()
         for (click in clicks.value) {
             val distance = point.translate(rotationState).distanceTo(click)
-            println(distance)
             distances.add(distance)
         }
         val shortestDistance = distances.minOrNull() ?: 0f
