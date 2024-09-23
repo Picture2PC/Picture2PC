@@ -62,10 +62,10 @@ class PicturePreparationImpl : PicturePreparation {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0].toTopLeftOrigin(displayPictureSize) // Top Left
-        val tr = clicks[1].toTopLeftOrigin(displayPictureSize) // Top Right
-        val br = clicks[2].toTopLeftOrigin(displayPictureSize) // Bottom Right
-        val bl = clicks[3].toTopLeftOrigin(displayPictureSize) // Bottom Left
+        val tl = clicks[0].toTopLeftOrigin(displayPictureSize) * ratio // Top Left
+        val tr = clicks[1].toTopLeftOrigin(displayPictureSize) * ratio // Top Right
+        val br = clicks[2].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Right
+        val bl = clicks[3].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Left
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
