@@ -29,7 +29,6 @@ import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
-
 @Composable
 fun MainScreen(
     pDVM: PictureDisplayViewModel = rememberKoinInject()

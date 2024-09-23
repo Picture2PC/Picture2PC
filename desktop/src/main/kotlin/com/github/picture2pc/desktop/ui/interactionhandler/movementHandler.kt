@@ -38,7 +38,7 @@ class MovementHandler {
     val draggingSpeed = MutableStateFlow(DraggingSpeed.FAST)
 
     fun setClicks(clicks: List<Offset>) {
-        _clicks.value = clicks
+        _clicks.value = sortClicks(clicks)
     }
 
     fun addClick(
@@ -46,7 +46,7 @@ class MovementHandler {
     ) {
         if (clicks.value.size == 4) clear()
         _clicks.value += click.translate(rotationState).normalize(maxSize)
-        if (clicks.value.size == 4) setToSorted()
+        if (clicks.value.size == 4) setClicks(clicks.value)
     }
 
     private fun removeClick(click: Offset) {
@@ -57,22 +57,22 @@ class MovementHandler {
         _clicks.value = emptyList()
     }
 
-    private fun setToSorted() {
+    private fun sortClicks(clicks: List<Offset>): List<Offset> {
         // Calculate the centroid of the four points
         val centroid = Offset(
-            clicks.value.map { it.x }.average().toFloat(),
-            clicks.value.map { it.y }.average().toFloat()
+            clicks.map { it.x }.average().toFloat(),
+            clicks.map { it.y }.average().toFloat()
         )
 
         // Calculate the angle of each point relative to the centroid
-        val angles = clicks.value.map { point ->
+        val angles = clicks.map { point ->
             val angle = atan2(
                 (point.y - centroid.y).toDouble(),
                 (point.x - centroid.x).toDouble()
             )
             Pair(point, angle)
         }
-        setClicks(angles.sortedBy { it.second }.map { it.first })
+        return angles.sortedBy { it.second }.map { it.first }
     }
 
     private fun getClosestPoint(
@@ -82,6 +82,7 @@ class MovementHandler {
         val distances = mutableListOf<Float>()
         for (click in clicks.value) {
             val distance = point.translate(rotationState).distanceTo(click)
+            println(distance)
             distances.add(distance)
         }
         val shortestDistance = distances.minOrNull() ?: 0f
@@ -98,7 +99,7 @@ class MovementHandler {
     ) {
         if (clicks.value.isNotEmpty() && isStartingPoint) {
             val (closestPoint, distance) = getClosestPoint(dragPoint, rotationState)
-            if (distance < 10) {
+            if (distance < 0.01) {
                 removeClick(closestPoint)
                 dragStart = closestPoint.toCenteredOrigin(pictureSize)
             }

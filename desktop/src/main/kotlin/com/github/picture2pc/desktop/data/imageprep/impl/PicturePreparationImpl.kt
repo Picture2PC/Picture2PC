@@ -7,6 +7,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
@@ -61,10 +62,18 @@ class PicturePreparationImpl : PicturePreparation {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0].toTopLeftOrigin(displayPictureSize) * ratio // Top Left
-        val tr = clicks[1].toTopLeftOrigin(displayPictureSize) * ratio // Top Right
-        val br = clicks[2].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Right
-        val bl = clicks[3].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Left
+        val tl = clicks[0].denormalize(displayPictureSize)
+            .toTopLeftOrigin(displayPictureSize) * ratio
+        // Top Left
+        val tr = clicks[1].denormalize(displayPictureSize)
+            .toTopLeftOrigin(displayPictureSize) * ratio
+        // Top Right
+        val br = clicks[2].denormalize(displayPictureSize)
+            .toTopLeftOrigin(displayPictureSize) * ratio
+        // Bottom Right
+        val bl = clicks[3].denormalize(displayPictureSize)
+            .toTopLeftOrigin(displayPictureSize) * ratio
+        // Bottom Left
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
