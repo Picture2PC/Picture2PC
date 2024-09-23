@@ -53,13 +53,11 @@ class PictureDisplayViewModel(
         )
         if (payload.corners == null) return
         movementHandler.clear()
-        (payload.corners ?: return).map {
+        movementHandler.setClicks((payload.corners ?: return).map {
             Offset(
-                (it.first - 0.5f) * pP.displayPictureSize.width,
-                (it.second - 0.5f) * pP.displayPictureSize.height
+                it.first - 0.5f,
+                it.second - 0.5f
             )
-        }.forEach {
-            movementHandler.addClick(it, rotationState.value, pP.displayPictureSize)
-        }
+        })
     }
 }
