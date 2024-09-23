@@ -15,6 +15,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.environmentProperties
+import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
 
@@ -24,15 +25,17 @@ class MainActivity : ComponentActivity() {
         if (!hasRequiredPermissions()) {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSIONS, 0)
         }
+        kotlin.runCatching {
+            startKoin {
+                // Log Koin into Android logger
+                androidLogger()
+                // Reference Android context
+                androidContext(this@MainActivity)
+                environmentProperties()
 
-        startKoin {
-            // Log Koin into Android logger
-            androidLogger()
-            // Reference Android context
-            androidContext(this@MainActivity)
-            environmentProperties()
-
-            modules(appModule)
+                modules(appModule)
+            }
+            OpenCVLoader.initLocal()
         }
 
         setContent {

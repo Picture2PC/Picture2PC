@@ -53,7 +53,7 @@ fun Sidebar() {
                 Spacer(Modifier.height(Spacers.NORMAL))
             } else Spacer(Modifier.weight(1f))
 
-            // CONNECTION INFO TOGGLE BUTTON
+            // Connection Info Toggle Button
             Box(Modifier.fillMaxWidth()) {
                 TooltipIconButton(
                     Modifier.align(Alignment.BottomEnd),

@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.util.Log
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
@@ -16,11 +17,16 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.github.picture2pc.android.data.edgedetection.DetectedBox
+import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -28,8 +34,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+
 class CameraPictureManager(
     private val context: Context,
+    private val edgeDetect: EdgeDetect,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -39,6 +47,10 @@ class CameraPictureManager(
     )
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
+    private val _pictureCorners: MutableStateFlow<DetectedBox?> =
+        MutableStateFlow(null) //read and write
+    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+
 
     override fun switchFlashMode() {
         if (imageCapture.flashMode == FLASH_MODE_AUTO) {
@@ -79,9 +91,24 @@ class CameraPictureManager(
                 it.surfaceProvider = previewView.surfaceProvider
             }
 
+            val analyzerUseCase = ImageAnalysis.Builder()
+                .setOutputImageRotationEnabled(true)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+            analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
+                val res = edgeDetect.detect(image.toBitmap()).minByOrNull { it.points.size }
+                if (res != null)
+                    _pictureCorners.value = res
+                image.close()
+            }
+            edgeDetect.load(context)
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
-                lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageCapture
+                lifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
+                imageCapture,
+                analyzerUseCase
             )
         }, ContextCompat.getMainExecutor(context))
     }

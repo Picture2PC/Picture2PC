@@ -1,12 +1,12 @@
 package com.github.picture2pc.android.net.datatransmitter
 
+import com.github.picture2pc.common.net.data.payload.TcpPayload
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.jetbrains.skia.Image
 
 interface DefaultDataTransmitter {
     val connectedDevices: StateFlow<List<DefaultDevice>>
-    val pictures: SharedFlow<Image>
+    val pictures: SharedFlow<TcpPayload.Picture>
     suspend fun refreshDevices()
-    suspend fun sendPicture(picture: ByteArray)
+    suspend fun sendPicture(picture: TcpPayload.Picture)
 }

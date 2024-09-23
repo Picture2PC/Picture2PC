@@ -6,7 +6,6 @@ import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
-import com.github.picture2pc.common.net.extentions.toImage
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.MulticastPayloadTransceiver
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.jetbrains.skia.Image
 
 open class MulticastTcpDefaultDataTransmitter(
     private val multicastPayloadTransceiver: MulticastPayloadTransceiver,
@@ -30,8 +28,8 @@ open class MulticastTcpDefaultDataTransmitter(
         MutableStateFlow(emptyList())
     val connectedDevices: StateFlow<List<DefaultDevice>> = _connectedDevices
 
-    private val _pictures: MutableSharedFlow<Image> = MutableSharedFlow(5, 1)
-    val pictures: SharedFlow<Image> = _pictures
+    private val _pictures: MutableSharedFlow<TcpPayload.Picture> = MutableSharedFlow(5, 1)
+    val pictures: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
         const val TIME_BETWEEN_ONLINE_EMIT = 2000L
@@ -86,7 +84,7 @@ open class MulticastTcpDefaultDataTransmitter(
                     }
 
                     is TcpPayload.Picture -> {
-                        _pictures.tryEmit(it.picture.toImage())
+                        _pictures.tryEmit(it)
                     }
 
                     else -> {}
@@ -141,8 +139,7 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.sendPayload(TcpPayload.RequestName(peer))
     }
 
-    suspend fun sendPicture(picture: ByteArray) {
-        val payload = TcpPayload.Picture(picture)
+    suspend fun sendPicture(payload: TcpPayload.Picture) {
         tcpPayloadTransceiver.sendPayload(payload)
     }
 
