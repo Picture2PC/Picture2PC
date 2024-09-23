@@ -7,16 +7,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
-import com.github.picture2pc.desktop.ui.main.elements.PictureDisplay
+import com.github.picture2pc.desktop.data.next
+import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
@@ -64,7 +71,7 @@ fun MainScreen(
                     Row {
                         TooltipIconButton(
                             description = Descriptions.ROTATE_LEFT,
-                            icon = Desktop.ROTATE_LEFT,
+                            icon = Icons.Desktop.ROTATE_LEFT,
                             color = Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
@@ -74,7 +81,7 @@ fun MainScreen(
 
                         TooltipIconButton(
                             description = Descriptions.ROTATE_RIGHT,
-                            icon = Desktop.ROTATE_RIGHT,
+                            icon = Icons.Desktop.ROTATE_RIGHT,
                             color = Colors.ACCENT,
                         ) {
                             pDVM.rotationState.value =
