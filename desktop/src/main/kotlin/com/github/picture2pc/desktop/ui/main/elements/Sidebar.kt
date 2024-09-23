@@ -26,7 +26,7 @@ import com.github.picture2pc.desktop.ui.constants.Settings
 
 @Composable
 fun Sidebar() {
-    val showConnections = remember { mutableStateOf(false) }
+    val showConnections = remember { mutableStateOf(true) }
 
     Box(
         Modifier

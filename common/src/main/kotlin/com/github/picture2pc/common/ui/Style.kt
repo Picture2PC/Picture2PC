@@ -57,8 +57,10 @@ object Style {
     }
 
     object TextStyles {
-        val HEADER1 = TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
-        val HEADER2 = TextStyle(fontSize = 16.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
+        val HEADER1 =
+            TextStyle(fontSize = 24.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
+        val HEADER2 =
+            TextStyle(fontSize = 16.sp, color = Colors.TEXT, fontWeight = FontWeight.Bold)
         val NORMAL = TextStyle(fontSize = 16.sp, color = Colors.TEXT)
         val SMALL = TextStyle(fontSize = 14.sp, color = Colors.TEXT)
     }
@@ -78,7 +80,7 @@ object Style {
         }
 
         object Borders {
-            val BORDER_STANDARD = 2.dp
+            val BORDER_STANDARD = 3.dp
             val BORDER_THICK = 4.dp
         }
 

@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
-import com.github.picture2pc.common.ui.Shapes
 
 @Composable
 fun CameraPreview(

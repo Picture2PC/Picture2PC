@@ -3,6 +3,8 @@ package com.github.picture2pc.android.data.takeimage.impl
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -69,13 +72,12 @@ class CameraPictureManager(
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val image = BitmapFactory.decodeByteArray(
-                        outputStream.toByteArray(),
-                        0,
-                        outputStream.size()
-                    )
+                    val imageData = outputStream.toByteArray()
+                    val image =
+                        BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
+                    val rotatedImage = rotateImageIfRequired(image, imageData)
                     lifecycleOwner.lifecycleScope.launch {
-                        _takenImages.emit(image)
+                        _takenImages.emit(rotatedImage)
                     }
                 }
             }
@@ -125,6 +127,28 @@ class CameraPictureManager(
         }
     }
 
-    private val _takenImages = MutableSharedFlow<Bitmap>(replay = 3)            //read and write
-    override val takenImages: SharedFlow<Bitmap> = _takenImages.asSharedFlow()  //read only
+    fun rotateImageIfRequired(image: Bitmap, imageData: ByteArray): Bitmap {
+        val exif = ExifInterface(ByteArrayInputStream(imageData))
+        val orientation = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(image, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(image, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(image, 270f)
+            else -> image
+        }
+    }
+
+    fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degree)
+        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
+
+    private val _takenImages =
+        MutableSharedFlow<Bitmap>(replay = 3)            //read and write
+    override val takenImages: SharedFlow<Bitmap> =
+        _takenImages.asSharedFlow()  //read only
 }
