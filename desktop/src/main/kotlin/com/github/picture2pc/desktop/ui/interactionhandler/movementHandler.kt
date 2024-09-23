@@ -7,6 +7,7 @@ import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.isInBounds
+import com.github.picture2pc.desktop.extention.normalize
 import com.github.picture2pc.desktop.extention.toCenteredOrigin
 import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.extention.translate
@@ -41,10 +42,10 @@ class MovementHandler {
     }
 
     fun addClick(
-        click: Offset, rotationState: RotationState
+        click: Offset, rotationState: RotationState, maxSize: Size
     ) {
         if (clicks.value.size == 4) clear()
-        _clicks.value += click.translate(rotationState)
+        _clicks.value += click.translate(rotationState).normalize(maxSize)
         if (clicks.value.size == 4) setToSorted()
     }
 
@@ -81,6 +82,7 @@ class MovementHandler {
         val distances = mutableListOf<Float>()
         for (click in clicks.value) {
             val distance = point.translate(rotationState).distanceTo(click)
+            println(distance)
             distances.add(distance)
         }
         val shortestDistance = distances.minOrNull() ?: 0f
@@ -97,7 +99,6 @@ class MovementHandler {
     ) {
         if (clicks.value.isNotEmpty() && isStartingPoint) {
             val (closestPoint, distance) = getClosestPoint(dragPoint, rotationState)
-            println(distance)
             if (distance < 10) {
                 removeClick(closestPoint)
                 dragStart = closestPoint.toCenteredOrigin(pictureSize)
@@ -112,7 +113,7 @@ class MovementHandler {
     ) {
         if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
         ) return
-        addClick(dragPoint.value, rotationState)
+        addClick(dragPoint.value, rotationState, pictureSize)
         dragging.value = false
     }
 }

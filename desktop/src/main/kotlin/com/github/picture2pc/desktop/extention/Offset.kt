@@ -19,6 +19,20 @@ fun Offset.translate(
     }
 }
 
+fun Offset.normalize(maxSize: Size): Offset {
+    return Offset(
+        this.x / maxSize.width,
+        this.y / maxSize.height
+    )
+}
+
+fun Offset.denormalize(maxSize: Size): Offset {
+    return Offset(
+        this.x * maxSize.width,
+        this.y * maxSize.height
+    )
+}
+
 fun Offset.isInBounds(rectangle: Rect): Boolean {
     return !(
             this.x < rectangle.left ||

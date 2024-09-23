@@ -55,7 +55,6 @@ class PicturePreparationImpl : PicturePreparation {
         val bitmap = clearBitmap()
         Canvas(bitmap).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint).close()
         _editedBitmap.value = bitmap
-        updateEditedBitmap()
     }
 
     override fun crop(clicks: List<Offset>) {
@@ -112,17 +111,12 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun resetEditedBitmap() {
         _editedBitmap.value = originalBitmap
-        updateEditedBitmap()
     }
 
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
         this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
-    }
-
-    override fun updateEditedBitmap() {
-        _editedBitmap.value = editedBitmap.value.makeClone()
     }
 
     private fun clearBitmap(): Bitmap {
