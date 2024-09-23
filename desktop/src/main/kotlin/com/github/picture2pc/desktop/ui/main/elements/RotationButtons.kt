@@ -10,19 +10,21 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.ui.constants.Descriptions
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun RotationButtons(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
+fun RotationButtons(
+    mDVM: MovementHandlerViewModel = rememberKoinInject()
+) {
     Row {
         TooltipIconButton(
             description = Descriptions.ROTATE_LEFT,
             icon = Icons.Desktop.ROTATE_LEFT,
             color = Colors.ACCENT,
         ) {
-            pDVM.rotationState.value =
-                pDVM.rotationState.value.next(false)
+            mDVM.rotationState.value =
+                mDVM.rotationState.value.next(false)
         }
         Spacer(Modifier.width(Spacers.SMALL))
 
@@ -31,8 +33,8 @@ fun RotationButtons(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
             icon = Icons.Desktop.ROTATE_RIGHT,
             color = Colors.ACCENT,
         ) {
-            pDVM.rotationState.value =
-                pDVM.rotationState.value.next(true)
+            mDVM.rotationState.value =
+                mDVM.rotationState.value.next(true)
         }
     }
 }

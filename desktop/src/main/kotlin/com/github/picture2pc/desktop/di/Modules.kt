@@ -7,8 +7,9 @@ import com.github.picture2pc.android.net.datatransmitter.impl.MulticastTcpDataTr
 import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.impl.PicturePreparationImpl
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
-import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
@@ -19,7 +20,6 @@ val appModule = module {
 
     single(named("backgroundCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
     single(named("viewModelCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
-
 
     single<DataTransmitter> {
         MulticastTcpDataTransmitter(
@@ -33,6 +33,14 @@ val appModule = module {
 
     single<PicturePreparation> { PicturePreparationImpl() }
 
-    single { ServersSectionViewModel(get(named("viewModelCoroutineScope")), get()) }
-    single { PictureDisplayViewModel(get(named("viewModelCoroutineScope")), get(), get()) }
+    single { ServersSectionViewModel(get()) }
+    single { MovementHandlerViewModel() }
+    single {
+        PictureDisplayViewModel(
+            get(named("viewModelCoroutineScope")),
+            get(),
+            get(),
+            get()
+        )
+    }
 }

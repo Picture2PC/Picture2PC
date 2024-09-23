@@ -20,19 +20,21 @@ import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.minus
 import com.github.picture2pc.desktop.extention.normalize
 import com.github.picture2pc.desktop.ui.util.customCursor
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun Picture(
     pDVM: PictureDisplayViewModel = rememberKoinInject(),
+    mHVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val pictureBitmap = pDVM.currentPicture.value
-    val clicks = pDVM.movementHandler.clicks.collectAsState().value.map {
+    val clicks = mHVM.clicks.collectAsState().value.map {
         it.denormalize(pDVM.displayPictureSize)
     }
-    val isDragging = pDVM.movementHandler.dragging.collectAsState().value
-    val dragPoint = pDVM.movementHandler.dragPoint.collectAsState().value
+    val isDragging = mHVM.dragging.collectAsState().value
+    val dragPoint = mHVM.dragPoint.collectAsState().value
 
     // Main Picture
     Image(
@@ -42,9 +44,8 @@ fun Picture(
             .onSizeChanged { size -> pDVM.calculateRatio(size.toSize()) }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    pDVM.movementHandler.addClick(
+                    mHVM.addClick(
                         offset - pDVM.displayPictureSize,
-                        pDVM.rotationState.value,
                         pDVM.displayPictureSize
                     )
                 }
@@ -52,30 +53,29 @@ fun Picture(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragStart ->
-                        pDVM.movementHandler.setDrag(
-                            (dragStart - pDVM.displayPictureSize).normalize(pDVM.displayPictureSize),
+                        mHVM.setDrag(
+                            (dragStart - pDVM.displayPictureSize)
+                                .normalize(pDVM.displayPictureSize),
                             pDVM.displayPictureSize,
-                            pDVM.rotationState.value,
                             true
                         )
                     },
                     onDrag = { change, _ ->
-                        pDVM.movementHandler.setDrag(
+                        mHVM.setDrag(
                             change.position,
-                            pDVM.displayPictureSize,
-                            pDVM.rotationState.value
+                            pDVM.displayPictureSize
                         )
                     },
                     onDragEnd = {
-                        pDVM.movementHandler.endDrag(
-                            pDVM.displayPictureSize,
-                            pDVM.rotationState.value
+                        mHVM.endDrag(
+                            pDVM.displayPictureSize
                         )
                     }
                 )
             }
             .pointerHoverIcon(
-                if (pDVM.movementHandler.dragActive.value) PointerIcon(customCursor())
+                if (mHVM.dragActive.value)
+                    PointerIcon(customCursor())
                 else PointerIcon.Default
             )
     )
@@ -102,7 +102,7 @@ fun Picture(
     }
 
     // Zoom Overlay
-    /*if (!isDragging) return TODO: Fix implementation of zoom overlay movement
+    /*if (!isDragging) return //TODO: Fix implementation of zoom overlay movement
     Box(
         Modifier
             .offset(dragPoint.x.dp, dragPoint.y.dp)

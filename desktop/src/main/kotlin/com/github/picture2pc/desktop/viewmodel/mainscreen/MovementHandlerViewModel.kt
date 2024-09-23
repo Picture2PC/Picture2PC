@@ -1,5 +1,6 @@
-package com.github.picture2pc.desktop.ui.interactionhandler
+package com.github.picture2pc.desktop.viewmodel.mainscreen
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
@@ -26,7 +27,7 @@ enum class DraggingSpeed(val iconPath: String, val speed: Float) {
     }
 }
 
-class MovementHandler {
+class MovementHandlerViewModel {
     // 0, 0 is the center of the picture
     private val _clicks = MutableStateFlow<List<Offset>>(emptyList())
     val clicks: StateFlow<List<Offset>> = _clicks
@@ -36,16 +37,17 @@ class MovementHandler {
     val dragging = MutableStateFlow(false)
     val dragActive = MutableStateFlow(false)
     val draggingSpeed = MutableStateFlow(DraggingSpeed.FAST)
+    val rotationState = mutableStateOf(RotationState.ROTATION_0)
 
     fun setClicks(clicks: List<Offset>) {
         _clicks.value = sortClicks(clicks)
     }
 
     fun addClick(
-        click: Offset, rotationState: RotationState, maxSize: Size
+        click: Offset, maxSize: Size
     ) {
         if (clicks.value.size == 4) clear()
-        _clicks.value += click.translate(rotationState).normalize(maxSize)
+        _clicks.value += click.translate(rotationState.value).normalize(maxSize)
         if (clicks.value.size == 4) setClicks(clicks.value)
     }
 
@@ -75,13 +77,10 @@ class MovementHandler {
         return angles.sortedBy { it.second }.map { it.first }
     }
 
-    private fun getClosestPoint(
-        point: Offset,
-        rotationState: RotationState
-    ): Pair<Offset, Float> {
+    private fun getClosestPoint(point: Offset): Pair<Offset, Float> {
         val distances = mutableListOf<Float>()
         for (click in clicks.value) {
-            val distance = point.translate(rotationState).distanceTo(click)
+            val distance = point.translate(rotationState.value).distanceTo(click)
             println(distance)
             distances.add(distance)
         }
@@ -94,11 +93,10 @@ class MovementHandler {
     fun setDrag(
         dragPoint: Offset,
         pictureSize: Size,
-        rotationState: RotationState,
         isStartingPoint: Boolean = false
     ) {
         if (clicks.value.isNotEmpty() && isStartingPoint) {
-            val (closestPoint, distance) = getClosestPoint(dragPoint, rotationState)
+            val (closestPoint, distance) = getClosestPoint(dragPoint)
             if (distance < 0.01) {
                 removeClick(closestPoint)
                 dragStart = closestPoint.toCenteredOrigin(pictureSize)
@@ -108,12 +106,10 @@ class MovementHandler {
         dragging.value = true
     }
 
-    fun endDrag(
-        pictureSize: Size, rotationState: RotationState,
-    ) {
+    fun endDrag(pictureSize: Size) {
         if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
         ) return
-        addClick(dragPoint.value, rotationState, pictureSize)
+        addClick(dragPoint.value, pictureSize)
         dragging.value = false
     }
 }

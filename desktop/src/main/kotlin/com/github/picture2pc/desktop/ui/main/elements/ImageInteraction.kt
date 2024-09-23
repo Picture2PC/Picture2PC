@@ -24,7 +24,8 @@ import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
 fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
@@ -34,7 +35,8 @@ fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
 
 @Composable
 fun ImageInteractionButtons(
-    pDVM: PictureDisplayViewModel = rememberKoinInject()
+    pDVM: PictureDisplayViewModel = rememberKoinInject(),
+    mDVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val spacerSize: Modifier = Modifier.size(Spacers.SMALL)
     val currentIndex = pDVM.selectedPictureIndex.collectAsState().value
@@ -48,7 +50,7 @@ fun ImageInteractionButtons(
                 buttonModifier = Modifier.width(75.dp)
             ) {
                 pDVM.reset()
-                pDVM.movementHandler.clear()
+                mDVM.clear()
             }
             Spacer(spacerSize)
 
@@ -82,10 +84,8 @@ fun ImageInteractionButtons(
             Row {
                 Button(
                     onClick = {
-                        if (pDVM.movementHandler.clicks.value.size != 4) return@Button
-                        pDVM.crop()
-                        pDVM.contrast()
-                        pDVM.copy()
+                        if (mDVM.clicks.value.size != 4) return@Button
+                        pDVM.doAll()
                     },
                     Modifier.fillMaxWidth().height(Heights.BUTTON),
                     shape = Shapes.BUTTON,
@@ -116,9 +116,7 @@ fun ImageInteractionButtons(
                 TooltipIconButton(
                     description = Descriptions.CROP,
                     icon = Icons.Desktop.CROP
-                ) {
-                    pDVM.crop()
-                }
+                ) { pDVM.crop() }
                 Spacer(Modifier.weight(1f))
             }
         }

@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.ui.constants.Descriptions
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun ZoomSpeedButton(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
-    val draggingSpeed = remember { pDVM.movementHandler.draggingSpeed }
+fun ZoomSpeedButton(mDVM: MovementHandlerViewModel = rememberKoinInject()) {
+    val draggingSpeed = remember { mDVM.draggingSpeed }
 
     TooltipIconButton(
         description = Descriptions.DRAGGING_SPEED,

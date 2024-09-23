@@ -21,7 +21,7 @@ import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.Style
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.rememberKoinInject
 
@@ -64,7 +64,13 @@ fun ConnectionInfo(
 fun Connection(name: StateFlow<String>, clientStateFlow: StateFlow<ClientState>) {
     val clientName = name.collectAsState()
     val clientState = clientStateFlow.collectAsState()
-    Row(Modifier.padding(start = Spacers.NORMAL, end = Spacers.NORMAL, top = Spacers.SMALL)) {
+    Row(
+        Modifier.padding(
+            start = Spacers.NORMAL,
+            end = Spacers.NORMAL,
+            top = Spacers.SMALL
+        )
+    ) {
         Text(clientName.value, color = Colors.TEXT, style = TextStyles.NORMAL)
         Spacer(Modifier.weight(1f))
 
@@ -75,7 +81,10 @@ fun Connection(name: StateFlow<String>, clientStateFlow: StateFlow<ClientState>)
         )
         Spacer(Modifier.width(Spacers.SMALL))
 
-        Canvas(Modifier.size(Style.Dimensions.StateIndicator).align(Alignment.CenterVertically)) {
+        Canvas(
+            Modifier.size(Style.Dimensions.StateIndicator)
+                .align(Alignment.CenterVertically)
+        ) {
             drawCircle(clientState.value.color)
         }
     }

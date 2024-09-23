@@ -1,17 +1,13 @@
-package com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel
+package com.github.picture2pc.desktop.viewmodel.mainscreen
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
-import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
-import com.github.picture2pc.desktop.ui.interactionhandler.MovementHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -20,15 +16,13 @@ import kotlinx.coroutines.flow.onEach
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
     dataReceiver: DataTransmitter,
+    private val movementHandlerViewModel: MovementHandlerViewModel,
     private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
-    val rotationState: MutableState<RotationState> =
-        mutableStateOf(RotationState.ROTATION_0)
-    val movementHandler = MovementHandler()
     var displayPictureSize = Size(0f, 0f)
 
     init {
@@ -54,12 +48,9 @@ class PictureDisplayViewModel(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
         if (payload.corners == null) return
-        movementHandler.clear()
-        movementHandler.setClicks((payload.corners ?: return).map {
-            Offset(
-                it.first - 0.5f,
-                it.second - 0.5f
-            )
+        movementHandlerViewModel.clear()
+        movementHandlerViewModel.setClicks((payload.corners ?: return).map {
+            Offset(it.first - 0.5f, it.second - 0.5f)
         })
     }
 
@@ -69,12 +60,18 @@ class PictureDisplayViewModel(
     }
 
     fun reset() {
-        pP.resetEditedBitmap()
-        movementHandler.clear()
+        movementHandlerViewModel.clear()
+        setPicture(pictures.replayCache[selectedPictureIndex.value])
+    }
+
+    fun doAll() {
+        crop()
+        contrast()
+        copy()
     }
 
     fun crop() {
-        pP.crop(movementHandler.clicks.value, displayPictureSize)
+        pP.crop(movementHandlerViewModel.clicks.value, displayPictureSize)
     }
 
     fun contrast() {

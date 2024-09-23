@@ -117,10 +117,6 @@ class PicturePreparationImpl : PicturePreparation {
         addToClipboard(editedBitmap.value.toBufferedImage())
     }
 
-    override fun resetEditedBitmap() {
-        _editedBitmap.value = originalBitmap
-    }
-
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
@@ -142,6 +138,6 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        resetEditedBitmap()
+        _editedBitmap.value = originalBitmap
     }
 }
