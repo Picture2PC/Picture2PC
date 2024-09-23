@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.onEach
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
     dataReceiver: DataTransmitter,
-    private val movementHandlerViewModel: MovementHandlerViewModel,
+    private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
@@ -27,8 +27,7 @@ class PictureDisplayViewModel(
 
     init {
         pictures.onEach {
-            if (totalPictures.value == 0)
-                setPicture(it)
+            if (totalPictures.value == 0) setPicture(it)
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }
@@ -48,8 +47,8 @@ class PictureDisplayViewModel(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
         if (payload.corners == null) return
-        movementHandlerViewModel.clear()
-        movementHandlerViewModel.setClicks((payload.corners ?: return).map {
+        mHVM.clear()
+        mHVM.setClicks((payload.corners ?: return).map {
             Offset(it.first - 0.5f, it.second - 0.5f)
         })
     }
@@ -60,7 +59,7 @@ class PictureDisplayViewModel(
     }
 
     fun reset() {
-        movementHandlerViewModel.clear()
+        mHVM.clear()
         setPicture(pictures.replayCache[selectedPictureIndex.value])
     }
 
@@ -71,7 +70,7 @@ class PictureDisplayViewModel(
     }
 
     fun crop() {
-        pP.crop(movementHandlerViewModel.clicks.value, displayPictureSize)
+        pP.crop(mHVM.clicks.value, displayPictureSize)
     }
 
     fun contrast() {

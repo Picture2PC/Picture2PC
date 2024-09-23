@@ -81,7 +81,7 @@ fun Picture(
     )
 
     Canvas(Modifier) {
-        clicks.forEach { drawCircle(Colors.PRIMARY, 5f, it) }
+        clicks.onEach { drawCircle(Colors.PRIMARY, 5f, it) }
         if (clicks.size == 4) {
             val tl = clicks[0]
             val tr = clicks[1]
