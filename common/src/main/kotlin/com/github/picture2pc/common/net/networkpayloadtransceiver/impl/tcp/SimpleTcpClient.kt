@@ -33,7 +33,7 @@ class SimpleTcpClient(
     private val backgroundScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     override val peer: Peer,
-    private val jvmSocket: Socket = Socket(),
+    private val jvmSocket: Socket,
 ) : Client() //, DefaultDataPayloadTransceiver()
 {
     private var timeoutJob: Job? = null
