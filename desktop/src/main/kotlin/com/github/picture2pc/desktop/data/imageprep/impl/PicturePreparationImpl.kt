@@ -11,7 +11,6 @@ import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
-import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -34,11 +33,9 @@ import org.opencv.core.Size as CvSize
 class PicturePreparationImpl : PicturePreparation {
     //Bitmaps for the original, edited, overlay and drag overlay images
     override var originalBitmap: Bitmap = Bitmap()
-
     private var _editedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var editedBitmap: State<Bitmap> = _editedBitmap
 
-    //Important other variables
     override var ratio: Float = 1f
 
     override fun contrast() {
@@ -61,18 +58,10 @@ class PicturePreparationImpl : PicturePreparation {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0] // Top Left
-            .denormalize(displayPictureSize)
-            .toTopLeftOrigin(displayPictureSize) * ratio
-        val tr = clicks[1] // Top Right
-            .denormalize(displayPictureSize)
-            .toTopLeftOrigin(displayPictureSize) * ratio
-        val br = clicks[2] // Bottom Right
-            .denormalize(displayPictureSize)
-            .toTopLeftOrigin(displayPictureSize) * ratio
-        val bl = clicks[3] // Bottom Left
-            .denormalize(displayPictureSize)
-            .toTopLeftOrigin(displayPictureSize) * ratio
+        val tl = clicks[0].denormalize(displayPictureSize) * ratio
+        val tr = clicks[1].denormalize(displayPictureSize) * ratio
+        val br = clicks[2].denormalize(displayPictureSize) * ratio
+        val bl = clicks[3].denormalize(displayPictureSize) * ratio
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
