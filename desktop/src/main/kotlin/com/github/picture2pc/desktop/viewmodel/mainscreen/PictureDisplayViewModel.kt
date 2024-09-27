@@ -71,6 +71,7 @@ class PictureDisplayViewModel(
 
     fun crop() {
         pP.crop(mHVM.clicks.value, displayPictureSize)
+        mHVM.clear()
     }
 
     fun contrast() {
