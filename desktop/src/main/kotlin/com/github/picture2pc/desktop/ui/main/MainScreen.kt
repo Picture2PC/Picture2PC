@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.ui.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,27 +43,23 @@ fun MainScreen(
         Row(
             Modifier.padding(10.dp).fillMaxSize()
         ) {
-            Column { Sidebar() }
+            Sidebar()
             Spacer(Modifier.width(Spacers.NORMAL))
 
             // Picture Display Area
             Box(Modifier.fillMaxSize()) {
                 // Picture Display
-                Column(
+                Box(
                     Modifier.border(
                         Borders.BORDER_STANDARD,
                         Colors.PRIMARY,
                         Shapes.WINDOW
                     )
-                ) {
-                    Box(
-                        Modifier
-                            .rotate(pDVM.rotationState.value.angle)
-                            .padding(Spacers.NORMAL)
-                            .fillMaxSize(),
-                        Alignment.Center
-                    ) { Picture() }
-                }
+                        .rotate(pDVM.rotationState.value.angle)
+                        .padding(Spacers.NORMAL)
+                        .fillMaxSize(),
+                    Alignment.Center
+                ) { Picture() }
 
                 // Rotation Buttons
                 Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {

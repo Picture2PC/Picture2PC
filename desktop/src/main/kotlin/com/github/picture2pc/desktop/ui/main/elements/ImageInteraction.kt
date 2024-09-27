@@ -79,19 +79,17 @@ fun ImageInteractionButtons(
         Spacer(modifier = Modifier.height(Spacers.NORMAL))
 
         Column(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
-            Row {
-                Button(
-                    onClick = {
-                        if (pDVM.movementHandler.clicks.value.size != 4) return@Button
-                        pDVM.pP.crop(pDVM.movementHandler.clicks.value)
-                        pDVM.pP.contrast()
-                        pDVM.pP.copy()
-                    },
-                    Modifier.fillMaxWidth().height(Heights.BUTTON),
-                    shape = Shapes.BUTTON,
-                    colors = Colors.BUTTON_SECONDARY,
-                ) { Text("Do All", style = TextStyles.NORMAL) }
-            }
+            Button(
+                onClick = {
+                    if (pDVM.movementHandler.clicks.value.size != 4) return@Button
+                    pDVM.pP.crop(pDVM.movementHandler.clicks.value)
+                    pDVM.pP.contrast()
+                    pDVM.pP.copy()
+                },
+                Modifier.fillMaxWidth().height(Heights.BUTTON),
+                shape = Shapes.BUTTON,
+                colors = Colors.BUTTON_SECONDARY,
+            ) { Text("Do All", style = TextStyles.NORMAL) }
 
             Divider(
                 Modifier.padding(horizontal = Spacers.NORMAL),

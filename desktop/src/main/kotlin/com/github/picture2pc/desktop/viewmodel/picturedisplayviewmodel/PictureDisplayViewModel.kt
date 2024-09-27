@@ -31,8 +31,7 @@ class PictureDisplayViewModel(
 
     init {
         pictures.onEach {
-            if (totalPictures.value == 0)
-                setPicture(it)
+            if (totalPictures.value == 0) setPicture(it)
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }
@@ -45,6 +44,8 @@ class PictureDisplayViewModel(
 
         selectedPictureIndex.value = newIndex
         setPicture(pictures.replayCache[newIndex])
+
+        rotationState.value = RotationState.ROTATION_0
     }
 
     private fun setPicture(payload: TcpPayload.Picture) {
@@ -55,8 +56,8 @@ class PictureDisplayViewModel(
         movementHandler.clear()
         (payload.corners ?: return).map {
             Offset(
-                (it.first -0.5f)* pP.displayPictureSize.width,
-                (it.second -0.5f)* pP.displayPictureSize.height
+                (it.first - 0.5f) * pP.displayPictureSize.width,
+                (it.second - 0.5f) * pP.displayPictureSize.height
             )
         }.forEach {
             movementHandler.addClick(it, rotationState.value)
