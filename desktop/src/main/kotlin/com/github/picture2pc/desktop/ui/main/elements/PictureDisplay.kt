@@ -31,9 +31,7 @@ fun Picture(
     mHVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val pictureBitmap = pDVM.currentPicture.value
-    val clicks = mHVM.clicks.collectAsState().value.map {
-        it.denormalize(pDVM.displayPictureSize)
-    }
+    val clicks = mHVM.clicks.collectAsState().value
     val rotationState = mHVM.rotationState.collectAsState().value
     val isDragging = mHVM.dragging.collectAsState().value
     val dragPoint = mHVM.dragPoint.collectAsState().value
@@ -83,14 +81,14 @@ fun Picture(
                 drawCircle(
                     Colors.PRIMARY,
                     5f,
-                    it
+                    it.denormalize(pDVM.displayPictureSize)
                 )
             }
             if (clicks.size == 4) {
-                val tl = clicks[0]
-                val tr = clicks[1]
-                val br = clicks[2]
-                val bl = clicks[3]
+                val tl = clicks[0].denormalize(pDVM.displayPictureSize)
+                val tr = clicks[1].denormalize(pDVM.displayPictureSize)
+                val br = clicks[2].denormalize(pDVM.displayPictureSize)
+                val bl = clicks[3].denormalize(pDVM.displayPictureSize)
                 drawPath(
                     Path().apply {
                         moveTo(tl.x, tl.y)
