@@ -36,7 +36,6 @@ fun Picture(
     val isDragging = mHVM.dragging.collectAsState().value
     val dragPoint = mHVM.dragPoint.collectAsState().value
 
-    // Main Picture
     Box(
         modifier = Modifier.rotate(rotationState.angle)
     ) {
@@ -104,7 +103,6 @@ fun Picture(
         }
     }
 
-    // Zoom Overlay
     /*if (!isDragging) return //TODO: Fix implementation of zoom overlay movement
     Box(
         Modifier

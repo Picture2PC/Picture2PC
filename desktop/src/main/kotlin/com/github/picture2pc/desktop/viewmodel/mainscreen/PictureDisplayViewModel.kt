@@ -49,7 +49,7 @@ class PictureDisplayViewModel(
         if (payload.corners == null) return
         mHVM.clear()
         mHVM.setClicks((payload.corners ?: return).map {
-            Offset(it.first - 0.5f, it.second - 0.5f)
+            Offset(it.first, it.second)
         })
     }
 
