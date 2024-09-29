@@ -89,11 +89,7 @@ fun Picture(
 
         Canvas(Modifier) {
             clicks.forEach {
-                drawCircle(
-                    Colors.PRIMARY,
-                    5f,
-                    it.denormalize(pDVM.displayPictureSize)
-                )
+                drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
             }
             if (clicks.size == 4) {
                 val tl = clicks[0].denormalize(pDVM.displayPictureSize)
@@ -121,16 +117,21 @@ fun Picture(
             .offset(dragPoint.x.dp, dragPoint.y.dp)
             .border(2.dp, Colors.PRIMARY, CircleShape)
     ) {
-        val pictureSize = pDVM.displayPictureSize
         val ratio = pDVM.getRatio()
-        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp).align(Alignment.Center)) {
+        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
                 translate( // movement in picture
-                    left = -(dragPoint.x * Settings.SCALE) - (pictureSize.width / 2),
-                    top = -(dragPoint.y * Settings.SCALE) - (pictureSize.height / 2)
+                    left = -dragPoint.x * Settings.ZOOM_FACTOR,
+                    top = -dragPoint.y * Settings.ZOOM_FACTOR
                 ) {
-                    scale(Settings.SCALE / ratio) { // Scaled picture
-                        drawImage(pictureBitmap.asComposeImageBitmap())
+                    scale(Settings.ZOOM_FACTOR / ratio) { // Scaled picture
+                        drawImage(
+                            pictureBitmap.asComposeImageBitmap(),
+                            topLeft = Offset(
+                                (-pictureBitmap.width / 2f),
+                                (-pictureBitmap.height / 2f)
+                            )
+                        )
                     }
                 }
             }

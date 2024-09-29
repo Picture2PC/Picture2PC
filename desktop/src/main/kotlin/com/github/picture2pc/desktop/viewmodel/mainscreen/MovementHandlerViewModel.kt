@@ -147,6 +147,7 @@ class MovementHandlerViewModel {
         if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
         ) return
         addClick(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
+        println(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
         dragging.value = false
     }
 }
