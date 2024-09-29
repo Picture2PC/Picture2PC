@@ -103,7 +103,7 @@ open class MulticastTcpDefaultDataTransmitter(
         }
 
         tcpPayloadTransceiver.connectedPeers.onEach { it ->
-            it.onEach {
+            it.forEach {
                 if (!uuidNameMap.containsKey(it.uuid)) {
                     requestNameTcpPeer(it)
                     newUUidName(it.uuid, "Unknown")

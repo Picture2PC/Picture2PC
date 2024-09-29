@@ -24,7 +24,8 @@ import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
 fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
@@ -34,7 +35,8 @@ fun getCurrentIndex(currentIndex: Int, totalPictures: Int): String {
 
 @Composable
 fun ImageInteractionButtons(
-    pDVM: PictureDisplayViewModel = rememberKoinInject()
+    pDVM: PictureDisplayViewModel = rememberKoinInject(),
+    mDVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val spacerSize: Modifier = Modifier.size(Spacers.SMALL)
     val currentIndex = pDVM.selectedPictureIndex.collectAsState().value
@@ -47,8 +49,8 @@ fun ImageInteractionButtons(
                 icon = Icons.Desktop.RESET,
                 buttonModifier = Modifier.width(75.dp)
             ) {
-                pDVM.pP.resetEditedBitmap()
-                pDVM.movementHandler.clear()
+                pDVM.reset()
+                mDVM.clear()
             }
             Spacer(spacerSize)
 
@@ -81,10 +83,8 @@ fun ImageInteractionButtons(
         Column(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
             Button(
                 onClick = {
-                    if (pDVM.movementHandler.clicks.value.size != 4) return@Button
-                    pDVM.pP.crop(pDVM.movementHandler.clicks.value)
-                    pDVM.pP.contrast()
-                    pDVM.pP.copy()
+                    if (mDVM.clicks.value.size != 4) return@Button
+                    pDVM.doAll()
                 },
                 Modifier.fillMaxWidth().height(Heights.BUTTON),
                 shape = Shapes.BUTTON,
@@ -102,21 +102,19 @@ fun ImageInteractionButtons(
                 TooltipIconButton(
                     description = Descriptions.CONTRAST,
                     icon = Icons.Desktop.CONTRAST
-                ) { pDVM.pP.contrast() }
-                Spacer(Modifier.weight(1f))
-
-                TooltipIconButton(
-                    description = Descriptions.COPY,
-                    icon = Icons.Desktop.COPY
-                ) { pDVM.pP.copy() }
+                ) { pDVM.contrast() }
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
                     description = Descriptions.CROP,
                     icon = Icons.Desktop.CROP
-                ) {
-                    pDVM.pP.crop(pDVM.movementHandler.clicks.value)
-                }
+                ) { pDVM.crop() }
+                Spacer(Modifier.weight(1f))
+
+                TooltipIconButton(
+                    description = Descriptions.COPY,
+                    icon = Icons.Desktop.COPY
+                ) { pDVM.copy() }
                 Spacer(Modifier.weight(1f))
             }
         }

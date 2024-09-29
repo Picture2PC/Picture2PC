@@ -5,12 +5,13 @@ import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.SimpleMulticastSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.net.InetSocketAddress
 
 val multicastModule = module {
-    single(named("multicastCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
+    single(named("multicastCoroutineScope")) { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 
     single { MulticastPayloadTransceiver(get(named("multicastCoroutineScope")), get()) }
     factory {

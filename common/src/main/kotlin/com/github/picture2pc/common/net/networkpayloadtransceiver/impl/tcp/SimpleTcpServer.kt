@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
@@ -32,6 +34,8 @@ class SimpleTcpServer(
 
     val _receivedNetworkPackets = MutableSharedFlow<Payload>(0, 1)
     val receivedNetworkPackets: SharedFlow<Payload> = _receivedNetworkPackets.asSharedFlow()
+
+    private val lock = Mutex()
 
     private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
     val connectedPeers: StateFlow<List<Peer>> = _connectedPeers.asStateFlow()
@@ -64,18 +68,29 @@ class SimpleTcpServer(
                 return false
             }
         val client = SimpleTcpClient(backgroundScope, ioDispatcher, peer, jvmSocket)
+        if (!isAvailable || checkPeer(peer)) {
+            client.disconnect()
+            return false
+        }
         addPeer(peer, client)
         client.startReceiving()
         return true
     }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
-        if (!isAvailable || checkPeer(peer)) return false
-        val client = SimpleTcpClient(backgroundScope, ioDispatcher, peer)
-        if (!coroutineScope {
-                return@coroutineScope client.connect(inetSocketAddress)
+        val client: SimpleTcpClient
+        lock.withLock {
+            if (!isAvailable || checkPeer(peer)) return false
+            client = SimpleTcpClient(
+                backgroundScope,
+                ioDispatcher,
+                peer,
+                withContext(ioDispatcher) { java.net.Socket() })
+            addPeer(peer, client)
+        }
+        if (!withContext(ioDispatcher) {
+                return@withContext client.connect(inetSocketAddress)
             }) return false
-        addPeer(peer, client)
         client.startReceiving()
         return true
     }
@@ -119,12 +134,12 @@ class SimpleTcpServer(
 
     private fun removePeer(peer: Peer) {
         peerToClientMap.remove(peer)
-        _connectedPeers.value = peerToClientMap.keys.toList()
+        _connectedPeers.value = emptyList<Peer>() + peerToClientMap.keys
     }
 
     private fun checkPeer(peer: Peer): Boolean {
         if (peerToClientMap.containsKey(peer)) {
-            if (!peerToClientMap[peer]!!.isConnected) {
+            if (peerToClientMap[peer]!!.clientStateFlow.value is ClientState.DISCONNECTED) {
                 removePeer(peer)
                 return false
             }

@@ -2,6 +2,7 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicas
 
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.payload.PayloadInfo
+import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.data.serialization.asByteArray
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.extentions.getDefaultNetworkInterface
@@ -86,6 +87,8 @@ class SimpleMulticastSocket(
             return null
         }
         val payload = Payload.fromByteArray(datagramPacket.data)
+        if (payload.sourcePeer == Peer.getSelf())
+            return null
         payload.receivedPayloadInfo =
             PayloadInfo(
                 InetSocketAddress(
