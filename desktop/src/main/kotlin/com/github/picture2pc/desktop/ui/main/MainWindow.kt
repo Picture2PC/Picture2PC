@@ -7,14 +7,11 @@ import androidx.compose.ui.window.rememberWindowState
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.desktop.ui.util.getIcon
-import java.awt.Toolkit
 
 @Composable
 fun MainWindow(
     onCloseRequest: () -> Unit
 ) {
-    val screenSize = Toolkit.getDefaultToolkit().screenSize
-
     Window(
         onCloseRequest = onCloseRequest,
         icon = getIcon(Icons.Logo.STANDARD),
