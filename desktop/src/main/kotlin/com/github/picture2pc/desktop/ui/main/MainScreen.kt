@@ -26,15 +26,14 @@ import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import org.koin.compose.rememberKoinInject
-
 
 @Composable
 fun MainScreen(
-    pDVM: PictureDisplayViewModel = rememberKoinInject()
+    mDVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
-    val draggingSpeed = remember { pDVM.movementHandler.draggingSpeed }
+    val draggingSpeed = remember { mDVM.draggingSpeed }
 
     Box(
         Modifier
@@ -59,7 +58,7 @@ fun MainScreen(
                 ) {
                     Box(
                         Modifier
-                            .rotate(pDVM.rotationState.value.angle)
+                            .rotate(mDVM.rotationState.value.angle)
                             .padding(Spacers.NORMAL)
                             .fillMaxSize(),
                         Alignment.Center
@@ -74,8 +73,8 @@ fun MainScreen(
                             icon = Icons.Desktop.ROTATE_LEFT,
                             color = Colors.ACCENT,
                         ) {
-                            pDVM.rotationState.value =
-                                pDVM.rotationState.value.next(false)
+                            mDVM.rotationState.value =
+                                mDVM.rotationState.value.next(false)
                         }
                         Spacer(Modifier.width(Spacers.SMALL))
 
@@ -84,8 +83,8 @@ fun MainScreen(
                             icon = Icons.Desktop.ROTATE_RIGHT,
                             color = Colors.ACCENT,
                         ) {
-                            pDVM.rotationState.value =
-                                pDVM.rotationState.value.next(true)
+                            mDVM.rotationState.value =
+                                mDVM.rotationState.value.next(true)
                         }
                     }
                 }

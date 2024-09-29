@@ -33,7 +33,7 @@ class SimpleTcpClient(
     private val backgroundScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     override val peer: Peer,
-    private val jvmSocket: Socket = Socket(),
+    private val jvmSocket: Socket,
 ) : Client() //, DefaultDataPayloadTransceiver()
 {
     private var timeoutJob: Job? = null
@@ -61,9 +61,10 @@ class SimpleTcpClient(
     private fun getTimeoutJob(): Job {
         return backgroundScope.launch {
             delay(TcpConstants.PINGTIME)
-            sendMessage(TcpPayload.Ping(peer))
-            delay(TcpConstants.PINGTIMEOUT - TcpConstants.PINGTIME)
-            _clientStateFlow.value = ClientState.DISCONNECTED.TIMEOUT
+            if (sendMessage(TcpPayload.Ping(peer))) {
+                delay(TcpConstants.PINGTIMEOUT - TcpConstants.PINGTIME)
+                _clientStateFlow.value = ClientState.DISCONNECTED.TIMEOUT
+            }
         }
     }
 
@@ -111,7 +112,7 @@ class SimpleTcpClient(
             _clientStateFlow.value = ClientState.CONNECTED
         }.onFailure {
             _clientStateFlow.value =
-                ClientState.DISCONNECTED.ERROR_WHILE_SENDING(it.message ?: "")
+                ClientState.DISCONNECTED.ERROR_WHILE_SENDING("Error: ${it.message} while sending message $message")
             return false
         }
         return true
@@ -119,6 +120,7 @@ class SimpleTcpClient(
 
     private suspend fun close() {
         kotlin.runCatching {
+            timeoutJob?.cancelAndJoin()
             withContext(ioDispatcher) {
                 jvmSocket.close()
             }
@@ -129,7 +131,7 @@ class SimpleTcpClient(
         close()
     }
 
-    suspend fun receivePacket(): Payload? {
+    private suspend fun receivePacket(): Payload? {
         try {
             val sizeBuff = ByteArray(1024)
             var offset = 0
