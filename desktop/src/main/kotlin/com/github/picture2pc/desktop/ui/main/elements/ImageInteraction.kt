@@ -81,17 +81,15 @@ fun ImageInteractionButtons(
         Spacer(modifier = Modifier.height(Spacers.NORMAL))
 
         Column(Modifier.background(Colors.PRIMARY, Shapes.BUTTON)) {
-            Row {
-                Button(
-                    onClick = {
-                        if (mDVM.clicks.value.size != 4) return@Button
-                        pDVM.doAll()
-                    },
-                    Modifier.fillMaxWidth().height(Heights.BUTTON),
-                    shape = Shapes.BUTTON,
-                    colors = Colors.BUTTON_SECONDARY,
-                ) { Text("Do All", style = TextStyles.NORMAL) }
-            }
+            Button(
+                onClick = {
+                    if (mDVM.clicks.value.size != 4) return@Button
+                    pDVM.doAll()
+                },
+                Modifier.fillMaxWidth().height(Heights.BUTTON),
+                shape = Shapes.BUTTON,
+                colors = Colors.BUTTON_SECONDARY,
+            ) { Text("Do All", style = TextStyles.NORMAL) }
 
             Divider(
                 Modifier.padding(horizontal = Spacers.NORMAL),
@@ -108,15 +106,15 @@ fun ImageInteractionButtons(
                 Spacer(Modifier.weight(1f))
 
                 TooltipIconButton(
-                    description = Descriptions.COPY,
-                    icon = Icons.Desktop.COPY
-                ) { pDVM.copy() }
-                Spacer(Modifier.weight(1f))
-
-                TooltipIconButton(
                     description = Descriptions.CROP,
                     icon = Icons.Desktop.CROP
                 ) { pDVM.crop() }
+                Spacer(Modifier.weight(1f))
+
+                TooltipIconButton(
+                    description = Descriptions.COPY,
+                    icon = Icons.Desktop.COPY
+                ) { pDVM.copy() }
                 Spacer(Modifier.weight(1f))
             }
         }

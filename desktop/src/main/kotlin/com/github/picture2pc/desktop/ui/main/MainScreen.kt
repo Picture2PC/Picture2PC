@@ -27,12 +27,11 @@ import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
-import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
+
 
 @Composable
 fun MainScreen(
-    pDVM: PictureDisplayViewModel = rememberKoinInject(),
     mDVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val draggingSpeed = remember { mDVM.draggingSpeed }
@@ -45,13 +44,13 @@ fun MainScreen(
         Row(
             Modifier.padding(10.dp).fillMaxSize()
         ) {
-            Column { Sidebar() }
+            Sidebar()
             Spacer(Modifier.width(Spacers.NORMAL))
 
             // Picture Display Area
             Box(Modifier.fillMaxSize()) {
                 // Picture Display
-                Column(
+                Box(
                     Modifier.border(
                         Borders.BORDER_STANDARD,
                         Colors.PRIMARY,

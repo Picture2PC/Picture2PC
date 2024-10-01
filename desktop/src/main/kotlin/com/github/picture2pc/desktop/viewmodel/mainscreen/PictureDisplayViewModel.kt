@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
+import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +43,8 @@ class PictureDisplayViewModel(
 
         selectedPictureIndex.value = newIndex
         setPicture(pictures.replayCache[newIndex])
+
+        mHVM.rotationState.value = RotationState.ROTATION_0
     }
 
     private fun setPicture(payload: TcpPayload.Picture) {
@@ -51,7 +54,7 @@ class PictureDisplayViewModel(
         if (payload.corners == null) return
         mHVM.clear()
         mHVM.setClicks((payload.corners ?: return).map {
-            Offset(it.first - 0.5f, it.second - 0.5f)
+            Offset(it.first, it.second)
         })
     }
 
@@ -73,6 +76,7 @@ class PictureDisplayViewModel(
 
     fun crop() {
         pP.crop(mHVM.clicks.value, displayPictureSize)
+        mHVM.clear()
     }
 
     fun contrast() {
