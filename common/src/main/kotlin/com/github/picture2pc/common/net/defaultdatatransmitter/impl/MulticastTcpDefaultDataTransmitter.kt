@@ -108,14 +108,14 @@ open class MulticastTcpDefaultDataTransmitter(
                     requestNameTcpPeer(it)
                 }
             }
-            _connectedDevices.value = it.map {
+            _connectedDevices.emit(it.map {
                 DefaultDevice(
                     uuidNameMap[it.uuid]!!,
                     tcpPayloadTransceiver.getPeerStateAsStateFlow(it) ?: MutableStateFlow(
                         ClientState.DISCONNECTED.NO_ERROR
                     )
                 )
-            }
+            })
         }.launchIn(backgroundScope)
     }
 

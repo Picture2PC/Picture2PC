@@ -25,13 +25,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.serialization.ExperimentalSerializationApi
 import java.net.InetSocketAddress
 import java.net.Socket
 import kotlin.math.max
 import kotlin.math.min
 
-@OptIn(ExperimentalSerializationApi::class)
 class SimpleTcpClient(
     private val backgroundScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
@@ -51,8 +49,8 @@ class SimpleTcpClient(
     init {
         if (jvmSocket.isConnected) {
             isServer = true
-            _clientStateFlow.value = ClientState.SUSPENDED
             backgroundScope.launch {
+                _clientStateFlow.emit(ClientState.SUSPENDED)
                 startListen()
             }
         } else {
@@ -92,7 +90,7 @@ class SimpleTcpClient(
                         sendPing()
                         timout = true
                     } else
-                        _clientStateFlow.value = ClientState.DISCONNECTED.TIMEOUT
+                        _clientStateFlow.emit(ClientState.DISCONNECTED.TIMEOUT)
                 }
             }
         }
@@ -106,15 +104,16 @@ class SimpleTcpClient(
                         jvmSocket.connect(inetSocketAddress)
                     }
                 }.onFailure {
-                    _clientStateFlow.value =
+                    _clientStateFlow.emit(
                         ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING(it.message ?: "")
+                    )
                     return@withTimeoutOrNull false
                 }
                 return@withTimeoutOrNull true
             }) {
             false -> return false
             null -> {
-                _clientStateFlow.value = ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout")
+                _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout"))
                 return false
             }
             true -> {
@@ -126,7 +125,7 @@ class SimpleTcpClient(
     }
 
     suspend fun sendMessage(message: Payload): Boolean {
-        val data = message.getByteArray()
+        val data = message.getByteArray() // TODO put outside of the coroutine
         var size = 0
         val packetSize = max(data.size / 100, MAX_PACKET_SIZE)
         val prevState = _clientStateFlow.value
@@ -135,14 +134,15 @@ class SimpleTcpClient(
                 //send data in 100 steps
                 while (size < data.size) {
                     jvmSocket.getOutputStream().write(data, size, min(data.size - size, packetSize))
-                    _clientStateFlow.value = ClientState.SENDING_PAYLOAD(size / data.size.toFloat())
+                    _clientStateFlow.emit(ClientState.SENDING_PAYLOAD(size / data.size.toFloat()))
                     size += min(data.size - size, packetSize)
                 }
             }
-            _clientStateFlow.value = prevState
+            _clientStateFlow.emit(prevState)
         }.onFailure {
-            _clientStateFlow.value =
+            _clientStateFlow.emit(
                 ClientState.DISCONNECTED.ERROR_WHILE_SENDING("Error: ${it.message} while sending message $message")
+            )
             return false
         }
         return true
@@ -178,9 +178,11 @@ class SimpleTcpClient(
             var copied = 0
             withContext(ioDispatcher) {
                 while (copied < size) {
-                    _clientStateFlow.value = ClientState.RECEIVING_PAYLOAD(
+                    _clientStateFlow.emit(
+                        ClientState.RECEIVING_PAYLOAD(
                         type,
                         copied / size.toFloat()
+                        )
                     )
                     copied += jvmSocket.getInputStream()
                         .read(byteArray, copied, size - copied)
@@ -189,10 +191,10 @@ class SimpleTcpClient(
             val pay = Payload.fromByteArray(byteArray)
             if (peer.isAny)
                 peer = pay.sourcePeer
-            _clientStateFlow.value = ClientState.CONNECTED
+            _clientStateFlow.emit(ClientState.CONNECTED)
             return pay
         } catch (e: Exception) {
-            _clientStateFlow.value = ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(e.message ?: "")
+            _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(e.message ?: ""))
             return null
         }
     }
