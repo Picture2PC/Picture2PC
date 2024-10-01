@@ -10,14 +10,19 @@ import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.data.serialization.getByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.MAX_PACKET_SIZE
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PINGTIME
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PINGTIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.net.InetSocketAddress
@@ -63,6 +68,28 @@ class SimpleTcpClient(
                     sendMessage(TcpPayload.Pong(peer))
                 }
                 _receivedPayloads.emit(payload)
+            }
+        }
+
+        backgroundScope.launch {
+            var timout = false
+            while (backgroundScope.isActive) {
+                kotlin.runCatching {
+                    while (backgroundScope.isActive) {
+                        withTimeout(if (isServer) PINGTIME else PINGTIMEOUT) {
+                            kotlin.runCatching {
+                                clientStateFlow.single()
+                            }
+                            timout = false
+                        }
+                    }
+                }.onFailure {
+                    if (isServer && !timout) {
+                        sendPing()
+                        timout = true
+                    } else
+                        _clientStateFlow.value = ClientState.DISCONNECTED.TIMEOUT
+                }
             }
         }
     }
@@ -127,6 +154,7 @@ class SimpleTcpClient(
 
     suspend fun disconnect() {
         close()
+        backgroundScope.cancel()
     }
 
     private suspend fun receivePacket(): Payload? {
