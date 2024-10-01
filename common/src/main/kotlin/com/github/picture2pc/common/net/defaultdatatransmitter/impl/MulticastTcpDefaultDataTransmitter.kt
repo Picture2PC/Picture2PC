@@ -52,7 +52,6 @@ open class MulticastTcpDefaultDataTransmitter(
                             newUUidName(serverPreferences.name.value, payload.clientName)
                             backgroundScope.launch {
                                 emitServerOnline(serverPreferences.name.value)
-                                tcpPayloadTransceiver.connect(payload.sourcePeer)
                             }
                         }
                     }

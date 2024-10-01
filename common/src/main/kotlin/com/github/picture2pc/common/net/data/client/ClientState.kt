@@ -11,6 +11,9 @@ sealed class ClientState(val color: Color, val displayName: String) {
     object CONNECTED :
         ClientState(StateColors.CONNECTED, "Connected")
 
+    object SUSPENDED :
+        ClientState(StateColors.SUSPENDED, "Suspended")
+
     data class SENDING_PAYLOAD(val percentage: Float) :
         ClientState(StateColors.RECEIVING, "Sending")
 

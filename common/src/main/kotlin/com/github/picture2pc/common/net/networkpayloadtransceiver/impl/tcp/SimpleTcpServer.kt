@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -54,11 +56,17 @@ class SimpleTcpServer(
             jvmServerSocket.bind(InetSocketAddress("0.0.0.0", 0))
             jvmServerSocket.soTimeout = 1000
         }
+        backgroundScope.launch {
+            while (true) {
+                if (!isAvailable) delay(1000)
+                accept()
+            }
+        }
     }
 
 
-    suspend fun accept(peer: Peer): Boolean {
-        if (!isAvailable || checkPeer(peer)) return false
+    private suspend fun accept(): Boolean {
+        if (!isAvailable) return false
         val jvmSocket =
             try {
                 withTimeout(CONNECION_TIMEOUT) {
@@ -67,13 +75,13 @@ class SimpleTcpServer(
             } catch (e: Exception) {
                 return false
             }
-        val client = SimpleTcpClient(backgroundScope, ioDispatcher, peer, jvmSocket)
-        if (!isAvailable || checkPeer(peer)) {
-            client.disconnect()
-            return false
-        }
-        addPeer(peer, client)
-        client.startReceiving()
+        val client = SimpleTcpClient(backgroundScope, ioDispatcher, jvmSocket)
+        client.clientStateFlow.onEach {
+            if (it is ClientState.CONNECTED) {
+                if (!checkPeer(client.peer))
+                    addPeer(client.peer, client)
+            }
+        }.launchIn(backgroundScope)
         return true
     }
 
@@ -84,15 +92,12 @@ class SimpleTcpServer(
             client = SimpleTcpClient(
                 backgroundScope,
                 ioDispatcher,
-                peer,
                 withContext(ioDispatcher) { java.net.Socket() })
             addPeer(peer, client)
         }
-        if (!withContext(ioDispatcher) {
-                return@withContext client.connect(inetSocketAddress)
-            }) return false
-        client.startReceiving()
-        return true
+        return withContext(ioDispatcher) {
+            return@withContext client.connect(inetSocketAddress)
+        }
     }
 
     suspend fun sendPayload(payload: Payload): Boolean {
@@ -121,12 +126,6 @@ class SimpleTcpServer(
     private fun addPeer(peer: Peer, client: SimpleTcpClient) {
         peerToClientMap[peer] = client
         _connectedPeers.value = peerToClientMap.keys.toList()
-        client.clientStateFlow.onEach {
-            if (it is ClientState.DISCONNECTED) {
-                client.disconnect()
-                removePeer(peer)
-            }
-        }.launchIn(backgroundScope)
         client.receivedPayloads.onEach {
             _receivedNetworkPackets.tryEmit(it)
         }.launchIn(backgroundScope)
