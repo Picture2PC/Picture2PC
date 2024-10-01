@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.swing.JOptionPane
 
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
@@ -28,6 +29,7 @@ class PictureDisplayViewModel(
     init {
         pictures.onEach {
             if (totalPictures.value == 0) setPicture(it)
+            JOptionPane.showMessageDialog(null, "Picture received", "Info", JOptionPane.PLAIN_MESSAGE)
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }

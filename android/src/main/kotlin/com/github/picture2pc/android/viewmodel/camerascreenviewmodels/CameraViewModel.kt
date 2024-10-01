@@ -1,6 +1,7 @@
 package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
-    private val dataTransmitter: DataTransmitter
+    private val dataTransmitter: DataTransmitter,
 ) : ViewModel() {
     val takenImage: SharedFlow<Bitmap>
         get() {
@@ -50,7 +51,8 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun sendImage() {
+    fun sendImage(context : android.content.Context) {
+        var imgsent = false
         viewModelScope.launch {
             dataTransmitter.sendPicture(
                 TcpPayload.Picture(
@@ -58,7 +60,10 @@ class CameraViewModel(
                     lastCorners
                 )
             )
+            imgsent = true
+            Toast.makeText(context, "Image sent", Toast.LENGTH_SHORT).show()
         }
+        if(imgsent == false) Toast.makeText(context, "Image not sent", Toast.LENGTH_SHORT).show()
     }
 
     fun switchFlashMode() {
