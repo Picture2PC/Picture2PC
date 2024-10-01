@@ -61,7 +61,7 @@ class SimpleTcpServer(
         backgroundScope.launch {
             while (true) {
                 if (!isAvailable) delay(1000)
-                accept()
+                kotlin.runCatching { accept() }
             }
         }
     }
