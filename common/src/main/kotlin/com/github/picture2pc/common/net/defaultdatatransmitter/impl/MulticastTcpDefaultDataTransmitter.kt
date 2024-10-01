@@ -83,7 +83,7 @@ open class MulticastTcpDefaultDataTransmitter(
                     }
 
                     is TcpPayload.Picture -> {
-                        _pictures.tryEmit(it)
+                        _pictures.emit(it)
                     }
 
                     else -> {}
@@ -104,8 +104,8 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.connectedPeers.onEach { it ->
             it.forEach {
                 if (!uuidNameMap.containsKey(it.uuid)) {
-                    requestNameTcpPeer(it)
                     newUUidName(it.uuid, "Unknown")
+                    requestNameTcpPeer(it)
                 }
             }
             _connectedDevices.value = it.map {
@@ -123,9 +123,9 @@ open class MulticastTcpDefaultDataTransmitter(
         emitListServers()
     }
 
-    private fun newUUidName(uuid: String, name: String) {
+    private suspend fun newUUidName(uuid: String, name: String) {
         if (uuidNameMap.containsKey(uuid))
-            uuidNameMap[uuid]?.value = name
+            uuidNameMap[uuid]?.emit(name)
         else
             uuidNameMap[uuid] = MutableStateFlow(name)
     }

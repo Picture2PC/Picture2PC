@@ -36,7 +36,7 @@ class SimpleTcpServer(
     private lateinit var jvmServerSocket: java.net.ServerSocket
     private val peerToClientMap = mutableMapOf<Peer, SimpleTcpClient>()
 
-    val _receivedNetworkPackets = MutableSharedFlow<Payload>(0, 1)
+    val _receivedNetworkPackets = MutableSharedFlow<Payload>()
     val receivedNetworkPackets: SharedFlow<Payload> = _receivedNetworkPackets.asSharedFlow()
 
     private val lock = Mutex()
@@ -132,12 +132,12 @@ class SimpleTcpServer(
         return peerToClientMap.getOrDefault(peer, null)?.clientStateFlow
     }
 
-    private fun addPeer(peer: Peer, client: SimpleTcpClient) {
-        peerToClientMap[peer] = client
-        _connectedPeers.value = peerToClientMap.keys.toList()
+    private suspend fun addPeer(peer: Peer, client: SimpleTcpClient) {
         client.receivedPayloads.onEach {
-            _receivedNetworkPackets.tryEmit(it)
+            _receivedNetworkPackets.emit(it)
         }.launchIn(backgroundScope)
+        peerToClientMap[peer] = client
+        _connectedPeers.emit(peerToClientMap.keys.toList())
     }
 
     private suspend fun removePeer(peer: Peer) {

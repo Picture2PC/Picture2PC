@@ -14,6 +14,7 @@ import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpCo
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PINGTIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,12 +38,15 @@ class SimpleTcpClient(
     private val jvmSocket: Socket
 ) : Client()
 {
-    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow(0, 1)
+    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
     override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
     override var peer: Peer = Peer.any()
 
     private var isServer = false
     private var trusted: Boolean = false
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val singleIODispatcher = ioDispatcher.limitedParallelism(1)
 
     init {
         if (jvmSocket.isConnected) {
@@ -127,7 +131,7 @@ class SimpleTcpClient(
         val packetSize = max(data.size / 100, MAX_PACKET_SIZE)
         val prevState = _clientStateFlow.value
         kotlin.runCatching {
-            withContext(ioDispatcher) {
+            withContext(singleIODispatcher) {
                 //send data in 100 steps
                 while (size < data.size) {
                     jvmSocket.getOutputStream().write(data, size, min(data.size - size, packetSize))
