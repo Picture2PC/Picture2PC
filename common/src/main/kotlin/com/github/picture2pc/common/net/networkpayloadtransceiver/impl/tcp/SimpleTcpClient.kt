@@ -111,10 +111,7 @@ class SimpleTcpClient(
                 }
                 return@withTimeoutOrNull true
             }) {
-            false -> {
-                _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Failed to connect"))
-                return false
-            }
+            false -> return false
             null -> {
                 _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout"))
                 return false
