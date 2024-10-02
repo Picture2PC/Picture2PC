@@ -7,6 +7,7 @@ import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpCo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
@@ -36,7 +38,7 @@ class SimpleTcpServer(
     private lateinit var jvmServerSocket: java.net.ServerSocket
     private val peerToClientMap = mutableMapOf<Peer, SimpleTcpClient>()
 
-    val _receivedNetworkPackets = MutableSharedFlow<Payload>()
+    private val _receivedNetworkPackets = MutableSharedFlow<Payload>(0, 1)
     val receivedNetworkPackets: SharedFlow<Payload> = _receivedNetworkPackets.asSharedFlow()
 
     private val lock = Mutex()
@@ -83,7 +85,7 @@ class SimpleTcpServer(
                     addPeer(client.peer, client)
             }
             if (it is ClientState.DISCONNECTED) {
-                removePeer(client.peer)
+                removePeer(client.peer, client)
             }
         }.launchIn(backgroundScope)
         return true
@@ -101,7 +103,7 @@ class SimpleTcpServer(
         }
         client.clientStateFlow.onEach {
             if (it is ClientState.DISCONNECTED) {
-                removePeer(peer)
+                removePeer(peer, client)
             }
         }.launchIn(backgroundScope)
         return withContext(ioDispatcher) {
@@ -134,23 +136,23 @@ class SimpleTcpServer(
 
     private suspend fun addPeer(peer: Peer, client: SimpleTcpClient) {
         client.receivedPayloads.onEach {
+            println(it)
             _receivedNetworkPackets.emit(it)
         }.launchIn(backgroundScope)
         peerToClientMap[peer] = client
         _connectedPeers.emit(peerToClientMap.keys.toList())
     }
 
-    private suspend fun removePeer(peer: Peer) {
-        val client = peerToClientMap[peer] ?: return
+    private suspend fun removePeer(peer: Peer, client: SimpleTcpClient) {
         client.disconnect()
         peerToClientMap.remove(peer)
-        _connectedPeers.value = emptyList<Peer>() + peerToClientMap.keys
+        _connectedPeers.emit(emptyList<Peer>() + peerToClientMap.keys)
     }
 
     private suspend fun checkPeer(peer: Peer): Boolean {
         if (peerToClientMap.containsKey(peer)) {
             if (peerToClientMap[peer]!!.clientStateFlow.value is ClientState.DISCONNECTED) {
-                removePeer(peer)
+                removePeer(peer, peerToClientMap[peer]!!)
                 return false
             }
             return true

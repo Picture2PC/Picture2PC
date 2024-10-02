@@ -36,7 +36,7 @@ class SimpleTcpClient(
     private val jvmSocket: Socket
 ) : Client()
 {
-    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
+    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow(0, 1)
     override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
     override var peer: Peer = Peer.any()
 

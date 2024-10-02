@@ -32,7 +32,7 @@ open class MulticastTcpDefaultDataTransmitter(
     val pictures: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
-        const val TIME_BETWEEN_ONLINE_EMIT = 2000L
+        const val TIME_BETWEEN_ONLINE_EMIT = 5000L
     }
 
     private val uuidNameMap = mutableMapOf<String, MutableStateFlow<String>>()
