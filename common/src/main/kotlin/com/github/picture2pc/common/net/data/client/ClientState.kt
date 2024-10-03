@@ -31,6 +31,8 @@ sealed class ClientState(val color: Color, val displayName: String) {
         object TIMEOUT :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected due to timeout")
 
+        object ALREADY_CONNECTED : DISCONNECTED(StateColors.DISCONNECTED, "Already connected")
+
         class OTHER_ERROR(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error")
 

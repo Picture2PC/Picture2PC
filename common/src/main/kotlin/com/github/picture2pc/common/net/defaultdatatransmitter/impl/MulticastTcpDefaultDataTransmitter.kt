@@ -101,14 +101,14 @@ open class MulticastTcpDefaultDataTransmitter(
             }
         }
 
-        tcpPayloadTransceiver.connectedPeers.onEach { it ->
-            it.forEach {
+        tcpPayloadTransceiver.connectedPeers.onEach { connected ->
+            connected.forEach {
                 if (!uuidNameMap.containsKey(it.uuid)) {
                     newUUidName(it.uuid, "Unknown")
                     requestNameTcpPeer(it)
                 }
             }
-            _connectedDevices.emit(it.map {
+            _connectedDevices.emit(connected.map {
                 DefaultDevice(
                     uuidNameMap[it.uuid]!!,
                     tcpPayloadTransceiver.getPeerStateAsStateFlow(it) ?: MutableStateFlow(

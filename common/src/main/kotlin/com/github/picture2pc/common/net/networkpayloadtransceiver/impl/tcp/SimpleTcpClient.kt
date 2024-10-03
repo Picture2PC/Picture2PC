@@ -16,9 +16,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -36,8 +37,8 @@ class SimpleTcpClient(
     private val jvmSocket: Socket
 ) : Client()
 {
-    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow(0, 1)
-    override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
+    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
+    override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads
     override var peer: Peer = Peer.any()
 
     private var isServer = false
@@ -51,7 +52,6 @@ class SimpleTcpClient(
             isServer = true
             backgroundScope.launch {
                 _clientStateFlow.emit(ClientState.SUSPENDED)
-                startListen()
             }
         } else {
             trusted = true
@@ -62,17 +62,7 @@ class SimpleTcpClient(
         sendMessage(TcpPayload.Ping(Peer.any()))
     }
 
-    private fun startListen() {
-        backgroundScope.launch {
-            while (backgroundScope.isActive) {
-                val payload = receivePacket() ?: continue
-                if (payload is TcpPayload.Ping) {
-                    sendMessage(TcpPayload.Pong(peer))
-                }
-                _receivedPayloads.emit(payload)
-            }
-        }
-
+    fun startTimeout() {
         backgroundScope.launch {
             var timout = false
             while (backgroundScope.isActive) {
@@ -90,9 +80,19 @@ class SimpleTcpClient(
                         sendPing()
                         timout = true
                     } else
-                        _clientStateFlow.emit(ClientState.DISCONNECTED.TIMEOUT)
+                        disconnect(ClientState.DISCONNECTED.TIMEOUT)
                 }
             }
+        }
+    }
+
+    fun startListen(): Flow<Payload> = flow {
+        while (backgroundScope.isActive) {
+            val payload = receivePacket() ?: break
+            if (payload is TcpPayload.Ping) {
+                sendMessage(TcpPayload.Pong(peer))
+            }
+            emit(payload)
         }
     }
 
@@ -104,7 +104,7 @@ class SimpleTcpClient(
                         jvmSocket.connect(inetSocketAddress)
                     }
                 }.onFailure {
-                    _clientStateFlow.emit(
+                    disconnect(
                         ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING(it.message ?: "")
                     )
                     return@withTimeoutOrNull false
@@ -113,11 +113,10 @@ class SimpleTcpClient(
             }) {
             false -> return false
             null -> {
-                _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout"))
+                disconnect(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout"))
                 return false
             }
             true -> {
-                startListen()
                 sendPing()
                 return true
             }
@@ -140,7 +139,7 @@ class SimpleTcpClient(
             }
             _clientStateFlow.emit(prevState)
         }.onFailure {
-            _clientStateFlow.emit(
+            disconnect(
                 ClientState.DISCONNECTED.ERROR_WHILE_SENDING("Error: ${it.message} while sending message $message")
             )
             return false
@@ -156,9 +155,10 @@ class SimpleTcpClient(
         }
     }
 
-    suspend fun disconnect() {
-        close()
+    private suspend fun disconnect(error: ClientState.DISCONNECTED) {
+        _clientStateFlow.emit(error)
         backgroundScope.cancel()
+        close()
     }
 
     private suspend fun receivePacket(): Payload? {
@@ -194,7 +194,7 @@ class SimpleTcpClient(
             _clientStateFlow.emit(ClientState.CONNECTED)
             return pay
         } catch (e: Exception) {
-            _clientStateFlow.emit(ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(e.message ?: ""))
+            disconnect(ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(e.message ?: ""))
             return null
         }
     }
