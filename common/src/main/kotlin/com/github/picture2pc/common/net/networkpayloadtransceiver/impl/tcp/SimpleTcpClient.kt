@@ -58,7 +58,7 @@ class SimpleTcpClient(
     }
 
     private suspend fun sendPing() {
-        sendMessage(TcpPayload.Ping(Peer.any()))
+        sendMessage(TcpPayload.Ping(Peer.any()).getByteArray())
     }
 
     fun startTimeout() {
@@ -89,7 +89,7 @@ class SimpleTcpClient(
         while (backgroundScope.isActive) {
             val payload = receivePacket() ?: break
             if (payload is TcpPayload.Ping) {
-                sendMessage(TcpPayload.Pong(peer))
+                sendMessage(TcpPayload.Pong(peer).getByteArray())
             }
             emit(payload)
         }
@@ -122,8 +122,7 @@ class SimpleTcpClient(
         }
     }
 
-    suspend fun sendMessage(message: Payload): Boolean {
-        val data = message.getByteArray() // TODO put outside of the coroutine
+    suspend fun sendMessage(data: ByteArray): Boolean {
         var size = 0
         val packetSize = max(data.size / 100, MAX_PACKET_SIZE)
         val prevState = _clientStateFlow.value
@@ -140,7 +139,7 @@ class SimpleTcpClient(
             _clientStateFlow.emit(prevState)
         }.onFailure {
             disconnect(
-                ClientState.DISCONNECTED.ERROR_WHILE_SENDING("Error: ${it.message} while sending message $message")
+                ClientState.DISCONNECTED.ERROR_WHILE_SENDING("Error: ${it.message} while sending message")
             )
             return false
         }

@@ -3,12 +3,12 @@ package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.data.serialization.getByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,21 +103,20 @@ class SimpleTcpServer(
 
     suspend fun sendPayload(payload: Payload): Boolean {
         if (!isAvailable) return false
+        val data = payload.getByteArray()
         if (payload.targetPeer.isAny) {
-            return coroutineScope {
                 val jobs = peerToClientMap.values.map {
-                    async {
-                        it.sendMessage(payload)
+                    backgroundScope.async {
+                        it.sendMessage(data)
                     }
                 }
                 jobs.forEach {
-                    if (!it.await()) return@coroutineScope false
+                    if (!it.await()) return false
                 }
-                return@coroutineScope true
-            }
+            return true
         }
         val client = peerToClientMap.getOrDefault(payload.targetPeer, null) ?: return false
-        return client.sendMessage(payload)
+        return client.sendMessage(data)
     }
 
     fun getPeerStateAsFlow(peer: Peer): StateFlow<ClientState>? {
