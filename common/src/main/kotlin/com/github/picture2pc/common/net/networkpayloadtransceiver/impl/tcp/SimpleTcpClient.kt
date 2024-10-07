@@ -42,8 +42,8 @@ class SimpleTcpClient(
     override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads
     override var peer: Peer = Peer.any()
 
-    private var isServer = false
-    private var trusted: Boolean = false
+    var isServer = false
+        private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val singleIODispatcher = ioDispatcher.limitedParallelism(1)
@@ -54,8 +54,6 @@ class SimpleTcpClient(
             backgroundScope.launch {
                 _clientStateFlow.emit(ClientState.SUSPENDED)
             }
-        } else {
-            trusted = true
         }
     }
 
@@ -157,7 +155,7 @@ class SimpleTcpClient(
         }
     }
 
-    private suspend fun disconnect(error: ClientState.DISCONNECTED) {
+    suspend fun disconnect(error: ClientState.DISCONNECTED) {
         _clientStateFlow.emit(error)
         close()
         backgroundScope.cancel()

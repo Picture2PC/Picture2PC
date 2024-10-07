@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
@@ -59,7 +60,7 @@ class SimpleTcpServer(
             jvmServerSocket.soTimeout = 1000
         }
         backgroundScope.launch {
-            while (true) {
+            while (backgroundScope.isActive) {
                 if (!isAvailable) delay(1000)
                 kotlin.runCatching { accept() }
             }
@@ -82,13 +83,21 @@ class SimpleTcpServer(
     }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
-        if (!isAvailable || checkPeer(peer)) return false
+        lock.withLock {
+            if (!isAvailable || checkPeer(peer)) return false
+        }
         val client = SimpleTcpClient(
             backgroundScope + Job(),
             ioDispatcher,
             withContext(ioDispatcher) { java.net.Socket() })
+        lock.withLock {
+            tryAddPeer(peer, client)
+        }
         val res = client.connect(inetSocketAddress)
-        addPeer(client)
+        if (res)
+            addPeer(client)
+        else
+            lock.withLock { if (peerToClientMap[peer] == client) removePeer(peer) }
         return res
     }
 
@@ -116,37 +125,52 @@ class SimpleTcpServer(
     }
 
     private fun addPeer(client: SimpleTcpClient) {
-        var added = false
+        println("This is: ${Peer.getSelf()}")
         client.clientStateFlow.onEach {
             println("Peer ${client.peer} state: $it")
         }.launchIn(backgroundScope)
         backgroundScope.launch {
             client.startTimeout()
-            try {
-                client.startListen().collect {
-                    if (!added) {
-                        lock.withLock {
-                            added = true
-                            peerToClientMap[client.peer] = client
-                            _connectedPeers.emit(peerToClientMap.keys.toList())
+            var f = true
+            client.startListen().collect {
+                if (f) {
+                    f = false
+                    if (!tryAddPeer(client.peer, client)) {
+                        if (client.isServer == client.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode())
+                            client.disconnect(ClientState.DISCONNECTED.NO_ERROR)
+                        else {
+                            lock.withLock {
+                                peerToClientMap[client.peer]?.disconnect(ClientState.DISCONNECTED.NO_ERROR)
+                                peerToClientMap[client.peer] = client
+                                _connectedPeers.emit(peerToClientMap.keys.toList())
+                            }
                         }
                     }
-                    _receivedNetworkPackets.emit(it)
                 }
-            } finally {
+                _receivedNetworkPackets.emit(it)
+            }
+            lock.withLock {
+                if (peerToClientMap[client.peer] == client)
                 removePeer(client.peer)
             }
         }
     }
 
-    private suspend fun removePeer(peer: Peer) {
-        lock.withLock {
-        peerToClientMap.remove(peer)
-            _connectedPeers.emit(peerToClientMap.keys.toList())
-        }
+    private suspend fun tryAddPeer(peer: Peer, client: SimpleTcpClient): Boolean {
+        if (checkPeer(peer))
+            return peerToClientMap[peer] == client
+        peerToClientMap[peer] = client
+        _connectedPeers.emit(peerToClientMap.keys.toList())
+        return true
     }
 
-    private fun checkPeer(peer: Peer): Boolean {
+    private suspend fun removePeer(peer: Peer) {
+        peerToClientMap.remove(peer)
+        _connectedPeers.emit(peerToClientMap.keys.toList())
+    }
+
+    private fun checkPeer(peer: Peer?): Boolean {
+        if (peer == null) return false
         return peerToClientMap.containsKey(peer)
     }
 

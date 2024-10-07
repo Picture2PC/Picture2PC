@@ -32,7 +32,7 @@ open class MulticastTcpDefaultDataTransmitter(
     val pictures: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
-        const val TIME_BETWEEN_ONLINE_EMIT = 5000L
+        const val TIME_BETWEEN_ONLINE_EMIT = 3000L
     }
 
     private val uuidNameMap = mutableMapOf<String, MutableStateFlow<String>>()
@@ -95,7 +95,7 @@ open class MulticastTcpDefaultDataTransmitter(
 
             while (isActive) {
                 if (serverPreferences.connectable.value) {
-                    emitListServers()
+                    emitServerOnline(serverPreferences.name.value)
                 }
                 kotlinx.coroutines.delay(TIME_BETWEEN_ONLINE_EMIT)
             }
