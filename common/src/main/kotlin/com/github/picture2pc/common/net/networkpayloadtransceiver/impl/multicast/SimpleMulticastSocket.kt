@@ -9,6 +9,8 @@ import com.github.picture2pc.common.net.extentions.getDefaultNetworkInterface
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.DatagramPacket
@@ -23,6 +25,7 @@ class SimpleMulticastSocket(
     private val inetSocketAddress: InetSocketAddress
 ) {
     private lateinit var jvmMulticastSocket: MulticastSocket
+    private var lock: Mutex = Mutex()
     // get network interface for local dns
 
     suspend fun start() {
@@ -71,14 +74,16 @@ class SimpleMulticastSocket(
             }
         } catch (e: SocketTimeoutException) {
             scope.launch(ioDispatcher) {
+                if (lock.isLocked)
+                    return@launch
+                lock.withLock {
                 kotlin.runCatching {
                     val new = getDefaultNetworkInterface()
-                    kotlin.runCatching {
-                        if (new != jvmMulticastSocket.networkInterface) {
-                            jvmMulticastSocket.networkInterface = new
-                            jvmMulticastSocket.joinGroup(inetSocketAddress, null)
-                        }
+                    if (new != jvmMulticastSocket.networkInterface) {
+                        jvmMulticastSocket.networkInterface = new
+                        jvmMulticastSocket.joinGroup(inetSocketAddress, null)
                     }
+                }
                 }
             }
             return null

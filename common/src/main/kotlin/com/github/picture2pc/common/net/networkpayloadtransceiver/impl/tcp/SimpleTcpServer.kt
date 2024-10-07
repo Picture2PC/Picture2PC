@@ -122,17 +122,20 @@ class SimpleTcpServer(
         }.launchIn(backgroundScope)
         backgroundScope.launch {
             client.startTimeout()
-            client.startListen().collect {
-                if (!added) {
-                    lock.withLock {
-                        added = true
-                        peerToClientMap[client.peer] = client
-                        _connectedPeers.emit(peerToClientMap.keys.toList())
+            try {
+                client.startListen().collect {
+                    if (!added) {
+                        lock.withLock {
+                            added = true
+                            peerToClientMap[client.peer] = client
+                            _connectedPeers.emit(peerToClientMap.keys.toList())
+                        }
                     }
+                    _receivedNetworkPackets.emit(it)
                 }
-                _receivedNetworkPackets.emit(it)
+            } finally {
+                removePeer(client.peer)
             }
-            removePeer(client.peer)
         }
     }
 

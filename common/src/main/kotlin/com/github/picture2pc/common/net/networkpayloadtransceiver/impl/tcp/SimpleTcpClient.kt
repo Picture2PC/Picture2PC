@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -132,6 +133,7 @@ class SimpleTcpClient(
             withContext(singleIODispatcher) {
                 //send data in 100 steps
                 while (size < data.size) {
+                    backgroundScope.ensureActive()
                     jvmSocket.getOutputStream().write(data, size, min(data.size - size, packetSize))
                     _clientStateFlow.emit(ClientState.SENDING_PAYLOAD(size / data.size.toFloat()))
                     size += min(data.size - size, packetSize)
@@ -157,8 +159,8 @@ class SimpleTcpClient(
 
     private suspend fun disconnect(error: ClientState.DISCONNECTED) {
         _clientStateFlow.emit(error)
-        backgroundScope.cancel()
         close()
+        backgroundScope.cancel()
     }
 
     private suspend fun receivePacket(): Payload? {
@@ -168,6 +170,7 @@ class SimpleTcpClient(
             withContext(ioDispatcher) {
                 do {
                     jvmSocket.getInputStream().read(sizeBuff, offset, 1)
+                    backgroundScope.ensureActive()
                 } while (sizeBuff[offset++] != Byte.MIN_VALUE)
             }
             val p = Packet.fromByteArray(sizeBuff.copyOf(offset))
@@ -178,6 +181,7 @@ class SimpleTcpClient(
             var copied = 0
             withContext(ioDispatcher) {
                 while (copied < size) {
+                    backgroundScope.ensureActive()
                     _clientStateFlow.emit(
                         ClientState.RECEIVING_PAYLOAD(
                         type,
