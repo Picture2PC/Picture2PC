@@ -83,21 +83,17 @@ class SimpleTcpServer(
     }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
-        lock.withLock {
-            if (!isAvailable || checkPeer(peer)) return false
-        }
+        if (!isAvailable || checkPeer(peer)) return false
         val client = SimpleTcpClient(
             backgroundScope + Job(),
             ioDispatcher,
             withContext(ioDispatcher) { java.net.Socket() })
-        lock.withLock {
-            tryAddPeer(peer, client)
-        }
+
+        tryAddPeer(peer, client)
         val res = client.connect(inetSocketAddress)
         if (res)
             addPeer(client)
-        else
-            lock.withLock { if (peerToClientMap[peer] == client) removePeer(peer) }
+        else if (peerToClientMap[peer] == client) removePeer(peer)
         return res
     }
 
@@ -138,34 +134,39 @@ class SimpleTcpServer(
                         if (client.isServer == client.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode())
                             client.disconnect(ClientState.DISCONNECTED.NO_ERROR)
                         else {
-                            lock.withLock {
-                                peerToClientMap[client.peer]?.disconnect(ClientState.DISCONNECTED.NO_ERROR)
+                            peerToClientMap[client.peer]?.disconnect(ClientState.DISCONNECTED.NO_ERROR)
+                            _connectedPeers.emit(lock.withLock {
                                 peerToClientMap[client.peer] = client
-                                _connectedPeers.emit(peerToClientMap.keys.toList())
-                            }
+                                return@withLock peerToClientMap.keys.toList()
+                            })
                         }
                     }
                 }
                 _receivedNetworkPackets.emit(it)
             }
-            lock.withLock {
-                if (peerToClientMap[client.peer] == client)
+            if (peerToClientMap[client.peer] == client)
                 removePeer(client.peer)
-            }
+
         }
     }
 
     private suspend fun tryAddPeer(peer: Peer, client: SimpleTcpClient): Boolean {
         if (checkPeer(peer))
             return peerToClientMap[peer] == client
+        _connectedPeers.emit(lock.withLock {
         peerToClientMap[peer] = client
-        _connectedPeers.emit(peerToClientMap.keys.toList())
+            return@withLock peerToClientMap.keys.toList()
+        }
+        )
         return true
     }
 
     private suspend fun removePeer(peer: Peer) {
-        peerToClientMap.remove(peer)
-        _connectedPeers.emit(peerToClientMap.keys.toList())
+
+        _connectedPeers.emit(lock.withLock {
+            peerToClientMap.remove(peer)
+            return@withLock peerToClientMap.keys.toList()
+        })
     }
 
     private fun checkPeer(peer: Peer?): Boolean {
