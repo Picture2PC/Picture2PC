@@ -1,6 +1,8 @@
 package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,6 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.ui.Colors
@@ -44,12 +52,21 @@ fun Sidebar(
 ) {
     val showConnections = remember { mutableStateOf(true) }
     val clientName by viewModel.clientName.collectAsState()
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         Modifier
             .fillMaxHeight()
             .width(Settings.SIDEBAR_WIDTH.dp)
             .background(Colors.SECONDARY, Shapes.WINDOW)
+            .clickable(interactionSource = interactionSource, indication = null) {
+                focusManager.clearFocus()
+                viewModel.viewModelScope.launch {
+                    serverPreferencesRepository.setName(viewModel.clientName.value)
+                }
+            }
     ) {
         // Items in the Sidebar
         Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
@@ -58,23 +75,28 @@ fun Sidebar(
 
             OutlinedTextField(
                 value = clientName,
-                onValueChange = {
-                    viewModel.saveClientName(it)
-                    viewModel.viewModelScope.launch {
-                        serverPreferencesRepository.setName(it)
-                    }
-                },
+                onValueChange = { viewModel.saveClientName(it) },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Heights.BUTTON + 10.dp),
+                    .height(Heights.BUTTON + 10.dp)
+                    .focusRequester(focusRequester),
                 singleLine = true,
                 shape = Shapes.BUTTON,
                 textStyle = TextStyles.NORMAL,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    viewModel.viewModelScope.launch {
+                        serverPreferencesRepository.setName(clientName)
+                        focusManager.clearFocus()
+                    }
+                }),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Colors.PRIMARY,
                     unfocusedBorderColor = Colors.PRIMARY,
-                    cursorColor = Colors.ACCENT,
+                    cursorColor = Colors.PRIMARY,
                     focusedLabelColor = Colors.TEXT,
                     unfocusedLabelColor = Colors.TEXT.copy(alpha = 0.8f),
                 ),
