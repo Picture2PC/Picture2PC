@@ -16,6 +16,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,12 +31,14 @@ import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.constants.Settings
+import com.github.picture2pc.desktop.viewmodel.clientviewmodel.ClientViewModel
+import org.koin.compose.rememberKoinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Sidebar() {
+fun Sidebar(viewModel: ClientViewModel = rememberKoinInject()) {
     val showConnections = remember { mutableStateOf(true) }
-    val clientName = remember { mutableStateOf("") }
+    val clientName by viewModel.clientName.collectAsState()
 
     Box(
         Modifier
@@ -48,8 +52,8 @@ fun Sidebar() {
             Spacer(Modifier.height(Spacers.LARGE))
 
             OutlinedTextField(
-                value = clientName.value,
-                onValueChange = { clientName.value = it },
+                value = clientName,
+                onValueChange = { viewModel.saveClientName(it) },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
