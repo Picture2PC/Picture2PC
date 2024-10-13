@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 
 class ClientViewModel(
     private val repository: ClientPreferencesRepository,
-    private val viewModelScope: CoroutineScope,
+    val viewModelScope: CoroutineScope,
 ) {
     val clientName: StateFlow<String> get() = repository.clientName
 

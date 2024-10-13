@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Icons
@@ -32,11 +33,15 @@ import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.viewmodel.clientviewmodel.ClientViewModel
+import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Sidebar(viewModel: ClientViewModel = rememberKoinInject()) {
+fun Sidebar(
+    viewModel: ClientViewModel = rememberKoinInject(),
+    serverPreferencesRepository: ServerPreferencesRepository = rememberKoinInject()
+) {
     val showConnections = remember { mutableStateOf(true) }
     val clientName by viewModel.clientName.collectAsState()
 
@@ -53,7 +58,12 @@ fun Sidebar(viewModel: ClientViewModel = rememberKoinInject()) {
 
             OutlinedTextField(
                 value = clientName,
-                onValueChange = { viewModel.saveClientName(it) },
+                onValueChange = {
+                    viewModel.saveClientName(it)
+                    viewModel.viewModelScope.launch {
+                        serverPreferencesRepository.setName(it)
+                    }
+                },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()

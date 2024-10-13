@@ -28,7 +28,6 @@ fun LinearThrobber2(
     travelDistance: Dp = 8.dp,
     color: Color = Style.Colors.PRIMARY
 ) {
-
     val density = LocalDensity.current
     val transition = rememberInfiniteTransition(label = "Infinite Transition")
 

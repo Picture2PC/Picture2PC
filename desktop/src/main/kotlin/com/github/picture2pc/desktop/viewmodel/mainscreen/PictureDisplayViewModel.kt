@@ -4,11 +4,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
+import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
