@@ -4,5 +4,5 @@ import java.awt.Dimension
 
 object Data {
     const val APP_NAME = "Picture2PC"
-    val MINIMUM_WINDOW_SIZE = Dimension(784, 561)
+    val MINIMUM_WINDOW_SIZE = Dimension(850, 600)
 }
