@@ -8,9 +8,9 @@ import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.desktop.data.clientpreferences.ClientPreferencesRepository
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.impl.PicturePreparationImpl
-import com.github.picture2pc.desktop.viewmodel.clientviewmodel.ClientViewModel
-import com.github.picture2pc.desktop.viewmodel.picturedisplayviewmodel.PictureDisplayViewModel
-import com.github.picture2pc.desktop.viewmodel.serversectionviewmodel.ServersSectionViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
@@ -38,4 +38,15 @@ val appModule = module {
     single<ServerPreferencesRepository> { TestServerPreferencesRepository() }
     single { ClientPreferencesRepository(File(".client_name.txt")) }
     single { ClientViewModel(get(), get(named("viewModelCoroutineScope"))) }
+    
+    single { ServersSectionViewModel(get()) }
+    single { MovementHandlerViewModel() }
+    single {
+        PictureDisplayViewModel(
+            get(named("viewModelCoroutineScope")),
+            get(),
+            get(),
+            get()
+        )
+    }
 }

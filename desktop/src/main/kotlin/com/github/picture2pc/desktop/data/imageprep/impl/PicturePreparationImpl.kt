@@ -7,10 +7,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
-import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
@@ -33,13 +33,10 @@ import org.opencv.core.Size as CvSize
 class PicturePreparationImpl : PicturePreparation {
     //Bitmaps for the original, edited, overlay and drag overlay images
     override var originalBitmap: Bitmap = Bitmap()
-
     private var _editedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var editedBitmap: State<Bitmap> = _editedBitmap
 
-    //Important other variables
     override var ratio: Float = 1f
-    override var displayPictureSize = Size(0f, 0f)
 
     override fun contrast() {
         if (editedBitmap.value.isEmpty) return
@@ -55,17 +52,16 @@ class PicturePreparationImpl : PicturePreparation {
         val bitmap = clearBitmap()
         Canvas(bitmap).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint).close()
         _editedBitmap.value = bitmap
-        updateEditedBitmap()
     }
 
-    override fun crop(clicks: List<Offset>) {
+    override fun crop(clicks: List<Offset>, displayPictureSize: Size) {
         if (clicks.size != 4) return
         if (editedBitmap.value.isEmpty) return
 
-        val tl = clicks[0].toTopLeftOrigin(displayPictureSize) * ratio // Top Left
-        val tr = clicks[1].toTopLeftOrigin(displayPictureSize) * ratio // Top Right
-        val br = clicks[2].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Right
-        val bl = clicks[3].toTopLeftOrigin(displayPictureSize) * ratio // Bottom Left
+        val tl = clicks[0].denormalize(displayPictureSize) * ratio
+        val tr = clicks[1].denormalize(displayPictureSize) * ratio
+        val br = clicks[2].denormalize(displayPictureSize) * ratio
+        val bl = clicks[3].denormalize(displayPictureSize) * ratio
 
         val widthA = sqrt((tr.x - tl.x).pow(2) + (tr.y - tl.y).pow(2))
         val widthB = sqrt((br.x - bl.x).pow(2) + (br.y - bl.y).pow(2))
@@ -110,19 +106,9 @@ class PicturePreparationImpl : PicturePreparation {
         addToClipboard(editedBitmap.value.toBufferedImage())
     }
 
-    override fun resetEditedBitmap() {
-        _editedBitmap.value = originalBitmap
-        updateEditedBitmap()
-    }
-
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
-        this.displayPictureSize = displayPictureSize
         ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
-    }
-
-    override fun updateEditedBitmap() {
-        _editedBitmap.value = editedBitmap.value.makeClone()
     }
 
     private fun clearBitmap(): Bitmap {
@@ -141,6 +127,6 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
-        resetEditedBitmap()
+        _editedBitmap.value = originalBitmap
     }
 }

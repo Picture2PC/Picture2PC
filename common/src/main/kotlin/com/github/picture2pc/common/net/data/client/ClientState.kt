@@ -28,16 +28,16 @@ sealed class ClientState(val color: Color, val displayName: String) {
         object TIMEOUT :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected due to timeout")
 
-        data class OTHER_ERROR(val errorMessage: String) :
+        class OTHER_ERROR(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error")
 
-        data class ERROR_WHILE_RECEIVING(val errorMessage: String) :
+        class ERROR_WHILE_RECEIVING(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error while receiving")
 
-        data class ERROR_WHILE_SENDING(val errorMessage: String) :
+        class ERROR_WHILE_SENDING(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error while sending")
 
-        data class ERROR_WHILE_CONNECTING(val errorMessage: String) :
+        class ERROR_WHILE_CONNECTING(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error while connecting")
     }
 }
