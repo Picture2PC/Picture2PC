@@ -8,11 +8,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -20,6 +26,7 @@ import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.desktop.data.next
+import com.github.picture2pc.desktop.extention.transpose
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
@@ -32,6 +39,7 @@ fun MainScreen(
     mDVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
     val draggingSpeed = remember { mDVM.draggingSpeed }
+    var withAndHight by remember { mutableStateOf(DpSize.Zero) }
 
     Box(
         Modifier
@@ -52,12 +60,15 @@ fun MainScreen(
                         Borders.BORDER_STANDARD,
                         Colors.PRIMARY,
                         Shapes.WINDOW
-                    )
+                    ).onGloballyPositioned {
+                        withAndHight = DpSize(it.size.width.dp, it.size.height.dp)
+                    }.fillMaxSize(),
+                    Alignment.Center
                 ) {
                     Box(
                         Modifier
-                            .padding(Spacers.NORMAL)
-                            .fillMaxSize(),
+                            .size(withAndHight.transpose(mDVM.rotationState.value))
+                            .padding(Spacers.NORMAL),
                         Alignment.Center
                     ) { Picture() }
                 }
