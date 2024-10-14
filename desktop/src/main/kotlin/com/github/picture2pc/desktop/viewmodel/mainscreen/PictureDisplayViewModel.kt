@@ -63,7 +63,10 @@ class PictureDisplayViewModel(
 
     fun reset() {
         mHVM.clear()
-        setPicture(pictures.replayCache[selectedPictureIndex.value])
+        val picture = pictures.replayCache.getOrNull(selectedPictureIndex.value)
+        if (picture != null) {
+            setPicture(picture)
+        }
     }
 
     fun doAll() {
