@@ -90,6 +90,7 @@ class SimpleTcpServer(
             withContext(ioDispatcher) { java.net.Socket() })
 
         tryAddPeer(peer, client)
+        client.peer = Peer(client.peer.uuid, true)
         val res = client.connect(inetSocketAddress)
         if (res)
             addPeer(client)
@@ -154,7 +155,7 @@ class SimpleTcpServer(
         if (checkPeer(peer))
             return peerToClientMap[peer] == client
         _connectedPeers.emit(lock.withLock {
-        peerToClientMap[peer] = client
+            peerToClientMap[peer] = client
             return@withLock peerToClientMap.keys.toList()
         }
         )
@@ -162,7 +163,6 @@ class SimpleTcpServer(
     }
 
     private suspend fun removePeer(peer: Peer) {
-
         _connectedPeers.emit(lock.withLock {
             peerToClientMap.remove(peer)
             return@withLock peerToClientMap.keys.toList()
