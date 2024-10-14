@@ -57,6 +57,10 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
                     ScreenSelectorViewModel.Screens.BIG_PICTURE ->
                         if (vertical) VerticalBigPictureScreen()
                         else HorizontalBigPictureScreen()
+
+                    ScreenSelectorViewModel.Screens.GALLERY ->
+                        if (vertical) VerticalCameraScreen()
+                        else HorizontalCameraScreen()
                 }
             }
         }

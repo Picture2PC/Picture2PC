@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 class ScreenSelectorViewModel {
     private val currentScreen = mutableStateOf(Screens.MAIN)
 
-    enum class Screens { MAIN, CAMERA, BIG_PICTURE }
+    enum class Screens { MAIN, CAMERA, BIG_PICTURE, GALLERY }
 
     var value: Screens
         get() = currentScreen.value
@@ -15,6 +15,9 @@ class ScreenSelectorViewModel {
 
     fun toCamera() {
         currentScreen.value = Screens.CAMERA
+    }
+    fun toGallery() {
+        currentScreen.value = Screens.GALLERY
     }
 
     fun toMain() {
