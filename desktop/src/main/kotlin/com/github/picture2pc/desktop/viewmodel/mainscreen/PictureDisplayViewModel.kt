@@ -13,7 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.swing.JOptionPane
+import java.awt.*
+import java.awt.TrayIcon.MessageType
 
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
@@ -30,11 +31,24 @@ class PictureDisplayViewModel(
     init {
         pictures.onEach {
             if (totalPictures.value == 0) setPicture(it)
-            JOptionPane.showMessageDialog(null, "Picture received", "Info", JOptionPane.PLAIN_MESSAGE)
+            val td = Toastnotification()
+            td.displayNotification()
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }
 
+
+    class Toastnotification {
+        fun displayNotification() {
+            val tray = SystemTray.getSystemTray()
+            val image = Toolkit.getDefaultToolkit().createImage("Picture2PC.png")
+            val trayIcon = TrayIcon(image, "Picture2PC")
+            trayIcon.isImageAutoSize = true
+            trayIcon.toolTip = "Picture2PC"
+            tray.add(trayIcon)
+            trayIcon.displayMessage("Picture2PC", "Picture received!", MessageType.INFO)
+        }
+    }
 
     fun adjustCurrentPictureIndex(amount: Int) {
         if (pictures.replayCache.isEmpty()) return

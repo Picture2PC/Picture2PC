@@ -51,19 +51,21 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun sendImage(context : android.content.Context) {
-        var imgsent = false
-        viewModelScope.launch {
-            dataTransmitter.sendPicture(
-                TcpPayload.Picture(
-                    getLastImage().toByteArray(),
-                    lastCorners
+    fun sendImage(context: android.content.Context) {
+        val launch = viewModelScope.launch {
+                dataTransmitter.sendPicture(
+                    TcpPayload.Picture(
+                        getLastImage().toByteArray(),
+                        lastCorners
+                    )
                 )
-            )
-            imgsent = true
-            Toast.makeText(context, "Image sent", Toast.LENGTH_SHORT).show()
         }
-        if(imgsent == false) Toast.makeText(context, "Image not sent", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Image sending...", Toast.LENGTH_SHORT).show()
+        launch.invokeOnCompletion {
+            if (launch.isCompleted) {
+                Toast.makeText(context, "Image sent", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     fun switchFlashMode() {
