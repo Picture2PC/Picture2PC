@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.res.painterResource
 import com.github.picture2pc.android.R
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 
 @Composable
@@ -23,18 +27,20 @@ fun BottomOfScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKo
     Row(modifier = Modifier.fillMaxWidth()) {
         Button(
             onClick = screenSelectorViewModel::toGallery,
-            modifier = Modifier.size(40.dp),
-            shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(Colors.PRIMARY)
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(Colors.PRIMARY),
+            modifier = Modifier.weight(0.3f)
         ) {
             Icon(
                 painter = painterResource(R.drawable.photo_library),
                 contentDescription = "Gallery",
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
+        Spacer(modifier = Modifier.size(6.dp))
         Button(
             onClick = screenSelectorViewModel::toCamera,
+            modifier = Modifier.fillMaxWidth().weight(1f),
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(Colors.PRIMARY)
         ) {
