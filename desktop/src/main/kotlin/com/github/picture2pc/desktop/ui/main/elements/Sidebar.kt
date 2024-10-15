@@ -82,7 +82,12 @@ fun Sidebar(
                         isTextFieldError = true
                         return@OutlinedTextField
                     } else isTextFieldError = false
-                    if (it.isEmpty()) isTextFieldError = true
+                    if (it.isEmpty()) {
+                        isTextFieldError = true
+                        clientViewModel.viewModelScope.launch {
+                            serverPreferencesRepository.setConnectable(!isTextFieldError)
+                        }
+                    }
                     clientViewModel.saveClientName(it)
                 },
                 placeholder = { Text("Unknown") },
