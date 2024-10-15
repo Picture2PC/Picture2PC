@@ -7,16 +7,13 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
+import com.github.picture2pc.desktop.data.Toastnotification
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.awt.SystemTray
-import java.awt.Toolkit
-import java.awt.TrayIcon
-import java.awt.TrayIcon.MessageType
 
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
@@ -25,6 +22,7 @@ class PictureDisplayViewModel(
     private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
+    private val td = Toastnotification()
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
@@ -33,23 +31,9 @@ class PictureDisplayViewModel(
     init {
         pictures.onEach {
             if (totalPictures.value == 0) setPicture(it)
-            val td = Toastnotification()
             td.displayNotification()
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
-    }
-
-
-    class Toastnotification {
-        fun displayNotification() {
-            val tray = SystemTray.getSystemTray()
-            val image = Toolkit.getDefaultToolkit().createImage("Picture2PC.png")
-            val trayIcon = TrayIcon(image, "Picture2PC")
-            trayIcon.isImageAutoSize = true
-            trayIcon.toolTip = "Picture2PC"
-            tray.add(trayIcon)
-            trayIcon.displayMessage("Picture2PC", "Picture received!", MessageType.INFO)
-        }
     }
 
     fun adjustCurrentPictureIndex(amount: Int) {

@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
-    private val dataTransmitter: DataTransmitter,
+    private val dataTransmitter: DataTransmitter
 ) : ViewModel() {
     val takenImage: SharedFlow<Bitmap>
         get() {
@@ -52,19 +52,15 @@ class CameraViewModel(
     }
 
     fun sendImage(context: android.content.Context) {
-        val launch = viewModelScope.launch {
-                dataTransmitter.sendPicture(
-                    TcpPayload.Picture(
-                        getLastImage().toByteArray(),
-                        lastCorners
-                    )
+        viewModelScope.launch {
+            val success = dataTransmitter.sendPicture(
+                TcpPayload.Picture(
+                    getLastImage().toByteArray(),
+                    lastCorners
                 )
-        }
-        Toast.makeText(context, "Image sending...", Toast.LENGTH_SHORT).show()
-        launch.invokeOnCompletion {
-            if (launch.isCompleted) {
-                Toast.makeText(context, "Image sent", Toast.LENGTH_SHORT).show()
-            }
+            )
+            val message = if (success == Unit) "Image sending failed" else "Image sent successfully"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
