@@ -23,12 +23,15 @@ import com.github.picture2pc.android.ui.main.mainscreen.VerticalMainScreen
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
+import androidx.compose.ui.platform.LocalContext
 import com.github.picture2pc.common.ui.Shapes
 import org.koin.compose.rememberKoinInject
+
 
 @Composable
 fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     MaterialTheme(darkColorScheme()) {
         Surface(
             color = Colors.BACKGROUND,
@@ -59,8 +62,7 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
                         else HorizontalBigPictureScreen()
 
                     ScreenSelectorViewModel.Screens.GALLERY ->
-                        if (vertical) VerticalCameraScreen()
-                        else HorizontalCameraScreen()
+                        screenSelector.openGallery(context)
                 }
             }
         }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import com.github.picture2pc.android.R
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
@@ -21,6 +22,7 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun BottomOfScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
+    val context = LocalContext.current
     Row(modifier = Modifier.fillMaxWidth()) {
         IconButton(
             onClick = screenSelectorViewModel::toGallery,
