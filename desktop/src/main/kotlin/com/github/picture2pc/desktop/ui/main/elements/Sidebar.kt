@@ -27,8 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
@@ -55,11 +53,10 @@ fun Sidebar(
 ) {
     val showConnections = remember { mutableStateOf(true) }
     val clientName by clientViewModel.clientName.collectAsState()
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
-    var textFieldError by remember { mutableStateOf(false) }
+    var isTextFieldError by remember { mutableStateOf(clientName.isEmpty()) }
 
     Box(
         Modifier
@@ -82,18 +79,17 @@ fun Sidebar(
                 value = clientName,
                 onValueChange = {
                     if (it.length >= Settings.MAX_NAME_LENGTH) {
-                        textFieldError = true
+                        isTextFieldError = true
                         return@OutlinedTextField
-                    } else textFieldError = false
-                    if (it.isEmpty()) textFieldError = true
+                    } else isTextFieldError = false
+                    if (it.isEmpty()) isTextFieldError = true
                     clientViewModel.saveClientName(it)
                 },
                 placeholder = { Text("Unknown") },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Heights.BUTTON + 10.dp)
-                    .focusRequester(focusRequester),
+                    .height(Heights.BUTTON + 10.dp),
                 singleLine = true,
                 shape = Shapes.BUTTON,
                 textStyle = TextStyles.NORMAL,
@@ -112,7 +108,7 @@ fun Sidebar(
                     unfocusedLabelColor = Colors.TEXT.copy(alpha = 0.8f),
                     errorBorderColor = Colors.ERROR
                 ),
-                isError = textFieldError
+                isError = isTextFieldError
             )
             Spacer(Modifier.height(Spacers.LARGE))
 
