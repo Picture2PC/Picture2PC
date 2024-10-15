@@ -22,7 +22,6 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun BottomOfScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
-    val context = LocalContext.current
     Row(modifier = Modifier.fillMaxWidth()) {
         IconButton(
             onClick = screenSelectorViewModel::toGallery,
