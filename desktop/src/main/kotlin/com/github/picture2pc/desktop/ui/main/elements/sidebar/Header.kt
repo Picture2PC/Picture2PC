@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.elements
+package com.github.picture2pc.desktop.ui.main.elements.sidebar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row

@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.elements
+package com.github.picture2pc.desktop.ui.main.elements.dep
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

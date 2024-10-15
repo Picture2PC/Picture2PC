@@ -17,6 +17,7 @@ object Style {
         val PRIMARY = Color(0xFF642bcf)
         val SECONDARY = Color(0xFF280f62)
         val ACCENT = Color(0xFF372469)
+        val ERROR = Color(0xFFC83538)
 
         @Composable
         fun provideButtonColors(

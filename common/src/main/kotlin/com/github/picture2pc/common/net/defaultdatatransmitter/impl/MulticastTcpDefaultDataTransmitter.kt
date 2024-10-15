@@ -1,7 +1,7 @@
 package com.github.picture2pc.android.net.datatransmitter.impl
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload

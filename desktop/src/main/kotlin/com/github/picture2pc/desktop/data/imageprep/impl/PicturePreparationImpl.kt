@@ -91,12 +91,7 @@ class PicturePreparationImpl : PicturePreparation {
             MatOfPoint2f(*srcPoints.toTypedArray()),
             MatOfPoint2f(*dstPoints.toTypedArray())
         )
-        Imgproc.warpPerspective(
-            mat,
-            dst,
-            perspectiveTransform,
-            CvSize(maxWidth, maxHeight)
-        )
+        Imgproc.warpPerspective(mat, dst, perspectiveTransform, CvSize(maxWidth, maxHeight))
 
         _editedBitmap.value = dst.toBitmap()
     }

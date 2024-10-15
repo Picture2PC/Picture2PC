@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.elements
+package com.github.picture2pc.desktop.ui.main.elements.dep
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -28,7 +28,6 @@ fun LinearThrobber2(
     travelDistance: Dp = 8.dp,
     color: Color = Style.Colors.PRIMARY
 ) {
-
     val density = LocalDensity.current
     val transition = rememberInfiniteTransition(label = "Infinite Transition")
 

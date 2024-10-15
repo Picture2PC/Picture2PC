@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesDefaults
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +22,7 @@ private object PreferenceKeys {
 
 class DataStoreServerPreferencesRepository(
     private val context: Context,
-    private val backgroundScope: CoroutineScope,
+    backgroundScope: CoroutineScope,
 ) : ServerPreferencesRepository() {
 
     companion object {

@@ -1,7 +1,6 @@
-package com.github.picture2pc.android.data.serverpreferences
+package com.github.picture2pc.common.data.serverpreferences
 
 import kotlinx.coroutines.flow.StateFlow
-
 
 abstract class ServerPreferencesRepository {
     abstract val name: StateFlow<String>
