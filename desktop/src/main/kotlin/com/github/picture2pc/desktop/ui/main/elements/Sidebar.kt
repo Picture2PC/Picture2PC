@@ -24,12 +24,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.ui.Colors
@@ -40,6 +40,9 @@ import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.ui.constants.Settings
+import com.github.picture2pc.desktop.ui.main.elements.sidebar.ConnectionInfo
+import com.github.picture2pc.desktop.ui.main.elements.sidebar.Header
+import com.github.picture2pc.desktop.ui.main.elements.sidebar.ImageInteractionButtons
 import com.github.picture2pc.desktop.viewmodel.clientviewmodel.ClientViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
@@ -47,14 +50,16 @@ import org.koin.compose.rememberKoinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Sidebar(
-    viewModel: ClientViewModel = rememberKoinInject(),
-    serverPreferencesRepository: ServerPreferencesRepository = rememberKoinInject()
+    clientViewModel: ClientViewModel = rememberKoinInject(),
+    serverPreferencesRepository: ServerPreferencesRepository = rememberKoinInject(),
 ) {
     val showConnections = remember { mutableStateOf(true) }
-    val clientName by viewModel.clientName.collectAsState()
+    val clientName by clientViewModel.clientName.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
+
+    var textFieldError by remember { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -63,8 +68,8 @@ fun Sidebar(
             .background(Colors.SECONDARY, Shapes.WINDOW)
             .clickable(interactionSource = interactionSource, indication = null) {
                 focusManager.clearFocus()
-                viewModel.viewModelScope.launch {
-                    serverPreferencesRepository.setName(viewModel.clientName.value)
+                clientViewModel.viewModelScope.launch {
+                    serverPreferencesRepository.setName(clientViewModel.clientName.value)
                 }
             }
     ) {
@@ -75,7 +80,15 @@ fun Sidebar(
 
             OutlinedTextField(
                 value = clientName,
-                onValueChange = { viewModel.saveClientName(it) },
+                onValueChange = {
+                    if (it.length >= Settings.MAX_NAME_LENGTH) {
+                        textFieldError = true
+                        return@OutlinedTextField
+                    } else textFieldError = false
+                    if (it.isEmpty()) textFieldError = true
+                    clientViewModel.saveClientName(it)
+                },
+                placeholder = { Text("Unknown") },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,11 +97,9 @@ fun Sidebar(
                 singleLine = true,
                 shape = Shapes.BUTTON,
                 textStyle = TextStyles.NORMAL,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
+                keyboardOptions = KeyboardOptions.Default,
                 keyboardActions = KeyboardActions(onDone = {
-                    viewModel.viewModelScope.launch {
+                    clientViewModel.viewModelScope.launch {
                         serverPreferencesRepository.setName(clientName)
                         focusManager.clearFocus()
                     }
@@ -99,7 +110,9 @@ fun Sidebar(
                     cursorColor = Colors.PRIMARY,
                     focusedLabelColor = Colors.TEXT,
                     unfocusedLabelColor = Colors.TEXT.copy(alpha = 0.8f),
+                    errorBorderColor = Colors.ERROR
                 ),
+                isError = textFieldError
             )
             Spacer(Modifier.height(Spacers.LARGE))
 

@@ -6,7 +6,6 @@ import java.io.File
 
 class ClientPreferencesRepository(private val file: File) {
     private val _clientName = MutableStateFlow("")
-
     val clientName: StateFlow<String> = _clientName
 
     init {

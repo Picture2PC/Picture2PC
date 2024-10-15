@@ -12,14 +12,10 @@ class ClientViewModel(
     val clientName: StateFlow<String> get() = repository.clientName
 
     init {
-        viewModelScope.launch {
-            repository.loadClientName()
-        }
+        viewModelScope.launch { repository.loadClientName() }
     }
 
     fun saveClientName(name: String) {
-        viewModelScope.launch {
-            repository.setClientName(name)
-        }
+        viewModelScope.launch { repository.setClientName(name) }
     }
 }
