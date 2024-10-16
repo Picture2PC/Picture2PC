@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
-import androidx.compose.ui.window.rememberTrayState
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.desktop.ui.util.getIcon
