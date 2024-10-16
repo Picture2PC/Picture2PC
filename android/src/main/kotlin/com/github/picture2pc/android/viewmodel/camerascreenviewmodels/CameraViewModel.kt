@@ -53,13 +53,14 @@ class CameraViewModel(
 
     fun sendImage(context: android.content.Context) {
         viewModelScope.launch {
+            Toast.makeText(context, "Image sending ...", Toast.LENGTH_SHORT).show()
             val success = dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     getLastImage().toByteArray(),
                     lastCorners
                 )
             )
-            val message = if (success == Unit) "Image sending failed" else "Image sent successfully"
+            val message = if (success) "Image sent successfully" else "Image sending failed"
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
