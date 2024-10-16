@@ -11,6 +11,9 @@ sealed class ClientState(val color: Color, val displayName: String) {
     object CONNECTED :
         ClientState(StateColors.CONNECTED, "Connected")
 
+    object SUSPENDED :
+        ClientState(StateColors.SUSPENDED, "Suspended")
+
     data class SENDING_PAYLOAD(val percentage: Float) :
         ClientState(StateColors.RECEIVING, "Sending")
 
@@ -27,6 +30,8 @@ sealed class ClientState(val color: Color, val displayName: String) {
 
         object TIMEOUT :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected due to timeout")
+
+        object ALREADY_CONNECTED : DISCONNECTED(StateColors.DISCONNECTED, "Already connected")
 
         class OTHER_ERROR(val errorMessage: String) :
             DISCONNECTED(StateColors.DISCONNECTED, "Disconnected with error")

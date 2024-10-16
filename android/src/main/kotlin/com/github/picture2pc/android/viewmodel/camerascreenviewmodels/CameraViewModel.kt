@@ -1,6 +1,7 @@
 package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,14 +51,17 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun sendImage() {
+    fun sendImage(context: android.content.Context) {
         viewModelScope.launch {
-            dataTransmitter.sendPicture(
+            Toast.makeText(context, "Image sending ...", Toast.LENGTH_SHORT).show()
+            val success = dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     getLastImage().toByteArray(),
                     lastCorners
                 )
             )
+            val message = if (success) "Image sent successfully" else "Image sending failed"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 

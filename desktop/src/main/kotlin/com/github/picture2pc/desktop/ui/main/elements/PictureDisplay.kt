@@ -2,24 +2,36 @@ package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.normalize
+import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
@@ -77,11 +89,7 @@ fun Picture(
 
         Canvas(Modifier) {
             clicks.forEach {
-                drawCircle(
-                    Colors.PRIMARY,
-                    5f,
-                    it.denormalize(pDVM.displayPictureSize)
-                )
+                drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
             }
             if (clicks.size == 4) {
                 val tl = clicks[0].denormalize(pDVM.displayPictureSize)
@@ -103,23 +111,26 @@ fun Picture(
         }
     }
 
-    /*if (!isDragging) return //TODO: Fix implementation of zoom overlay movement
+    if (!isDragging) return
     Box(
         Modifier
             .offset(dragPoint.x.dp, dragPoint.y.dp)
             .border(2.dp, Colors.PRIMARY, CircleShape)
     ) {
-        val pictureSize = pDVM.pP.displayPictureSize
-        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp).align(Alignment.Center)) {
+        val ratio = pDVM.getRatio()
+        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp)) {
             clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
-                translate(
-                    left = -(dragPoint.x * Settings.SCALE) - (pictureSize.width / 2),
-                    top = -(dragPoint.y * Settings.SCALE) - (pictureSize.height / 2)
+                translate( // movement in picture
+                    left = -dragPoint.x * Settings.ZOOM_FACTOR,
+                    top = -dragPoint.y * Settings.ZOOM_FACTOR
                 ) {
-                    scale(Settings.SCALE) {
+                    scale(Settings.ZOOM_FACTOR / ratio) { // Scaled picture
                         drawImage(
-                            image = pictureBitmap.asComposeImageBitmap(),
-                            topLeft = Offset.Zero
+                            pictureBitmap.asComposeImageBitmap(),
+                            topLeft = Offset(
+                                (-pictureBitmap.width / 2f),
+                                (-pictureBitmap.height / 2f)
+                            )
                         )
                     }
                 }
@@ -128,5 +139,5 @@ fun Picture(
         Canvas(Modifier.size(10.dp).align(Alignment.Center)) {
             drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
         }
-    }*/
+    }
 }

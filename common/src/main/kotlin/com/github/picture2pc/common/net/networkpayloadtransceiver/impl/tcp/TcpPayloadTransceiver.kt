@@ -42,10 +42,7 @@ class TcpPayloadTransceiver(
         return tcpServer.getPeerStateAsFlow(peer)
     }
 
-    suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress? = null): Boolean {
-        if (inetSocketAddress == null) {
-            return tcpServer.accept(peer)
-        }
+    suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         return tcpServer.connect(peer, inetSocketAddress)
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
+import com.github.picture2pc.desktop.data.Toastnotification
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,7 @@ class PictureDisplayViewModel(
     private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
+    private val td = Toastnotification()
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
@@ -29,10 +31,10 @@ class PictureDisplayViewModel(
     init {
         pictures.onEach {
             if (totalPictures.value == 0) setPicture(it)
+            td.displayNotification()
             totalPictures.value = pictures.replayCache.size
         }.launchIn(viewModelScope)
     }
-
 
     fun adjustCurrentPictureIndex(amount: Int) {
         if (pictures.replayCache.isEmpty()) return
@@ -59,6 +61,10 @@ class PictureDisplayViewModel(
     fun calculateRatio(displayPictureSize: Size) {
         pP.calculateRatio(displayPictureSize)
         this.displayPictureSize = displayPictureSize
+    }
+
+    fun getRatio(): Float {
+        return pP.ratio
     }
 
     fun reset() {

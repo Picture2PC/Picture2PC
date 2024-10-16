@@ -10,12 +10,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
 @OptIn(ExperimentalSerializationApi::class)
 abstract class NetworkPayloadTransceiver {
     abstract val available: Boolean
-    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow(0, 1)
+    private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
     val receivedPayloads: SharedFlow<Payload> = _receivedPayloads.asSharedFlow()
 
-    protected fun receivedPayload(payload: Payload) {
+    protected suspend fun receivedPayload(payload: Payload) {
         if (payload.targetPeer == Peer.getSelf() || (payload.targetPeer.isAny && payload.sourcePeer != Peer.getSelf())) {
-            _receivedPayloads.tryEmit(payload)
+            _receivedPayloads.emit(payload)
         }
     }
 
