@@ -32,7 +32,7 @@ open class MulticastTcpDefaultDataTransmitter(
     val pictures: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
-        const val TIME_BETWEEN_ONLINE_EMIT = 2000L
+        const val TIME_BETWEEN_ONLINE_EMIT = 3000L
     }
 
     private val uuidNameMap = mutableMapOf<String, MutableStateFlow<String>>()
@@ -52,7 +52,6 @@ open class MulticastTcpDefaultDataTransmitter(
                             newUUidName(serverPreferences.name.value, payload.clientName)
                             backgroundScope.launch {
                                 emitServerOnline(serverPreferences.name.value)
-                                tcpPayloadTransceiver.connect(payload.sourcePeer)
                             }
                         }
                     }
@@ -84,7 +83,7 @@ open class MulticastTcpDefaultDataTransmitter(
                     }
 
                     is TcpPayload.Picture -> {
-                        _pictures.tryEmit(it)
+                        _pictures.emit(it)
                     }
 
                     else -> {}
@@ -96,27 +95,27 @@ open class MulticastTcpDefaultDataTransmitter(
 
             while (isActive) {
                 if (serverPreferences.connectable.value) {
-                    emitListServers()
+                    emitServerOnline(serverPreferences.name.value)
                 }
                 kotlinx.coroutines.delay(TIME_BETWEEN_ONLINE_EMIT)
             }
         }
 
-        tcpPayloadTransceiver.connectedPeers.onEach { it ->
-            it.forEach {
+        tcpPayloadTransceiver.connectedPeers.onEach { connected ->
+            connected.forEach {
                 if (!uuidNameMap.containsKey(it.uuid)) {
-                    requestNameTcpPeer(it)
                     newUUidName(it.uuid, "Unknown")
+                    requestNameTcpPeer(it)
                 }
             }
-            _connectedDevices.value = it.map {
+            _connectedDevices.emit(connected.map {
                 DefaultDevice(
                     uuidNameMap[it.uuid]!!,
                     tcpPayloadTransceiver.getPeerStateAsStateFlow(it) ?: MutableStateFlow(
                         ClientState.DISCONNECTED.NO_ERROR
                     )
                 )
-            }
+            })
         }.launchIn(backgroundScope)
     }
 
@@ -124,9 +123,9 @@ open class MulticastTcpDefaultDataTransmitter(
         emitListServers()
     }
 
-    private fun newUUidName(uuid: String, name: String) {
+    private suspend fun newUUidName(uuid: String, name: String) {
         if (uuidNameMap.containsKey(uuid))
-            uuidNameMap[uuid]?.value = name
+            uuidNameMap[uuid]?.emit(name)
         else
             uuidNameMap[uuid] = MutableStateFlow(name)
     }

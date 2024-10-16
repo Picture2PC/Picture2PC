@@ -146,8 +146,8 @@ class MovementHandlerViewModel {
     fun endDrag(pictureSize: Size) {
         if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
         ) return
-        println(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
         addClick(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
+        println(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
         dragging.value = false
     }
 }

@@ -63,6 +63,10 @@ class PictureDisplayViewModel(
         this.displayPictureSize = displayPictureSize
     }
 
+    fun getRatio(): Float {
+        return pP.ratio
+    }
+
     fun reset() {
         mHVM.clear()
         setPicture(pictures.replayCache[selectedPictureIndex.value])
