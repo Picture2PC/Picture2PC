@@ -139,8 +139,8 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.sendPayload(TcpPayload.RequestName(peer))
     }
 
-    suspend fun sendPicture(payload: TcpPayload.Picture) {
-        tcpPayloadTransceiver.sendPayload(payload)
+    suspend fun sendPicture(payload: TcpPayload.Picture) : Boolean {
+        return tcpPayloadTransceiver.sendPayload(payload)
     }
 
     private suspend fun emitListServers() {
