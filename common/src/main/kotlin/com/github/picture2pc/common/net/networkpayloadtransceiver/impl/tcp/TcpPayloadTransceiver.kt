@@ -1,6 +1,6 @@
 package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
-import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.data.client.Client
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.networkpayloadtransceiver.NetworkPayloadTransceiver
@@ -14,7 +14,7 @@ import org.koin.core.component.KoinComponent
 import java.net.InetSocketAddress
 
 class TcpPayloadTransceiver(
-    private val backgroundScope: CoroutineScope,
+    backgroundScope: CoroutineScope,
     private val tcpServer: SimpleTcpServer
 ) : KoinComponent, NetworkPayloadTransceiver() {
     override val available: Boolean
@@ -26,7 +26,7 @@ class TcpPayloadTransceiver(
         }
     }
 
-    val connectedPeers: StateFlow<List<Peer>>
+    val connectedPeers: StateFlow<List<Client>>
         get() = tcpServer.connectedPeers
 
     init {
@@ -37,10 +37,6 @@ class TcpPayloadTransceiver(
 
     val inetSocketAddress
         get() = tcpServer.socketAddress
-
-    fun getPeerStateAsStateFlow(peer: Peer): StateFlow<ClientState>? {
-        return tcpServer.getPeerStateAsFlow(peer)
-    }
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         return tcpServer.connect(peer, inetSocketAddress)

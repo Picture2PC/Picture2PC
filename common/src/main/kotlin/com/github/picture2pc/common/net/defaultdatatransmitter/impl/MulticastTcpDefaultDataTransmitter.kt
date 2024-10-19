@@ -2,7 +2,6 @@ package com.github.picture2pc.android.net.datatransmitter.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
-import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
@@ -44,18 +43,6 @@ open class MulticastTcpDefaultDataTransmitter(
 
             multicastPayloadTransceiver.receivedPayloads.onEach { payload ->
                 when (payload) {
-                    is MulticastPayload.ListPeers -> {
-                        if (serverPreferences.connectable.value && !tcpPayloadTransceiver.connectedPeers.value.contains(
-                                payload.sourcePeer
-                            )
-                        ) {
-                            newUUidName(serverPreferences.name.value, payload.clientName)
-                            backgroundScope.launch {
-                                emitServerOnline(serverPreferences.name.value)
-                            }
-                        }
-                    }
-
                     is MulticastPayload.PeerTcpOnline -> {
                         newUUidName(payload.sourcePeer.uuid, payload.clientName)
                         if (serverPreferences.connectable.value) {
@@ -103,17 +90,15 @@ open class MulticastTcpDefaultDataTransmitter(
 
         tcpPayloadTransceiver.connectedPeers.onEach { connected ->
             connected.forEach {
-                if (!uuidNameMap.containsKey(it.uuid)) {
-                    newUUidName(it.uuid, "Unknown")
-                    requestNameTcpPeer(it)
+                if (!uuidNameMap.containsKey(it.peer.uuid)) {
+                    newUUidName(it.peer.uuid, "Unknown")
+                    requestNameTcpPeer(it.peer)
                 }
             }
             _connectedDevices.emit(connected.map {
                 DefaultDevice(
-                    uuidNameMap[it.uuid]!!,
-                    tcpPayloadTransceiver.getPeerStateAsStateFlow(it) ?: MutableStateFlow(
-                        ClientState.DISCONNECTED.NO_ERROR
-                    )
+                    uuidNameMap[it.peer.uuid]!!,
+                    it.clientStateFlow
                 )
             })
         }.launchIn(backgroundScope)
