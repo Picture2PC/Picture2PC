@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.elements
+package com.github.picture2pc.desktop.ui.main.elements.sidebar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject

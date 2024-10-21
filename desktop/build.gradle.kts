@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose.multiplatform)
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 repositories {
@@ -17,6 +18,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
     implementation(libs.opencv)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":common"))
 }

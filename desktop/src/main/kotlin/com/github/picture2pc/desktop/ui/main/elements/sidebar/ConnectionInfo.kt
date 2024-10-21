@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.main.elements
+package com.github.picture2pc.desktop.ui.main.elements.sidebar
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
@@ -51,9 +51,7 @@ fun ConnectionInfo(
             )
         } else {
             Column(Modifier.verticalScroll(state = scrollState)) {
-                availableServers.forEach {
-                    Connection(it.name, it.deviceState)
-                }
+                availableServers.forEach { Connection(it.name, it.deviceState) }
             }
         }
         Spacer(Modifier.height(Spacers.NORMAL))

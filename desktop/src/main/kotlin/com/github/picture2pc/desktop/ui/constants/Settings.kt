@@ -6,4 +6,5 @@ object Settings {
     const val ZOOM_DIAMETER: Int = 140
     const val HIGH_DRAGGING_SPEED: Float = 1.0f
     const val SLOW_DRAGGING_SPEED: Float = 0.5f
+    const val MAX_NAME_LENGTH: Int = 20
 }

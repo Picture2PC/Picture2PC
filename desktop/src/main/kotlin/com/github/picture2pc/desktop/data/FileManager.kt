@@ -13,11 +13,8 @@ import java.awt.image.BufferedImage
 
 private class TransferableImage(val image: BufferedImage) : Transferable {
     override fun getTransferData(flavor: DataFlavor?): Any {
-        return if (flavor == DataFlavor.imageFlavor) {
-            image
-        } else {
-            throw UnsupportedFlavorException(flavor)
-        }
+        return if (flavor == DataFlavor.imageFlavor) image
+        else throw UnsupportedFlavorException(flavor)
     }
 
     override fun getTransferDataFlavors(): Array<DataFlavor> {

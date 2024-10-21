@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.ui.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +27,6 @@ import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.TooltipIconButton
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import org.koin.compose.rememberKoinInject
-
 
 @Composable
 fun MainScreen(
