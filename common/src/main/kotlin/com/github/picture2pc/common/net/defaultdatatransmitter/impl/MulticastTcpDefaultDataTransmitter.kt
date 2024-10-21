@@ -45,13 +45,16 @@ open class MulticastTcpDefaultDataTransmitter(
             multicastPayloadTransceiver.receivedPayloads.onEach { payload ->
                 when (payload) {
                     is MulticastPayload.ListPeers -> {
-                        if (serverPreferences.connectable.value && !tcpPayloadTransceiver.connectedPeers.value.contains(
+                        if (serverPreferences.preferences.value.connectable && !tcpPayloadTransceiver.connectedPeers.value.contains(
                                 payload.sourcePeer
                             )
                         ) {
-                            newUUidName(serverPreferences.name.value, payload.clientName)
+                            newUUidName(
+                                serverPreferences.preferences.value.name,
+                                payload.clientName
+                            )
                             backgroundScope.launch {
-                                emitServerOnline(serverPreferences.name.value)
+                                emitServerOnline(serverPreferences.preferences.value.name)
                                 tcpPayloadTransceiver.connect(payload.sourcePeer)
                             }
                         }
@@ -59,7 +62,7 @@ open class MulticastTcpDefaultDataTransmitter(
 
                     is MulticastPayload.PeerTcpOnline -> {
                         newUUidName(payload.sourcePeer.uuid, payload.clientName)
-                        if (serverPreferences.connectable.value) {
+                        if (serverPreferences.preferences.value.connectable) {
                             backgroundScope.launch {
                                 tcpPayloadTransceiver.connect(
                                     payload.sourcePeer,
@@ -76,7 +79,7 @@ open class MulticastTcpDefaultDataTransmitter(
             tcpPayloadTransceiver.receivedPayloads.onEach {
                 when (it) {
                     is TcpPayload.RequestName -> {
-                        newName(serverPreferences.name.value, it.sourcePeer)
+                        newName(serverPreferences.preferences.value.name, it.sourcePeer)
                     }
 
                     is TcpPayload.NameUpdate -> {
@@ -90,12 +93,12 @@ open class MulticastTcpDefaultDataTransmitter(
                     else -> {}
                 }
             }.launchIn(backgroundScope)
-            serverPreferences.name.onEach {
-                newName(it)
+            serverPreferences.preferences.onEach {
+                newName(it.name)
             }.launchIn(backgroundScope)
 
             while (isActive) {
-                if (serverPreferences.connectable.value) {
+                if (serverPreferences.preferences.value.connectable) {
                     emitListServers()
                 }
                 kotlinx.coroutines.delay(TIME_BETWEEN_ONLINE_EMIT)
@@ -144,7 +147,7 @@ open class MulticastTcpDefaultDataTransmitter(
     }
 
     private suspend fun emitListServers() {
-        multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.name.value))
+        multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.preferences.value.name))
     }
 
     private suspend fun emitServerOnline(serverName: String) {

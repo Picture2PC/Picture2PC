@@ -1,5 +1,4 @@
 local.properties
-.client_name.txt
 
 build/
 .gradle/

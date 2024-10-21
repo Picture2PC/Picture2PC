@@ -51,9 +51,7 @@ fun ConnectionInfo(
             )
         } else {
             Column(Modifier.verticalScroll(state = scrollState)) {
-                availableServers.forEach {
-                    Connection(it.name, it.deviceState)
-                }
+                availableServers.forEach { Connection(it.name, it.deviceState) }
             }
         }
         Spacer(Modifier.height(Spacers.NORMAL))

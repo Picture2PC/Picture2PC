@@ -52,11 +52,11 @@ fun Sidebar(
     serverPreferencesRepository: ServerPreferencesRepository = rememberKoinInject(),
 ) {
     val showConnections = remember { mutableStateOf(true) }
-    val clientName by clientViewModel.clientName.collectAsState()
+    val preferences by clientViewModel.preferences.collectAsState()
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
-    var isTextFieldError by remember { mutableStateOf(clientName.isEmpty()) }
+    var isTextFieldError by remember { mutableStateOf(preferences.name.isEmpty()) }
 
     Box(
         Modifier
@@ -65,9 +65,6 @@ fun Sidebar(
             .background(Colors.SECONDARY, Shapes.WINDOW)
             .clickable(interactionSource = interactionSource, indication = null) {
                 focusManager.clearFocus()
-                clientViewModel.viewModelScope.launch {
-                    serverPreferencesRepository.setName(clientViewModel.clientName.value)
-                }
             }
     ) {
         // Items in the Sidebar
@@ -76,7 +73,7 @@ fun Sidebar(
             Spacer(Modifier.height(Spacers.LARGE))
 
             OutlinedTextField(
-                value = clientName,
+                value = preferences.name,
                 onValueChange = {
                     if (it.length >= Settings.MAX_NAME_LENGTH) {
                         isTextFieldError = true
@@ -85,7 +82,8 @@ fun Sidebar(
                     if (it.isEmpty()) {
                         isTextFieldError = true
                         clientViewModel.viewModelScope.launch {
-                            serverPreferencesRepository.setConnectable(!isTextFieldError)
+                            serverPreferencesRepository.preferences.value.connectable =
+                                !isTextFieldError
                         }
                     }
                     clientViewModel.saveClientName(it)
@@ -101,7 +99,7 @@ fun Sidebar(
                 keyboardOptions = KeyboardOptions.Default,
                 keyboardActions = KeyboardActions(onDone = {
                     clientViewModel.viewModelScope.launch {
-                        serverPreferencesRepository.setName(clientName)
+                        clientViewModel.saveClientName(preferences.name)
                         focusManager.clearFocus()
                     }
                 }),

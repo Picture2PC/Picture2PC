@@ -43,9 +43,9 @@ val appModule = module {
 
     single<ServerPreferencesRepository> {
         val clientViewModel: ClientViewModel = get()
-        TestServerPreferencesRepository(clientViewModel.clientName.value)
+        TestServerPreferencesRepository(clientViewModel.preferences.value.name)
     }
-    single { ClientPreferencesRepository(File(".client_name.txt")) }
+    single { ClientPreferencesRepository(File("preferences.json")) }
     single { ClientViewModel(get(), get(named("viewModelCoroutineScope"))) }
 
     single { ServersSectionViewModel(get()) }
