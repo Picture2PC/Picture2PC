@@ -2,20 +2,16 @@ package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -26,11 +22,11 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.normalize
+import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
@@ -50,12 +46,12 @@ fun Picture(
 
     Box(
         modifier = Modifier.rotate(rotationState.angle)
+            .onSizeChanged { size -> pDVM.calculateRatio(size.toSize()) },
     ) {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
             modifier = Modifier
-                .onSizeChanged { size -> pDVM.calculateRatio(size.toSize()) }
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
                         mHVM.addClick(offset.normalize(pDVM.displayPictureSize))
@@ -86,8 +82,52 @@ fun Picture(
                     else PointerIcon.Default
                 )
         )
-
         Canvas(Modifier) {
+            val scale = pDVM.displayPictureSize.minDimension
+
+            // Part that is responsible for hover zoomed in preview
+            if (isDragging)
+                translate(
+                    dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).x,
+                    dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).y
+                ) {
+                    clipPath(Path().apply {
+                        addOval(
+                            Rect(
+                                Offset(
+                                    Settings.ZOOM_DIAMETER,
+                                    Settings.ZOOM_DIAMETER
+                                ) * -scale,
+                                Size(
+                                    Settings.ZOOM_DIAMETER * scale * 2,
+                                    Settings.ZOOM_DIAMETER * scale * 2
+                                )
+                            )
+                        )
+                    }) {
+                        translate(
+                            -dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).x * Settings.ZOOM_FACTOR,
+                            -dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).y * Settings.ZOOM_FACTOR
+                        ) {
+                            scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
+                                drawImage(
+                                    pictureBitmap.asComposeImageBitmap()
+                                )
+                            }
+                        }
+                    }
+                    drawCircle(
+                        Colors.PRIMARY,
+                        Settings.ZOOM_DIAMETER * 0.1f * scale,
+                        style = Stroke(width = 2f)
+                    )
+                    drawCircle(
+                        Colors.PRIMARY,
+                        Settings.ZOOM_DIAMETER * scale,
+                        style = Stroke(width = 2f)
+                    )
+                }
+
             clicks.forEach {
                 drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
             }
@@ -108,36 +148,6 @@ fun Picture(
                     style = Stroke(width = 2f)
                 )
             }
-        }
-    }
-
-    if (!isDragging) return
-    Box(
-        Modifier
-            .offset(dragPoint.x.dp, dragPoint.y.dp)
-            .border(2.dp, Colors.PRIMARY, CircleShape)
-    ) {
-        val ratio = pDVM.getRatio()
-        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp)) {
-            clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
-                translate( // movement in picture
-                    left = -dragPoint.x * Settings.ZOOM_FACTOR,
-                    top = -dragPoint.y * Settings.ZOOM_FACTOR
-                ) {
-                    scale(Settings.ZOOM_FACTOR / ratio) { // Scaled picture
-                        drawImage(
-                            pictureBitmap.asComposeImageBitmap(),
-                            topLeft = Offset(
-                                (-pictureBitmap.width / 2f),
-                                (-pictureBitmap.height / 2f)
-                            )
-                        )
-                    }
-                }
-            }
-        }
-        Canvas(Modifier.size(10.dp).align(Alignment.Center)) {
-            drawCircle(Colors.PRIMARY, style = Stroke(width = 2f))
         }
     }
 }
