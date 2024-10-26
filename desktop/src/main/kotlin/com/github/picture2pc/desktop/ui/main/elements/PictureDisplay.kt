@@ -27,6 +27,7 @@ import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.normalize
 import com.github.picture2pc.desktop.extention.toTopLeftOrigin
+import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
@@ -42,7 +43,8 @@ fun Picture(
     val clicks = mHVM.clicks.collectAsState().value
     val rotationState = mHVM.rotationState.collectAsState().value
     val isDragging = mHVM.dragging.collectAsState().value
-    val dragPoint = mHVM.dragPoint.collectAsState().value
+    val dragPoint = mHVM.dragPoint.collectAsState().value.translate(rotationState)
+        .toTopLeftOrigin(pDVM.displayPictureSize)
 
     Box(
         modifier = Modifier.rotate(rotationState.angle)
@@ -88,8 +90,8 @@ fun Picture(
             // Part that is responsible for hover zoomed in preview
             if (isDragging)
                 translate(
-                    dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).x,
-                    dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).y
+                    dragPoint.x,
+                    dragPoint.y
                 ) {
                     clipPath(Path().apply {
                         addOval(
@@ -106,8 +108,8 @@ fun Picture(
                         )
                     }) {
                         translate(
-                            -dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).x * Settings.ZOOM_FACTOR,
-                            -dragPoint.toTopLeftOrigin(pDVM.displayPictureSize).y * Settings.ZOOM_FACTOR
+                            -dragPoint.x * Settings.ZOOM_FACTOR,
+                            -dragPoint.y * Settings.ZOOM_FACTOR
                         ) {
                             scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
                                 drawImage(
