@@ -8,6 +8,7 @@ import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
+import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,14 +64,12 @@ class PictureDisplayViewModel(
 
     fun rotate(clockwise: Boolean) {
         pP.rotate(clockwise)
+        mHVM.rotationState.value = mHVM.rotationState.value.next(clockwise)
     }
 
     fun reset() {
         mHVM.clear()
-        val picture = pictures.replayCache.getOrNull(selectedPictureIndex.value)
-        if (picture != null) {
-            setPicture(picture)
-        }
+        pictures.replayCache.getOrNull(selectedPictureIndex.value) ?: return
     }
 
     fun doAll() {
