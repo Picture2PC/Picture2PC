@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -21,8 +20,6 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.normalize
@@ -128,6 +125,7 @@ fun Picture(
                 }
 
             clicks.forEach {
+                println(pDVM.displayPictureSize)
                 drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
             }
             if (clicks.size == 4) {

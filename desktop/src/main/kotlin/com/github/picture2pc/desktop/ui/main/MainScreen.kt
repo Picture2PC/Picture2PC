@@ -3,6 +3,7 @@ package com.github.picture2pc.desktop.ui.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,22 +21,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
-import com.github.picture2pc.desktop.ui.constants.Settings
-import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.extention.transpose
-import com.github.picture2pc.desktop.ui.constants.Descriptions
+import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.RotationButtons
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
+import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen() {
-    var withAndHight by remember { mutableStateOf(DpSize.Zero) }
+fun MainScreen(
+    mHVM: MovementHandlerViewModel = rememberKoinInject(),
+    pDVM: PictureDisplayViewModel = rememberKoinInject()
+) {
+    var withAndHeight by remember { mutableStateOf(DpSize.Zero) }
     Box(
         Modifier
             .fillMaxSize()
@@ -60,54 +66,18 @@ fun MainScreen() {
                         Colors.PRIMARY,
                         Shapes.WINDOW
                     ).onGloballyPositioned {
-                        withAndHight = DpSize(it.size.width.dp, it.size.height.dp)
+                        withAndHeight = DpSize(it.size.width.dp, it.size.height.dp)
+                        pDVM.calculateRatio(it.size.toSize())
                     }.fillMaxSize(),
                     Alignment.Center
                 ) {
                     Box(
                         Modifier
-                            .size(withAndHight.transpose(mDVM.rotationState.value))
+                            .size(withAndHeight.transpose(mHVM.rotationState.value))
                             .padding(Spacers.NORMAL),
                         Alignment.Center
                     ) { Picture() }
                 }
-
-                // Rotation Buttons
-                Box(Modifier.offset(Spacers.NORMAL, Spacers.NORMAL)) {
-                    Row {
-                        TooltipIconButton(
-                            description = Descriptions.ROTATE_LEFT,
-                            icon = Icons.Desktop.ROTATE_LEFT,
-                            color = Colors.ACCENT,
-                        ) {
-                            mDVM.rotationState.value =
-                                mDVM.rotationState.value.next(false)
-                        }
-                        Spacer(Modifier.width(Spacers.SMALL))
-
-                        TooltipIconButton(
-                            description = Descriptions.ROTATE_RIGHT,
-                            icon = Icons.Desktop.ROTATE_RIGHT,
-                            color = Colors.ACCENT,
-                        ) {
-                            mDVM.rotationState.value =
-                                mDVM.rotationState.value.next(true)
-                        }
-                    }
-                }
-
-                // Zoom Speed Buttons
-                Box(
-                    Modifier
-                        .border(
-                            Borders.BORDER_STANDARD,
-                            Colors.PRIMARY,
-                            Shapes.WINDOW
-                        )
-                        .padding(Spacers.NORMAL)
-                        .fillMaxSize(),
-                    Alignment.Center
-                ) { Picture() }
 
                 Row(Modifier.padding(Spacers.NORMAL)) {
                     RotationButtons()
