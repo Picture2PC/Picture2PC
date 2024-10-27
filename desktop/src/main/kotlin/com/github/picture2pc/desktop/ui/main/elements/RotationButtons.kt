@@ -11,11 +11,13 @@ import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.ui.constants.Descriptions
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun RotationButtons(
-    mDVM: MovementHandlerViewModel = rememberKoinInject()
+    mDVM: MovementHandlerViewModel = rememberKoinInject(),
+    pDVM: PictureDisplayViewModel = rememberKoinInject()
 ) {
     Row {
         TooltipIconButton(
@@ -25,6 +27,7 @@ fun RotationButtons(
         ) {
             mDVM.rotationState.value =
                 mDVM.rotationState.value.next(false)
+            pDVM.rotate(false)
         }
         Spacer(Modifier.width(Spacers.SMALL))
 
@@ -35,6 +38,7 @@ fun RotationButtons(
         ) {
             mDVM.rotationState.value =
                 mDVM.rotationState.value.next(true)
+            pDVM.rotate(true)
         }
     }
 }

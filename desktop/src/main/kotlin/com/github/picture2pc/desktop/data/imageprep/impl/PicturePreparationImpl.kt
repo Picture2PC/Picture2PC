@@ -20,6 +20,7 @@ import org.jetbrains.skia.ColorMatrix
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skiko.toBufferedImage
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -98,6 +99,13 @@ class PicturePreparationImpl : PicturePreparation {
             CvSize(maxWidth, maxHeight)
         )
 
+        _editedBitmap.value = dst.toBitmap()
+    }
+
+    override fun rotate(clockwise: Boolean) {
+        val dst = Mat()
+        val rotation = if (clockwise) Core.ROTATE_90_CLOCKWISE else Core.ROTATE_90_COUNTERCLOCKWISE
+        Core.rotate(editedBitmap.value.toMat(), dst, rotation)
         _editedBitmap.value = dst.toBitmap()
     }
 

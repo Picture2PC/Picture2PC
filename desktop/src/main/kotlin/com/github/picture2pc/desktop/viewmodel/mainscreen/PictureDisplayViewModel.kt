@@ -61,6 +61,10 @@ class PictureDisplayViewModel(
         this.displayPictureSize = displayPictureSize
     }
 
+    fun rotate(clockwise: Boolean) {
+        pP.rotate(clockwise)
+    }
+
     fun reset() {
         mHVM.clear()
         val picture = pictures.replayCache.getOrNull(selectedPictureIndex.value)

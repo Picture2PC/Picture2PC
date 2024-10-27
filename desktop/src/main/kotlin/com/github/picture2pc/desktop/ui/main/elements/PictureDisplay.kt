@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -36,9 +35,7 @@ fun Picture(
     val isDragging = mHVM.dragging.collectAsState().value
     val dragPoint = mHVM.dragPoint.collectAsState().value
 
-    Box(
-        modifier = Modifier.rotate(rotationState.angle)
-    ) {
+    Box {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
