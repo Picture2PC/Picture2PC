@@ -81,51 +81,7 @@ fun Picture(
         Canvas(Modifier) {
             val scale = pDVM.displayPictureSize.minDimension
 
-            // Part that is responsible for hover zoomed in preview
-            if (isDragging)
-                translate(
-                    dragPoint.x,
-                    dragPoint.y
-                ) {
-                    clipPath(Path().apply {
-                        addOval(
-                            Rect(
-                                Offset(
-                                    Settings.ZOOM_DIAMETER,
-                                    Settings.ZOOM_DIAMETER
-                                ) * -scale,
-                                Size(
-                                    Settings.ZOOM_DIAMETER * scale * 2,
-                                    Settings.ZOOM_DIAMETER * scale * 2
-                                )
-                            )
-                        )
-                    }) {
-                        translate(
-                            -dragPoint.x * Settings.ZOOM_FACTOR,
-                            -dragPoint.y * Settings.ZOOM_FACTOR
-                        ) {
-                            scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
-                                drawImage(
-                                    pictureBitmap.asComposeImageBitmap()
-                                )
-                            }
-                        }
-                    }
-                    drawCircle(
-                        Colors.PRIMARY,
-                        Settings.ZOOM_DIAMETER * 0.1f * scale,
-                        style = Stroke(width = 2f)
-                    )
-                    drawCircle(
-                        Colors.PRIMARY,
-                        Settings.ZOOM_DIAMETER * scale,
-                        style = Stroke(width = 2f)
-                    )
-                }
-
             clicks.forEach {
-                println(pDVM.displayPictureSize)
                 drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
             }
             if (clicks.size == 4) {
@@ -142,6 +98,49 @@ fun Picture(
                         close()
                     },
                     Colors.PRIMARY,
+                    style = Stroke(width = 2f)
+                )
+            }
+
+            // Part that is responsible for hover zoomed in preview
+            if (!isDragging) return@Canvas
+            translate(
+                dragPoint.x,
+                dragPoint.y
+            ) {
+                clipPath(Path().apply {
+                    addOval(
+                        Rect(
+                            Offset(
+                                Settings.ZOOM_DIAMETER,
+                                Settings.ZOOM_DIAMETER
+                            ) * -scale,
+                            Size(
+                                Settings.ZOOM_DIAMETER * scale * 2,
+                                Settings.ZOOM_DIAMETER * scale * 2
+                            )
+                        )
+                    )
+                }) {
+                    translate(
+                        -dragPoint.x * Settings.ZOOM_FACTOR,
+                        -dragPoint.y * Settings.ZOOM_FACTOR
+                    ) {
+                        scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
+                            drawImage(
+                                pictureBitmap.asComposeImageBitmap()
+                            )
+                        }
+                    }
+                }
+                drawCircle( //inner circle
+                    Colors.PRIMARY,
+                    Settings.ZOOM_DIAMETER * 0.1f * scale,
+                    style = Stroke(width = 2f)
+                )
+                drawCircle( //outer circle
+                    Colors.PRIMARY,
+                    Settings.ZOOM_DIAMETER * scale,
                     style = Stroke(width = 2f)
                 )
             }
