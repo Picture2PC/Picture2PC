@@ -16,6 +16,7 @@ interface PicturePreparation {
     fun contrast()
     fun crop(clicks: List<Offset>, displayPictureSize: Size)
     fun copy()
+    fun rotate(clockwise: Boolean)
 
     fun setOriginalPicture(picture: Bitmap)
 }

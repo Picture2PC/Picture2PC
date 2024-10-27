@@ -46,10 +46,7 @@ fun Picture(
     val dragPoint = mHVM.dragPoint.collectAsState().value.translate(rotationState)
         .toTopLeftOrigin(pDVM.displayPictureSize)
 
-    Box(
-        modifier = Modifier.rotate(rotationState.angle)
-            .onSizeChanged { size -> pDVM.calculateRatio(size.toSize()) },
-    ) {
+    Box {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
