@@ -30,8 +30,4 @@ class ScreenSelectorViewModel {
     fun toBigPicture() {
         currentScreen.value = Screens.BIG_PICTURE
     }
-
-    fun openGallery(context: Context) {
-        context.startActivity(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI))
-    }
 }
