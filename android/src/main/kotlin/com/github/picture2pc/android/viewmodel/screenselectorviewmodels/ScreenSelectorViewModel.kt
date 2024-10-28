@@ -1,9 +1,6 @@
 package com.github.picture2pc.android.viewmodel.screenselectorviewmodels
 
 import androidx.compose.runtime.mutableStateOf
-import android.content.Context
-import android.content.Intent
-import android.provider.MediaStore
 
 class ScreenSelectorViewModel {
     private val currentScreen = mutableStateOf(Screens.MAIN)
