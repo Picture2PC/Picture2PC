@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.github.picture2pc.android.data.galleryimageselection.GalleryManager
 import com.github.picture2pc.android.di.appModule
 import com.github.picture2pc.android.ui.main.Screen
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -18,7 +19,7 @@ import org.koin.environmentProperties
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
-
+    private lateinit var galleryManager: GalleryManager
     @OptIn(InternalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Screen(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
         }
+        galleryManager = GalleryManager(this)
+        galleryManager.registerGalleryLauncher(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

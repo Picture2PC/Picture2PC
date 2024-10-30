@@ -32,8 +32,8 @@ import org.koin.compose.rememberKoinInject
 @Composable
 fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = rememberKoinInject()) {
     val focusManager = LocalFocusManager.current
-    val galleryManager = GalleryManager()
     val context = LocalContext.current
+    val galleryManager = GalleryManager(context)
     MaterialTheme(darkColorScheme()) {
         Surface(
             color = Colors.BACKGROUND,
@@ -63,8 +63,11 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
                         if (vertical) VerticalBigPictureScreen()
                         else HorizontalBigPictureScreen()
 
-                    ScreenSelectorViewModel.Screens.GALLERY ->
-                        galleryManager.manageGallery(context)
+                    ScreenSelectorViewModel.Screens.GALLERY -> {
+                        val image = galleryManager.getGalleryImage()
+                        if (vertical) VerticalBigPictureScreen(image)
+                        else HorizontalBigPictureScreen(image)
+                    }
                 }
             }
         }

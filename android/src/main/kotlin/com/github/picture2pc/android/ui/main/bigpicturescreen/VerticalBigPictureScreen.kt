@@ -1,5 +1,6 @@
 package com.github.picture2pc.android.ui.main.bigpicturescreen
 
+import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,11 +29,12 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun VerticalBigPictureScreen(
+    galleryImage: Bitmap? = null,
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
-    val image = cameraViewModel.takenImage.collectAsState(initial = null).value
-
+    val cameraImage = cameraViewModel.takenImage.collectAsState(initial = null).value
+    val image = galleryImage ?: cameraImage
     Box(
         modifier = Modifier
             .fillMaxSize()
