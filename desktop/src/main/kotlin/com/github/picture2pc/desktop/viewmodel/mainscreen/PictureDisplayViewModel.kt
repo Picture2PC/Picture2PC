@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
-import com.github.picture2pc.desktop.data.Toastnotification
+import com.github.picture2pc.desktop.data.ToastNotification
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +22,7 @@ class PictureDisplayViewModel(
     private val pP: PicturePreparation,
 ) {
     private val pictures = dataReceiver.pictures
-    private val td = Toastnotification()
+    private val td = ToastNotification()
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
