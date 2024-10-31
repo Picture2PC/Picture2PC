@@ -7,8 +7,7 @@ import javax.swing.JOptionPane
 class ToastNotification {
     fun displayNotification() {
         if (SystemTray.isSupported()) {
-            val trayIcon = SystemTray.getSystemTray().trayIcons
-            trayIcon[0].displayMessage(
+            SystemTray.getSystemTray().trayIcons[0].displayMessage(
                 "Picture2PC",
                 "Image received",
                 TrayIcon.MessageType.INFO
