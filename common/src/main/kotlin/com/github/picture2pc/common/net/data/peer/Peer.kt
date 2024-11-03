@@ -31,9 +31,8 @@ open class Peer {
         if (this === other) return true
         if (other !is Peer) return false
 
-        if (uuid != other.uuid) return false
-
-        return true
+        if (uuid == other.uuid) return true
+        return false
     }
 
     override fun hashCode(): Int {
