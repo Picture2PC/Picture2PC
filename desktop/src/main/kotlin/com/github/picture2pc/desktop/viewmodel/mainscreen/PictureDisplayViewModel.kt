@@ -74,8 +74,9 @@ class PictureDisplayViewModel(
     }
 
     fun reset() {
+        if (pictureQueue.isEmpty()) return
         mHVM.clear()
-        setPicture(picture.replayCache[selectedPictureIndex.value])
+        setPicture(pictureQueue[selectedPictureIndex.value])
     }
 
     fun doAll() {
