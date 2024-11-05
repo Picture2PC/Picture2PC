@@ -96,7 +96,7 @@ class CameraPictureManager(
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
-                val res = edgeDetect.detect(image.toBitmap()).minByOrNull { it.points.size }
+                val res = edgeDetect.detect(image.toBitmap()).filter { it.points.size >= 4 }.minByOrNull { it.points.size }
                 if (res != null)
                     _pictureCorners.value = res
                 image.close()

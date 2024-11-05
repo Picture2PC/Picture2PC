@@ -39,6 +39,7 @@ object Style {
             @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
 
         object States {
+            val SUSPENDED: Color = Color(0xFFC0C02C)
             val PENDING = Color(0xFF3557C8)
             val CONNECTED = Color(0xFF2FB86C)
 
