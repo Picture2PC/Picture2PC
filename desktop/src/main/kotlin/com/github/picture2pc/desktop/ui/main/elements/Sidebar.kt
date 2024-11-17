@@ -1,6 +1,8 @@
 package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Icons
@@ -27,17 +30,25 @@ import com.github.picture2pc.desktop.ui.constants.Settings
 @Composable
 fun Sidebar() {
     val showConnections = remember { mutableStateOf(true) }
+    val focusManager = LocalFocusManager.current
 
     Box(
         Modifier
             .fillMaxHeight()
             .width(Settings.SIDEBAR_WIDTH.dp)
             .background(Colors.SECONDARY, Shapes.WINDOW)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { focusManager.clearFocus() }
     ) {
         // Items in the Sidebar
         Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
             Header()
             Spacer(Modifier.height(Spacers.LARGE))
+
+            NameInputField()
+            Spacer(Modifier.height(Spacers.NORMAL))
 
             Row { ImageInteractionButtons() }
             Spacer(Modifier.height(Spacers.LARGE))

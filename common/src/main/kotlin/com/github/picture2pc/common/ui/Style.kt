@@ -17,6 +17,7 @@ object Style {
         val PRIMARY = Color(0xFF642bcf)
         val SECONDARY = Color(0xFF280f62)
         val ACCENT = Color(0xFF372469)
+        val ERROR = Color(0xFFC83538)
 
         @Composable
         fun provideButtonColors(
@@ -40,13 +41,15 @@ object Style {
 
         object States {
             val SUSPENDED: Color = Color(0xFFC0C02C)
-            val PENDING = Color(0xFF3557C8)
+
+            //val PENDING = Color(0xFF3557C8)
             val CONNECTED = Color(0xFF2FB86C)
 
-            //val WAITING_FOR_DATA = Color(0xFFC0C02C) // °-°
+            //val WAITING_FOR_DATA = Color(0xFFC0C02C)
             val RECEIVING = Color(0xFF3557C8)
-            val ERROR_WHILE_RECIEVING = Color(0xFFC83538)
-            val ERROR_WHILE_SENDING = Color(0xFFC83538)
+
+            //val ERROR_WHILE_RECIEVING = ERROR
+            //val ERROR_WHILE_SENDING = ERROR
             val DISCONNECTED = Color(0xFF000000)
         }
     }
