@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Shapes
@@ -29,7 +29,7 @@ import org.koin.core.qualifier.named
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NameInputField(
-    serverPreferencesRepository: ServerPreferencesRepository = rememberKoinInject(),
+    preferencesRepository: PreferencesRepository = rememberKoinInject(),
     coroutineScope: CoroutineScope = rememberKoinInject(named("viewModelCoroutineScope"))
 ) {
     var name by remember { mutableStateOf("") }
@@ -41,20 +41,20 @@ fun NameInputField(
             if (it.length >= Settings.MAX_NAME_LENGTH) {
                 isTextFieldError = true
                 coroutineScope.launch {
-                    serverPreferencesRepository.setConnectable(!isTextFieldError)
+                    preferencesRepository.setConnectable(!isTextFieldError)
                 }
                 return@OutlinedTextField
             } else {
                 isTextFieldError = false
                 name = it
                 coroutineScope.launch {
-                    serverPreferencesRepository.setConnectable(!isTextFieldError)
+                    preferencesRepository.setConnectable(!isTextFieldError)
                 }
             }
             if (it.isEmpty()) {
                 isTextFieldError = true
                 coroutineScope.launch {
-                    serverPreferencesRepository.setConnectable(!isTextFieldError)
+                    preferencesRepository.setConnectable(!isTextFieldError)
                 }
             }
         },
@@ -70,7 +70,7 @@ fun NameInputField(
         keyboardActions = KeyboardActions(onDone = {
             println("Done")
             coroutineScope.launch {
-                serverPreferencesRepository.setName(name)
+                preferencesRepository.setName(name)
             }
         }),
         colors = TextFieldDefaults.outlinedTextFieldColors(

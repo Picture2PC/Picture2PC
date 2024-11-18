@@ -1,12 +1,12 @@
 package com.github.picture2pc.desktop.di
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.net.datatransmitter.impl.MulticastTcpDataTransmitter
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.impl.PicturePreparationImpl
-import com.github.picture2pc.desktop.data.serverpreferences.impl.TestServerPreferencesRepository
+import com.github.picture2pc.desktop.data.preferences.impl.DesktopPreferencesRepository
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
@@ -29,7 +29,7 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-    single<ServerPreferencesRepository> { TestServerPreferencesRepository() }
+    single<PreferencesRepository> { DesktopPreferencesRepository() }
 
     single<PicturePreparation> { PicturePreparationImpl() }
 

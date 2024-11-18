@@ -1,7 +1,7 @@
 package com.github.picture2pc.android.net.datatransmitter.impl
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 open class MulticastTcpDefaultDataTransmitter(
     private val multicastPayloadTransceiver: MulticastPayloadTransceiver,
     private val tcpPayloadTransceiver: TcpPayloadTransceiver,
-    private val serverPreferences: ServerPreferencesRepository,
+    private val serverPreferences: PreferencesRepository,
     private val backgroundScope: CoroutineScope,
 ) {
     private val _connectedDevices: MutableStateFlow<List<DefaultDevice>> =

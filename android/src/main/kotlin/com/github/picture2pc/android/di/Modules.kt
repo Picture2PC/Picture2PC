@@ -3,8 +3,7 @@ package com.github.picture2pc.android.di
 import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
-import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
+import com.github.picture2pc.android.data.serverpreferences.impl.DataStorePreferencesRepository
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.github.picture2pc.android.data.takeimage.impl.CameraPictureManager
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
@@ -13,6 +12,7 @@ import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraView
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.di.commonAppModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,8 +31,8 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-    single<ServerPreferencesRepository> {
-        DataStoreServerPreferencesRepository(
+    single<PreferencesRepository> {
+        DataStorePreferencesRepository(
             get(),
             get(named("backgroundCoroutineScope"))
         )

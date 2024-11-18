@@ -6,7 +6,7 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+    google()
 }
 
 group = "com.github.picture2pc.desktop"

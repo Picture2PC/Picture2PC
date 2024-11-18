@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesDefaults
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.preferences.PreferencesDefaults
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,10 +20,10 @@ private object PreferenceKeys {
     val CONNECTABLE = booleanPreferencesKey("server_connectable")
 }
 
-class DataStoreServerPreferencesRepository(
+class DataStorePreferencesRepository(
     private val context: Context,
-    private val backgroundScope: CoroutineScope,
-) : ServerPreferencesRepository() {
+    backgroundScope: CoroutineScope,
+) : PreferencesRepository() {
 
     companion object {
         private val Context.settingsDataStore by preferencesDataStore(
@@ -32,7 +32,7 @@ class DataStoreServerPreferencesRepository(
     }
 
     override val name = context.settingsDataStore.data.map { preferences ->
-        preferences[PreferenceKeys.NAME] ?: ServerPreferencesDefaults.NAME
+        preferences[PreferenceKeys.NAME] ?: PreferencesDefaults.NAME
     }.stateIn(
         scope = backgroundScope,
         started = SharingStarted.Eagerly,
@@ -40,7 +40,7 @@ class DataStoreServerPreferencesRepository(
     )
 
     override val connectable = context.settingsDataStore.data.map { preferences ->
-        preferences[PreferenceKeys.CONNECTABLE] ?: ServerPreferencesDefaults.CONNECTABLE
+        preferences[PreferenceKeys.CONNECTABLE] ?: PreferencesDefaults.CONNECTABLE
     }.stateIn(
         scope = backgroundScope,
         started = SharingStarted.Eagerly,

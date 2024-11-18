@@ -2,14 +2,15 @@ package com.github.picture2pc.android.viewmodel.mainscreenviewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class BroadcastViewModel(private val serverPreferences: ServerPreferencesRepository) : ViewModel() {
+class BroadcastViewModel(private val serverPreferences: PreferencesRepository) :
+    ViewModel() {
     // This is because writing needs a buffer, so
     // that it only saves when *Done* is pressed
     private val _serverName = MutableStateFlow(serverPreferences.name.value)
