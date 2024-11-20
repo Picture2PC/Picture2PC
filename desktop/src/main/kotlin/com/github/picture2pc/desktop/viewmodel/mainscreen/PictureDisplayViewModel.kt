@@ -24,7 +24,7 @@ class PictureDisplayViewModel(
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
-    var displayPictureSize = Size(0f, 0f)
+    private var displayPictureSize = Size(0f, 0f)
 
     init {
         pictures.onEach {
@@ -61,13 +61,18 @@ class PictureDisplayViewModel(
         this.displayPictureSize = displayPictureSize
     }
 
+    fun rotate(clockwise: Boolean) {
+        pP.rotate(clockwise)
+        mHVM.rotate(clockwise)
+    }
+
     fun getRatio(): Float {
         return pP.ratio
     }
 
     fun reset() {
         mHVM.clear()
-        setPicture(pictures.replayCache[selectedPictureIndex.value])
+        pictures.replayCache.getOrNull(selectedPictureIndex.value) ?: return
     }
 
     fun doAll() {

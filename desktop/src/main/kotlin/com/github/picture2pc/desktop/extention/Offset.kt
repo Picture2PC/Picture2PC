@@ -3,26 +3,16 @@ package com.github.picture2pc.desktop.extention
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.github.picture2pc.desktop.data.RotationState
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-/**
- * Translates the offset based on the rotation state
- *
- * **Note:** The offset should be normalized and it should be in the top left origin
- * @param rotationState The rotation state to translate the offset based on
- * @return The translated offset
- */
+
 fun Offset.translate(
-    rotationState: RotationState
+    clockwise: Boolean
 ): Offset {
-    return when (rotationState) {
-        RotationState.ROTATION_0, RotationState.ROTATION_180 -> this
-        RotationState.ROTATION_90, RotationState.ROTATION_270 -> Offset(
-            1 - this.x,
-            1 - this.y
-        )
+    return when (clockwise) {
+        true -> Offset(-this.y, this.x)
+        false -> Offset(this.y, -this.x)
     }
 }
 
@@ -47,6 +37,13 @@ fun Offset.isInBounds(rectangle: Rect): Boolean {
                     this.y < rectangle.top ||
                     this.y > rectangle.bottom
             )
+}
+
+fun Offset.clampInBounds(rectangle: Rect): Offset {
+    return Offset(
+        this.x.coerceIn(rectangle.left, rectangle.right),
+        this.y.coerceIn(rectangle.top, rectangle.bottom)
+    )
 }
 
 fun Offset.distanceTo(secondPair: Offset): Float {

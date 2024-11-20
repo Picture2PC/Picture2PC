@@ -20,6 +20,7 @@ import org.jetbrains.skia.ColorMatrix
 import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skia.Paint
 import org.jetbrains.skiko.toBufferedImage
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -101,6 +102,13 @@ class PicturePreparationImpl : PicturePreparation {
         _editedBitmap.value = dst.toBitmap()
     }
 
+    override fun rotate(clockwise: Boolean) {
+        val dst = Mat()
+        val rotation = if (clockwise) Core.ROTATE_90_CLOCKWISE else Core.ROTATE_90_COUNTERCLOCKWISE
+        Core.rotate(editedBitmap.value.toMat(), dst, rotation)
+        _editedBitmap.value = dst.toBitmap()
+    }
+
     override fun copy() {
         if (editedBitmap.value.isEmpty) return
         addToClipboard(editedBitmap.value.toBufferedImage())
@@ -108,7 +116,10 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
-        ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
+        ratio = max(
+            editedBitmap.value.width.toFloat() / displayPictureSize.width,
+            editedBitmap.value.height.toFloat() / displayPictureSize.height
+        )
     }
 
     private fun clearBitmap(): Bitmap {
