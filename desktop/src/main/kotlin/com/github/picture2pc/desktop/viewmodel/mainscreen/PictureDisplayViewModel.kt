@@ -26,7 +26,7 @@ class PictureDisplayViewModel(
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
-    var displayPictureSize = Size(0f, 0f)
+    private var displayPictureSize = Size(0f, 0f)
 
     init {
         picture.onEach {
@@ -67,6 +67,11 @@ class PictureDisplayViewModel(
     fun calculateRatio(displayPictureSize: Size) {
         pP.calculateRatio(displayPictureSize)
         this.displayPictureSize = displayPictureSize
+    }
+
+    fun rotate(clockwise: Boolean) {
+        pP.rotate(clockwise)
+        mHVM.rotate(clockwise)
     }
 
     fun getRatio(): Float {
