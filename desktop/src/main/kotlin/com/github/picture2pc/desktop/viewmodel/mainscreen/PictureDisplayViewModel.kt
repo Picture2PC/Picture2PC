@@ -65,7 +65,7 @@ class PictureDisplayViewModel(
         pP.rotate(clockwise)
         mHVM.rotate(clockwise)
     }
-    
+
     fun getRatio(): Float {
         return pP.ratio
     }

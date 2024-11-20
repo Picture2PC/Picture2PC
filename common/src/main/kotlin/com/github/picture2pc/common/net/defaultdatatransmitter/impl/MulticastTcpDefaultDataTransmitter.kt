@@ -2,7 +2,6 @@ package com.github.picture2pc.android.net.datatransmitter.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
-import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
@@ -32,7 +31,7 @@ open class MulticastTcpDefaultDataTransmitter(
     val pictures: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
-        const val TIME_BETWEEN_ONLINE_EMIT = 2000L
+        const val TIME_BETWEEN_ONLINE_EMIT = 3000L
     }
 
     private val uuidNameMap = mutableMapOf<String, MutableStateFlow<String>>()
@@ -44,19 +43,6 @@ open class MulticastTcpDefaultDataTransmitter(
 
             multicastPayloadTransceiver.receivedPayloads.onEach { payload ->
                 when (payload) {
-                    is MulticastPayload.ListPeers -> {
-                        if (serverPreferences.connectable.value && !tcpPayloadTransceiver.connectedPeers.value.contains(
-                                payload.sourcePeer
-                            )
-                        ) {
-                            newUUidName(serverPreferences.name.value, payload.clientName)
-                            backgroundScope.launch {
-                                emitServerOnline(serverPreferences.name.value)
-                                tcpPayloadTransceiver.connect(payload.sourcePeer)
-                            }
-                        }
-                    }
-
                     is MulticastPayload.PeerTcpOnline -> {
                         newUUidName(payload.sourcePeer.uuid, payload.clientName)
                         if (serverPreferences.connectable.value) {
@@ -84,7 +70,7 @@ open class MulticastTcpDefaultDataTransmitter(
                     }
 
                     is TcpPayload.Picture -> {
-                        _pictures.tryEmit(it)
+                        _pictures.emit(it)
                     }
 
                     else -> {}
@@ -96,27 +82,25 @@ open class MulticastTcpDefaultDataTransmitter(
 
             while (isActive) {
                 if (serverPreferences.connectable.value) {
-                    emitListServers()
+                    emitServerOnline(serverPreferences.name.value)
                 }
                 kotlinx.coroutines.delay(TIME_BETWEEN_ONLINE_EMIT)
             }
         }
 
-        tcpPayloadTransceiver.connectedPeers.onEach { it ->
-            it.forEach {
-                if (!uuidNameMap.containsKey(it.uuid)) {
-                    requestNameTcpPeer(it)
-                    newUUidName(it.uuid, "Unknown")
+        tcpPayloadTransceiver.connectedPeers.onEach { connected ->
+            connected.forEach {
+                if (!uuidNameMap.containsKey(it.peer.uuid)) {
+                    newUUidName(it.peer.uuid, "Unknown")
+                    requestNameTcpPeer(it.peer)
                 }
             }
-            _connectedDevices.value = it.map {
+            _connectedDevices.emit(connected.map {
                 DefaultDevice(
-                    uuidNameMap[it.uuid]!!,
-                    tcpPayloadTransceiver.getPeerStateAsStateFlow(it) ?: MutableStateFlow(
-                        ClientState.DISCONNECTED.NO_ERROR
-                    )
+                    uuidNameMap[it.peer.uuid]!!,
+                    it.clientStateFlow
                 )
-            }
+            })
         }.launchIn(backgroundScope)
     }
 
@@ -124,9 +108,9 @@ open class MulticastTcpDefaultDataTransmitter(
         emitListServers()
     }
 
-    private fun newUUidName(uuid: String, name: String) {
+    private suspend fun newUUidName(uuid: String, name: String) {
         if (uuidNameMap.containsKey(uuid))
-            uuidNameMap[uuid]?.value = name
+            uuidNameMap[uuid]?.emit(name)
         else
             uuidNameMap[uuid] = MutableStateFlow(name)
     }

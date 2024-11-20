@@ -2,9 +2,13 @@ package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -111,24 +115,25 @@ fun Picture(
                 )
 
             }
-
-            // Part that is responsible for hover zoomed in preview
-            if (dragPoint == null) return@Canvas
-            val absoluteDragPoint = dragPoint.denormalize(canvasSize.value)
-            translate(
-                absoluteDragPoint.x,
-                absoluteDragPoint.y
-            ) {
-                clipPath(Path().apply {
-                    addOval(
-                        Rect(
-                            Offset(
-                                Settings.ZOOM_DIAMETER,
-                                Settings.ZOOM_DIAMETER
-                            ) * -scale,
-                            Size(
-                                Settings.ZOOM_DIAMETER * scale * 2,
-                                Settings.ZOOM_DIAMETER * scale * 2
+    if (!isDragging) return
+    Box(
+        Modifier
+            .offset(dragPoint.x.dp, dragPoint.y.dp)
+            .border(2.dp, Colors.PRIMARY, CircleShape)
+    ) {
+        val ratio = pDVM.getRatio()
+        Canvas(Modifier.size(Settings.ZOOM_DIAMETER.dp)) {
+            clipPath(Path().apply { addOval(Rect(Offset.Zero, size)) }) {
+                translate( // movement in picture
+                    left = -dragPoint.x * Settings.ZOOM_FACTOR,
+                    top = -dragPoint.y * Settings.ZOOM_FACTOR
+                ) {
+                    scale(Settings.ZOOM_FACTOR / ratio) { // Scaled picture
+                        drawImage(
+                            pictureBitmap.asComposeImageBitmap(),
+                            topLeft = Offset(
+                                (-pictureBitmap.width / 2f),
+                                (-pictureBitmap.height / 2f)
                             )
                         )
                     )
