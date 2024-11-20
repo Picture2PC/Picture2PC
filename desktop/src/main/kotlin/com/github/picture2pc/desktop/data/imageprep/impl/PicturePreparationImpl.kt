@@ -116,7 +116,10 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun calculateRatio(displayPictureSize: Size) {
         if (displayPictureSize == Size(0f, 0f)) return
-        ratio = editedBitmap.value.width.toFloat() / displayPictureSize.width
+        ratio = max(
+            editedBitmap.value.width.toFloat() / displayPictureSize.width,
+            editedBitmap.value.height.toFloat() / displayPictureSize.height
+        )
     }
 
     private fun clearBitmap(): Bitmap {

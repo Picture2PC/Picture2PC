@@ -1,13 +1,13 @@
 package com.github.picture2pc.desktop.viewmodel.mainscreen
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.toRect
 import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
+import com.github.picture2pc.desktop.data.next
+import com.github.picture2pc.desktop.extention.clampInBounds
 import com.github.picture2pc.desktop.extention.distanceTo
-import com.github.picture2pc.desktop.extention.isInBounds
-import com.github.picture2pc.desktop.extention.normalize
 import com.github.picture2pc.desktop.extention.toCenteredOrigin
 import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.extention.translate
@@ -26,65 +26,64 @@ enum class DraggingSpeed(val iconPath: String, val speed: Float) {
         FAST -> SLOW
     }
 }
-
 class MovementHandlerViewModel {
-    private val _clicks = MutableStateFlow<List<Offset>>(emptyList())
-
-    /**
-     * A list of **normalized** and **top left centered** clicks
-     */
+    private val _draggingSpeed = MutableStateFlow(DraggingSpeed.SLOW)
+    val draggingSpeed = _draggingSpeed.asStateFlow()
+    private val _clicks: MutableStateFlow<List<Offset>> = MutableStateFlow(listOf())
     val clicks: StateFlow<List<Offset>> = _clicks.asStateFlow()
-
-    private var dragStart: Offset = Offset(0f, 0f)
-    private val _dragPoint = MutableStateFlow(Offset.Zero)
-    val dragPoint: StateFlow<Offset> get() = _dragPoint
-    val dragging = MutableStateFlow(false)
-    val dragActive = MutableStateFlow(false)
-    val draggingSpeed = MutableStateFlow(DraggingSpeed.FAST)
-
     val rotationState = MutableStateFlow(RotationState.ROTATION_0)
+    private val _dragPoint = MutableStateFlow<Offset?>(null)
+    val dragPoint = _dragPoint.asStateFlow()
+
+    var prevEnabled: Boolean = true
+        private set
 
     /**
-     * Sets the clicks to the given list of clicks
-     * The list should contain 4 clicks
-     * @param clicks The list of clicks to set. The clicks should be **normalized**
-     */
-    fun setClicks(clicks: List<Offset>) {
-        if (clicks.size != 4) return
-        _clicks.value = sortClicks(clicks)
-    }
-
-    /**
-     * Adds a click to the list of clicks
-     * If the list has 4 clicks, it will sort them and set them
-     * @param click The click to add. The click should be **normalized**
+     * @param click A normalized offset starting at (0, 0)[top left] ending (1, 1)[bottom, right]
      */
     fun addClick(click: Offset) {
-        if (clicks.value.size == 4) clear()
-        _clicks.value += click.translate(rotationState.value)
-        if (clicks.value.size == 4) setClicks(clicks.value) // Set clicks to sort clicks
+        val clickC = clampOffset(click)
+        if (clicks.value.size == CLICK_COUNT) clearClicks()
+        _clicks.value = sortClicks(clicks.value + clickC) // Set clicks to sort clicks
     }
 
-    /**
-     * Removes a click from the list of clicks
-     * @param click The click to remove. The click should be **normalized**
-     */
+    fun setDrag(pos: Offset) {
+        val posC = clampOffset(pos)
+        if (clicks.value.isNotEmpty() && dragPoint.value == null) {
+            val (closestPoint, distance) = getClosestPoint(posC)
+            if (distance < BUTTON_CHOOSE_HITRADIUS)
+                removeClick(closestPoint)
+        }
+        _dragPoint.value = posC
+    }
+
+    fun endDrag() {
+        dragPoint.value?.let { addClick(it) }
+        _dragPoint.value = null
+    }
+
+    private fun clampOffset(offset: Offset): Offset {
+        val min = (0.5 * BUTTON_CHOOSE_HITRADIUS).toFloat()
+        val max = (1f - 0.5 * BUTTON_CHOOSE_HITRADIUS).toFloat()
+        return offset.clampInBounds(Rect(min, min, max, max))
+    }
+
     private fun removeClick(click: Offset) {
         _clicks.value -= click
     }
 
-    /**
-     * Clears the list of clicks
-     */
-    fun clear() {
-        _clicks.value = emptyList()
+    private fun getClosestPoint(point: Offset): Pair<Offset, Float> {
+        val distances = mutableListOf<Float>()
+        for (click in clicks.value) {
+            val distance = point.distanceTo(click)
+            distances.add(distance)
+        }
+        val shortestDistance = distances.minOrNull() ?: 0f
+        val indexOfLowestDistance = distances.indexOf(shortestDistance)
+        return Pair(clicks.value[indexOfLowestDistance], shortestDistance)
     }
 
-    /**
-     * Sorts the clicks in a clockwise order
-     * @param clicks The list of clicks to sort
-     */
-    private fun sortClicks(clicks: List<Offset>): List<Offset> {
+    fun sortClicks(clicks: List<Offset>): List<Offset> {
         // Calculate the centroid of the four points
         val centroid = Offset(
             clicks.map { it.x }.average().toFloat(),
@@ -102,52 +101,34 @@ class MovementHandlerViewModel {
         return angles.sortedBy { it.second }.map { it.first }
     }
 
-    /**
-     * Returns the closest point to the given point
-     * @param point The point to compare to
-     */
-    private fun getClosestPoint(point: Offset): Pair<Offset, Float> {
-        val distances = mutableListOf<Float>()
-        for (click in clicks.value) {
-            val distance = point.translate(rotationState.value).distanceTo(click)
-            distances.add(distance)
-        }
-        val shortestDistance = distances.minOrNull() ?: 0f
-        val indexOfLowestDistance = distances.indexOf(shortestDistance)
-        return Pair(clicks.value[indexOfLowestDistance], shortestDistance)
+    private fun clearClicks() {
+        _clicks.value = listOf()
     }
 
-    /**
-     * Sets the drag point to the given point
-     * @param dragPoint The point to set the drag point to. The point should **not be normalized**
-     * @param pictureSize The size of the *displayed* picture
-     * @param isStartingPoint Whether the drag point is the starting point of the drag
-     */
-    fun setDrag(
-        dragPoint: Offset,
-        pictureSize: Size,
-        isStartingPoint: Boolean = false
-    ) {
-        if (clicks.value.isNotEmpty() && isStartingPoint) {
-            val (closestPoint, distance) = getClosestPoint(dragPoint.normalize(pictureSize))
-            if (distance < 0.01) {
-                removeClick(closestPoint)
-                dragStart = closestPoint.toCenteredOrigin(pictureSize)
-            }
-        }
-        this._dragPoint.value = dragPoint.toCenteredOrigin(pictureSize)
-        dragging.value = true
+    fun clear() {
+        endDrag()
+        clearClicks()
     }
 
-    /**
-     * Ends the drag
-     * @param pictureSize The size of the *displayed* picture
-     */
-    fun endDrag(pictureSize: Size) {
-        if (!dragPoint.value.toTopLeftOrigin(pictureSize).isInBounds(pictureSize.toRect())
-        ) return
-        addClick(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
-        println(dragPoint.value.toTopLeftOrigin(pictureSize).normalize(pictureSize))
-        dragging.value = false
+    fun setClicks(clicks: List<Offset>) {
+        _clicks.value = clicks.map {
+            clampOffset(it)
+        }
+    }
+
+    fun rotate(clockwise: Boolean) {
+        rotationState.value = rotationState.value.next(clockwise)
+        _clicks.value = _clicks.value.map {
+            it.toCenteredOrigin(Size(1f, 1f)).translate(clockwise).toTopLeftOrigin(Size(1f, 1f))
+        }
+    }
+
+    fun updateDraggingSpeed() {
+        _draggingSpeed.value = draggingSpeed.value.next()
+    }
+
+    companion object {
+        const val CLICK_COUNT = 4
+        const val BUTTON_CHOOSE_HITRADIUS = 0.01
     }
 }

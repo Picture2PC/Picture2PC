@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Shapes
@@ -25,13 +23,9 @@ import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.RotationButtons
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
 import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
-import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
-import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen(
-    pDVM: PictureDisplayViewModel = rememberKoinInject()
-) {
+fun MainScreen() {
     Box(
         Modifier
             .fillMaxSize()
@@ -55,7 +49,7 @@ fun MainScreen(
                         Borders.BORDER_STANDARD,
                         Colors.PRIMARY,
                         Shapes.WINDOW
-                    ).onGloballyPositioned { pDVM.calculateRatio(it.size.toSize()) }
+                    )
                         .fillMaxSize()
                         .padding(Spacers.NORMAL),
                     Alignment.Center

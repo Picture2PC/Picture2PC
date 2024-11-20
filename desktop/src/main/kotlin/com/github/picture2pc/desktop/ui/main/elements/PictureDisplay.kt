@@ -7,11 +7,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -20,13 +23,12 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.normalize
-import com.github.picture2pc.desktop.extention.toTopLeftOrigin
-import com.github.picture2pc.desktop.extention.translate
 import com.github.picture2pc.desktop.ui.constants.Settings
-import com.github.picture2pc.desktop.ui.util.customCursor
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
@@ -36,59 +38,66 @@ fun Picture(
     pDVM: PictureDisplayViewModel = rememberKoinInject(),
     mHVM: MovementHandlerViewModel = rememberKoinInject()
 ) {
+    val imageSize = remember { mutableStateOf(Size(1f, 1f)) }
+    val canvasSize = remember { mutableStateOf(Size(1f, 1f)) }
+
     val pictureBitmap = pDVM.currentPicture.value
     val clicks = mHVM.clicks.collectAsState().value
-    val rotationState = mHVM.rotationState.collectAsState().value
-    val isDragging = mHVM.dragging.collectAsState().value
-    val dragPoint = mHVM.dragPoint.collectAsState().value.translate(rotationState)
-        .toTopLeftOrigin(pDVM.displayPictureSize)
+    val dragPoint = mHVM.dragPoint.collectAsState().value
 
-    Box {
+
+    Box(Modifier.onGloballyPositioned { canvasSize.value = it.size.toSize() }) {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
             modifier = Modifier
+                .onGloballyPositioned { imageSize.value = it.size.toSize() }
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        mHVM.addClick(offset.normalize(pDVM.displayPictureSize))
+                        mHVM.addClick(offset.normalize(imageSize.value))
                     }
                 }
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { dragStart ->
                             mHVM.setDrag(
-                                dragStart,
-                                pDVM.displayPictureSize,
-                                true
+                                dragStart.normalize(imageSize.value)
                             )
                         },
                         onDrag = { change, _ ->
                             mHVM.setDrag(
-                                change.position,
-                                pDVM.displayPictureSize
+                                change.position.normalize(imageSize.value),
                             )
                         },
                         onDragEnd = {
-                            mHVM.endDrag(pDVM.displayPictureSize)
+                            mHVM.endDrag()
                         }
                     )
                 }
                 .pointerHoverIcon(
-                    if (mHVM.dragActive.value) PointerIcon(customCursor())
-                    else PointerIcon.Default
+                    PointerIcon.Default
                 )
         )
         Canvas(Modifier) {
-            val scale = pDVM.displayPictureSize.minDimension
+            val scale = canvasSize.value.minDimension
 
             clicks.forEach {
-                drawCircle(Colors.PRIMARY, 5f, it.denormalize(pDVM.displayPictureSize))
+                drawCircle(Colors.PRIMARY, 5f, it.denormalize(canvasSize.value))
             }
-            if (clicks.size == 4) {
-                val tl = clicks[0].denormalize(pDVM.displayPictureSize)
-                val tr = clicks[1].denormalize(pDVM.displayPictureSize)
-                val br = clicks[2].denormalize(pDVM.displayPictureSize)
-                val bl = clicks[3].denormalize(pDVM.displayPictureSize)
+            val selectedClicks =
+                if (clicks.size == 3 && dragPoint != null && mHVM.prevEnabled) mHVM.sortClicks(
+                    clicks + dragPoint
+                ) else clicks
+            if (selectedClicks.size == 4) {
+                // Final Rectangle
+                val tl = selectedClicks[0].denormalize(canvasSize.value)
+                val tr = selectedClicks[1].denormalize(canvasSize.value)
+                val br = selectedClicks[2].denormalize(canvasSize.value)
+                val bl = selectedClicks[3].denormalize(canvasSize.value)
+                val pathEffect = if (dragPoint != null) PathEffect.dashPathEffect(
+                    floatArrayOf(10f, 10f),
+                    0f
+                ) else null
                 drawPath(
                     Path().apply {
                         moveTo(tl.x, tl.y)
@@ -98,15 +107,17 @@ fun Picture(
                         close()
                     },
                     Colors.PRIMARY,
-                    style = Stroke(width = 2f)
+                    style = Stroke(width = 2f, pathEffect = pathEffect)
                 )
+
             }
 
             // Part that is responsible for hover zoomed in preview
-            if (!isDragging) return@Canvas
+            if (dragPoint == null) return@Canvas
+            val absoluteDragPoint = dragPoint.denormalize(canvasSize.value)
             translate(
-                dragPoint.x,
-                dragPoint.y
+                absoluteDragPoint.x,
+                absoluteDragPoint.y
             ) {
                 clipPath(Path().apply {
                     addOval(
@@ -123,9 +134,10 @@ fun Picture(
                     )
                 }) {
                     translate(
-                        -dragPoint.x * Settings.ZOOM_FACTOR,
-                        -dragPoint.y * Settings.ZOOM_FACTOR
+                        -absoluteDragPoint.x * Settings.ZOOM_FACTOR,
+                        -absoluteDragPoint.y * Settings.ZOOM_FACTOR
                     ) {
+                        pDVM.calculateRatio(imageSize.value)
                         scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
                             drawImage(
                                 pictureBitmap.asComposeImageBitmap()
