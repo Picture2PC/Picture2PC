@@ -21,13 +21,20 @@ import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -38,6 +45,7 @@ import java.io.IOException
 class CameraPictureManager(
     private val context: Context,
     private val edgeDetect: EdgeDetect,
+    private val coroutineScope: CoroutineScope,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -76,8 +84,13 @@ class CameraPictureManager(
                     val image =
                         BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
                     val rotatedImage = rotateImageIfRequired(image, imageData)
-                    lifecycleOwner.lifecycleScope.launch {
-                        _takenImages.emit(rotatedImage)
+                    coroutineScope.launch {
+                        val cJob = coroutineScope.async {
+                            val res = runDetection(rotatedImage)
+                            return@async res
+                        }
+                        cJob.start()
+                        _takenImages.emit(Pair(rotatedImage, cJob))
                     }
                 }
             }
@@ -90,18 +103,18 @@ class CameraPictureManager(
             val preview = Preview.Builder().build().also {
                 it.surfaceProvider = previewView.surfaceProvider
             }
-
             val analyzerUseCase = ImageAnalysis.Builder()
                 .setOutputImageRotationEnabled(true)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
-                val res = edgeDetect.detect(image.toBitmap()).filter { it.points.size >= 4 }.minByOrNull { it.points.size }
+                val res = runDetection(image.toBitmap())
                 if (res != null)
                     _pictureCorners.value = res
                 image.close()
             }
-            edgeDetect.load(context)
+            runBlocking { edgeDetect.load(context) }
+
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
@@ -114,7 +127,7 @@ class CameraPictureManager(
     }
 
     override fun saveImageToCache() {
-        val image = takenImages.replayCache.lastOrNull() ?: return
+        val image = takenImages.replayCache.lastOrNull()?.first ?: return
 
         val fileUri = File.createTempFile("img.png", ".png", context.externalCacheDir)
         try {
@@ -125,6 +138,10 @@ class CameraPictureManager(
         } catch (e: IOException) {
             Log.e("CameraImageManager", "Error saving image to cache", e)
         }
+    }
+
+    private fun runDetection(image: Bitmap): DetectedBox? {
+        return edgeDetect.detect(image).filter { it.points.size >= 4 }.minByOrNull { it.points.size }
     }
 
     fun rotateImageIfRequired(image: Bitmap, imageData: ByteArray): Bitmap {
@@ -148,7 +165,7 @@ class CameraPictureManager(
     }
 
     private val _takenImages =
-        MutableSharedFlow<Bitmap>(replay = 3)            //read and write
-    override val takenImages: SharedFlow<Bitmap> =
+        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3)            //read and write
+    override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
         _takenImages.asSharedFlow()  //read only
 }

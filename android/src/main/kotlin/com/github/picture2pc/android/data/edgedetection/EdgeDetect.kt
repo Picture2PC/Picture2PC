@@ -7,7 +7,7 @@ import org.opencv.core.Point
 import org.opencv.core.Rect
 
 interface EdgeDetect {
-    fun load(context: Context)
+    suspend fun load(context: Context)
     fun detect(bit: Bitmap): List<DetectedBox>
 }
 
