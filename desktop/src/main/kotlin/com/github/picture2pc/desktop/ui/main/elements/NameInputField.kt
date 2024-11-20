@@ -2,8 +2,6 @@ package com.github.picture2pc.desktop.ui.main.elements
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -13,7 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.ui.Colors
@@ -26,7 +28,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
 import org.koin.core.qualifier.named
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NameInputField(
     preferencesRepository: PreferencesRepository = rememberKoinInject(),
@@ -62,17 +64,18 @@ fun NameInputField(
         label = { Text("Name") },
         modifier = Modifier
             .fillMaxWidth()
-            .height(Heights.BUTTON + 10.dp),
+            .height(Heights.BUTTON + 10.dp)
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Enter) {
+                    coroutineScope.launch {
+                        preferencesRepository.setName(name)
+                    }
+                }
+                true
+            },
         singleLine = true,
         shape = Shapes.BUTTON,
         textStyle = TextStyles.NORMAL,
-        keyboardOptions = KeyboardOptions.Default,
-        keyboardActions = KeyboardActions(onDone = {
-            println("Done")
-            coroutineScope.launch {
-                preferencesRepository.setName(name)
-            }
-        }),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = Colors.PRIMARY,
             unfocusedBorderColor = Colors.PRIMARY,

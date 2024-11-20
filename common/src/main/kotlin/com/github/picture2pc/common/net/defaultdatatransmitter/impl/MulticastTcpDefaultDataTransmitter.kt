@@ -124,7 +124,7 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.sendPayload(TcpPayload.RequestName(peer))
     }
 
-    suspend fun sendPicture(payload: TcpPayload.Picture) {
+    open suspend fun sendPicture(payload: TcpPayload.Picture) {
         tcpPayloadTransceiver.sendPayload(payload)
     }
 
