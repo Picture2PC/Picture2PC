@@ -46,33 +46,38 @@ fun Sidebar() {
         Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
             Header()
             Spacer(Modifier.height(Spacers.LARGE))
+    // Items in the Sidebar
+    Column(Modifier.padding(Spacers.NORMAL).fillMaxSize()) {
+        Header()
+        Spacer(Modifier.height(Spacers.LARGE))
 
             NameInputField()
             Spacer(Modifier.height(Spacers.NORMAL))
 
             Row { ImageInteractionButtons() }
             Spacer(Modifier.height(Spacers.LARGE))
+        Row { ImageInteractionButtons() }
+        Spacer(Modifier.height(Spacers.LARGE))
 
-            // CONNECTION INFO
-            if (showConnections.value) {
-                ConnectionInfo(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                        .background(Colors.ACCENT, Shapes.BUTTON)
-                )
-                Spacer(Modifier.height(Spacers.NORMAL))
-            } else Spacer(Modifier.weight(1f))
+        // CONNECTION INFO
+        if (showConnections.value) {
+            ConnectionInfo(
+                Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .background(Colors.ACCENT, Shapes.BUTTON)
+            )
+            Spacer(Modifier.height(Spacers.NORMAL))
+        } else Spacer(Modifier.weight(1f))
 
-            // Connection Info Toggle Button
-            Box(Modifier.fillMaxWidth()) {
-                TooltipIconButton(
-                    Modifier.align(Alignment.BottomEnd),
-                    Descriptions.INFO,
-                    Icons.Desktop.INFO,
-                    Colors.ACCENT,
-                ) { showConnections.value = !showConnections.value }
-            }
+        // Connection Info Toggle Button
+        Box(Modifier.fillMaxWidth()) {
+            TooltipIconButton(
+                Modifier.align(Alignment.BottomEnd),
+                Descriptions.INFO,
+                Icons.Desktop.INFO,
+                Colors.ACCENT,
+            ) { showConnections.value = !showConnections.value }
         }
     }
 }
