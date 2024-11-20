@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.net.datatransmitter.impl
+package com.github.picture2pc.common.net.defaultdatatransmitter.impl
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
@@ -27,8 +27,9 @@ open class MulticastTcpDefaultDataTransmitter(
         MutableStateFlow(emptyList())
     val connectedDevices: StateFlow<List<DefaultDevice>> = _connectedDevices
 
-    private val _pictures: MutableSharedFlow<TcpPayload.Picture> = MutableSharedFlow(5, 1)
-    val pictures: SharedFlow<TcpPayload.Picture> = _pictures
+    private val _pictures: MutableSharedFlow<TcpPayload.Picture> =
+        MutableSharedFlow(extraBufferCapacity = 1)
+    val picture: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
         const val TIME_BETWEEN_ONLINE_EMIT = 3000L
