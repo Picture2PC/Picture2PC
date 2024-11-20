@@ -13,9 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.ui.Colors
@@ -31,6 +33,7 @@ import org.koin.core.qualifier.named
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NameInputField(
+    focusManager: FocusManager,
     preferencesRepository: PreferencesRepository = rememberKoinInject(),
     coroutineScope: CoroutineScope = rememberKoinInject(named("viewModelCoroutineScope"))
 ) {
@@ -41,26 +44,20 @@ fun NameInputField(
         value = name,
         onValueChange = {
             if (it.length >= Settings.MAX_NAME_LENGTH) {
-                isTextFieldError = true
-                coroutineScope.launch {
-                    preferencesRepository.setConnectable(!isTextFieldError)
-                }
                 return@OutlinedTextField
             } else {
                 isTextFieldError = false
                 name = it
-                coroutineScope.launch {
-                    preferencesRepository.setConnectable(!isTextFieldError)
-                }
             }
             if (it.isEmpty()) {
+                name = it
                 isTextFieldError = true
-                coroutineScope.launch {
-                    preferencesRepository.setConnectable(!isTextFieldError)
-                }
+            }
+            coroutineScope.launch {
+                preferencesRepository.setConnectable(!isTextFieldError)
             }
         },
-        placeholder = { Text("Unknown") },
+        placeholder = { Text("Username") },
         label = { Text("Name") },
         modifier = Modifier
             .fillMaxWidth()
@@ -68,10 +65,15 @@ fun NameInputField(
             .onKeyEvent { keyEvent ->
                 if (keyEvent.key == Key.Enter) {
                     coroutineScope.launch {
+                        name = name.trim()
                         preferencesRepository.setName(name)
                     }
+                    focusManager.clearFocus()
                 }
                 true
+            }
+            .onGloballyPositioned {
+                isTextFieldError = name.length >= Settings.MAX_NAME_LENGTH || name.isEmpty()
             },
         singleLine = true,
         shape = Shapes.BUTTON,

@@ -47,7 +47,7 @@ fun Sidebar() {
             Header()
             Spacer(Modifier.height(Spacers.LARGE))
 
-            NameInputField()
+            NameInputField(focusManager)
             Spacer(Modifier.height(Spacers.NORMAL))
 
             Row { ImageInteractionButtons() }
