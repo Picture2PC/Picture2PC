@@ -1,5 +1,6 @@
 package com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp
 
+import com.github.picture2pc.common.net.data.client.Client
 import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
@@ -42,8 +43,8 @@ class SimpleTcpServer(
 
     private val lock = Mutex()
 
-    private val _connectedPeers = MutableStateFlow<List<Peer>>(emptyList())
-    val connectedPeers: StateFlow<List<Peer>> = _connectedPeers.asStateFlow()
+    private val _connectedPeers = MutableStateFlow<List<Client>>(emptyList())
+    val connectedPeers: StateFlow<List<Client>> = _connectedPeers.asStateFlow()
 
     val isAvailable: Boolean
         get() = this::jvmServerSocket.isInitialized && jvmServerSocket.isBound && !jvmServerSocket.isClosed
@@ -84,13 +85,14 @@ class SimpleTcpServer(
 
     suspend fun connect(peer: Peer, inetSocketAddress: InetSocketAddress): Boolean {
         if (!isAvailable || checkPeer(peer)) return false
+        println("Connecting to: $peer")
         val client = SimpleTcpClient(
             backgroundScope + Job(),
             ioDispatcher,
             withContext(ioDispatcher) { java.net.Socket() })
 
+        client.peer = Peer(peer.uuid, true)
         tryAddPeer(peer, client)
-        client.peer = Peer(client.peer.uuid, true)
         val res = client.connect(inetSocketAddress)
         if (res)
             addPeer(client)
@@ -112,12 +114,9 @@ class SimpleTcpServer(
                 }
             return true
         }
+        println("Sending: $payload")
         val client = peerToClientMap.getOrDefault(payload.targetPeer, null) ?: return false
         return client.sendMessage(data)
-    }
-
-    fun getPeerStateAsFlow(peer: Peer): StateFlow<ClientState>? {
-        return peerToClientMap.getOrDefault(peer, null)?.clientStateFlow
     }
 
     private fun addPeer(client: SimpleTcpClient) {
@@ -131,14 +130,18 @@ class SimpleTcpServer(
             client.startListen().collect {
                 if (f) {
                     f = false
+                    println("Try Adding: ${client.peer}")
                     if (!tryAddPeer(client.peer, client)) {
-                        if (client.isServer == client.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode())
+                        if (client.isServer == client.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode()) {
+                            println("Disconnecting current ${client.peer}")
                             client.disconnect(ClientState.DISCONNECTED.NO_ERROR)
+                        }
                         else {
+                            println("Disconnecting other ${client.peer}")
                             peerToClientMap[client.peer]?.disconnect(ClientState.DISCONNECTED.NO_ERROR)
                             _connectedPeers.emit(lock.withLock {
                                 peerToClientMap[client.peer] = client
-                                return@withLock peerToClientMap.keys.toList()
+                                return@withLock peerToClientMap.values.toList()
                             })
                         }
                     }
@@ -156,7 +159,7 @@ class SimpleTcpServer(
             return peerToClientMap[peer] == client
         _connectedPeers.emit(lock.withLock {
             peerToClientMap[peer] = client
-            return@withLock peerToClientMap.keys.toList()
+            return@withLock peerToClientMap.values.toList()
         }
         )
         return true
@@ -165,13 +168,13 @@ class SimpleTcpServer(
     private suspend fun removePeer(peer: Peer) {
         _connectedPeers.emit(lock.withLock {
             peerToClientMap.remove(peer)
-            return@withLock peerToClientMap.keys.toList()
+            return@withLock peerToClientMap.values.toList()
         })
     }
 
-    private fun checkPeer(peer: Peer?): Boolean {
+    private suspend fun checkPeer(peer: Peer?): Boolean {
         if (peer == null) return false
-        return peerToClientMap.containsKey(peer)
+        return lock.withLock { return@withLock peerToClientMap.containsKey(peer) }
     }
 
 }
