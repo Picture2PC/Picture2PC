@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.common.net.data.payload.TcpPayload
+import com.github.picture2pc.common.ui.NotificationHandler
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.onEach
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
     dataReceiver: DataTransmitter,
+    private val notificationHandler: NotificationHandler,
     private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
 ) {
@@ -26,11 +28,19 @@ class PictureDisplayViewModel(
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
+    private var isMinimized = false
     private var displayPictureSize = Size(0f, 0f)
 
     init {
         picture.onEach {
             pictureQueue.addLast(it)
+//            isMinimized = (GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+//                .any { it.fullScreenWindow is Frame && (it.fullScreenWindow as Frame).state == Frame.ICONIFIED })
+            notificationHandler.displayNotification(
+                "Picture2PC",
+                "Picture received",
+                isMinimized
+            )
             if (totalPictures.value == 0) setPicture(it)
             totalPictures.value = pictureQueue.size
         }.launchIn(viewModelScope)

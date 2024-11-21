@@ -1,7 +1,6 @@
 package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
 import android.graphics.Bitmap
-import android.widget.Toast
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +11,7 @@ import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import com.github.picture2pc.common.net.data.payload.TcpPayload
+import com.github.picture2pc.common.ui.NotificationHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
-    private val dataTransmitter: DataTransmitter
+    private val dataTransmitter: DataTransmitter,
+    private val notificationHandler: NotificationHandler
 ) : ViewModel() {
     val takenImage: SharedFlow<Bitmap>
         get() {
@@ -51,9 +52,9 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun sendImage(context: android.content.Context) {
+    fun sendImage() {
         viewModelScope.launch {
-            Toast.makeText(context, "Image sending ...", Toast.LENGTH_SHORT).show()
+            notificationHandler.displayNotification("Picture2PC", "Image sending ...", false)
             val success = dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     getLastImage().toByteArray(),
@@ -61,7 +62,7 @@ class CameraViewModel(
                 )
             )
             val message = if (success) "Image sent successfully" else "Image sending failed"
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            notificationHandler.displayNotification("Picture2PC", message, false)
         }
     }
 

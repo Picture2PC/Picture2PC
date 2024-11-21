@@ -1,6 +1,7 @@
 package com.github.picture2pc.android.di
 
 import androidx.lifecycle.SavedStateHandle
+import com.github.picture2pc.android.data.TrayNotificationHandler
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
@@ -14,6 +15,7 @@ import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastVie
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
+import com.github.picture2pc.common.ui.NotificationHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
@@ -43,8 +45,9 @@ val appModule = module {
     single<EdgeDetect> { YOLOv8SegEdgeDetect() }
     single { ClientsViewModel(get()) }
     single<PictureManager> { CameraPictureManager(get(), get()) }
-    single { CameraViewModel(get(), get()) }
+    single { CameraViewModel(get(), get(), get()) }
     single { ScreenSelectorViewModel() }
+    single<NotificationHandler> { TrayNotificationHandler(get()) }
 
     single { SavedStateHandle() }
 

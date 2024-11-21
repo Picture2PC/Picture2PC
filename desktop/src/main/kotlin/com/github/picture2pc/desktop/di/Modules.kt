@@ -2,6 +2,8 @@ package com.github.picture2pc.desktop.di
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.di.commonAppModule
+import com.github.picture2pc.common.ui.NotificationHandler
+import com.github.picture2pc.desktop.data.TrayNotificationHandler
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.data.imageprep.impl.PicturePreparationImpl
 import com.github.picture2pc.desktop.data.serverpreferences.impl.TestServerPreferencesRepository
@@ -20,6 +22,7 @@ val appModule = module {
 
     single(named("backgroundCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
     single(named("viewModelCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
+    single<NotificationHandler> { TrayNotificationHandler() }
 
     single<DataTransmitter> {
         MulticastTcpDataTransmitter(
@@ -38,6 +41,7 @@ val appModule = module {
     single {
         PictureDisplayViewModel(
             get(named("viewModelCoroutineScope")),
+            get(),
             get(),
             get(),
             get()
