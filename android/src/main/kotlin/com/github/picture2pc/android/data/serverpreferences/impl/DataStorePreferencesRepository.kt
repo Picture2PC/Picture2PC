@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.github.picture2pc.common.data.preferences.Preferences
 import com.github.picture2pc.common.data.preferences.PreferencesDefaults
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.CoroutineScope
@@ -62,5 +63,14 @@ class DataStorePreferencesRepository(
                 preferences[PreferenceKeys.CONNECTABLE] = connectable
             }
         }
+    }
+
+    override fun savePreferences() {
+        // Not needed
+    }
+
+    override fun loadPreferences(): Preferences {
+        // Not Needed
+        return Preferences(PreferencesDefaults.NAME, PreferencesDefaults.CONNECTABLE)
     }
 }

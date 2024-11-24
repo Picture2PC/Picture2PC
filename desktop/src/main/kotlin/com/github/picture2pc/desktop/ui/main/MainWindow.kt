@@ -4,14 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.desktop.ui.util.getIcon
+import org.koin.compose.rememberKoinInject
 
 @Composable
 fun MainWindow(
-    onCloseRequest: () -> Unit
+    onCloseRequest: () -> Unit,
+    preferencesRepository: PreferencesRepository = rememberKoinInject()
 ) {
+    preferencesRepository.loadPreferences()
     Window(
         onCloseRequest = onCloseRequest,
         icon = getIcon(Icons.Logo.STANDARD),

@@ -37,7 +37,7 @@ fun NameInputField(
     preferencesRepository: PreferencesRepository = rememberKoinInject(),
     coroutineScope: CoroutineScope = rememberKoinInject(named("viewModelCoroutineScope"))
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(preferencesRepository.name.value) }
     var isTextFieldError by remember { mutableStateOf(false) }
 
     OutlinedTextField(
@@ -62,8 +62,9 @@ fun NameInputField(
         modifier = Modifier
             .fillMaxWidth()
             .height(Heights.BUTTON + 10.dp)
+
             .onKeyEvent { keyEvent ->
-                if (keyEvent.key == Key.Enter) {
+                if (keyEvent.key == Key.Enter && !isTextFieldError) {
                     coroutineScope.launch {
                         name = name.trim()
                         preferencesRepository.setName(name)
@@ -72,6 +73,7 @@ fun NameInputField(
                 }
                 true
             }
+
             .onGloballyPositioned {
                 isTextFieldError = name.length >= Settings.MAX_NAME_LENGTH || name.isEmpty()
             },
