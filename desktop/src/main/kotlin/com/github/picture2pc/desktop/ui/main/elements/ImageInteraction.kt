@@ -50,7 +50,6 @@ fun ImageInteractionButtons(
                 buttonModifier = Modifier.width(75.dp)
             ) {
                 pDVM.reset()
-                mDVM.clear()
             }
             Spacer(spacerSize)
 
