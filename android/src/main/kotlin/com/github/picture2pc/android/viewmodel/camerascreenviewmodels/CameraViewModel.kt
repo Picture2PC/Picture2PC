@@ -1,6 +1,5 @@
 package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
-import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,12 +11,9 @@ import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -48,10 +44,17 @@ class CameraViewModel(
         if (takenImage.value == null)
             return
         viewModelScope.launch {
+            val points = takenImage.value!!.second.await()?.pointsBox?.map {
+                Pair(
+                    it.x.toFloat(),
+                    it.y.toFloat()
+                )
+            }
+            println(points)
             dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     takenImage.value!!.first.toByteArray(),
-                    takenImage.value!!.second.await()?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
+                    points
                 )
             )
         }

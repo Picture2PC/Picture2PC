@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -15,8 +14,8 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.takeimage.PictureManager
@@ -24,6 +23,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,9 +32,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -46,6 +46,7 @@ class CameraPictureManager(
     private val context: Context,
     private val edgeDetect: EdgeDetect,
     private val coroutineScope: CoroutineScope,
+    defaultDispatcher: CoroutineDispatcher,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -57,8 +58,10 @@ class CameraPictureManager(
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
     private val _pictureCorners: MutableStateFlow<DetectedBox?> =
         MutableStateFlow(null) //read and write
-    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val singleThreadContext = defaultDispatcher.limitedParallelism(1)
+    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
 
     override fun switchFlashMode() {
         if (imageCapture.flashMode == FLASH_MODE_AUTO) {
@@ -108,10 +111,15 @@ class CameraPictureManager(
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
-                val res = runDetection(image.toBitmap())
-                if (res != null)
-                    _pictureCorners.value = res
-                image.close()
+                if (singleThreadContext[Job]?.isCompleted != false)
+                    coroutineScope.launch {
+                        val res = runDetection(image.toBitmap())
+                        if (res != null)
+                            _pictureCorners.value = res
+                        image.close()
+                    }
+                else
+                    image.close()
             }
             runBlocking { edgeDetect.load(context) }
 
@@ -140,8 +148,11 @@ class CameraPictureManager(
         }
     }
 
-    private fun runDetection(image: Bitmap): DetectedBox? {
-        return edgeDetect.detect(image).filter { it.points.size >= 4 }.minByOrNull { it.points.size }
+    private suspend fun runDetection(image: Bitmap): DetectedBox? {
+        return withContext(singleThreadContext) { // TODO: move single thread stuff to EdgeDetect.kt
+            return@withContext edgeDetect.detect(image).filter { it.points.size >= 4 }
+                .minByOrNull { it.points.size }
+        }
     }
 
     fun rotateImageIfRequired(image: Bitmap, imageData: ByteArray): Bitmap {
