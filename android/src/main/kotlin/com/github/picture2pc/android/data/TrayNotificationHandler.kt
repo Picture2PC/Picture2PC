@@ -14,8 +14,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.picture2pc.android.MainActivity
 import com.github.picture2pc.common.ui.NotificationHandler
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class TrayNotificationHandler(private val context: Context) : NotificationHandler {
+    override val showNotification: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     override fun displayNotification(title: String, message: String, popup: Boolean) {
         if (popup) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
