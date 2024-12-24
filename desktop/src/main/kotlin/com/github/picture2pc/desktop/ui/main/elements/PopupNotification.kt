@@ -30,8 +30,10 @@ fun PopupNotification(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
             .background(color = Colors.SECONDARY.copy(.9f), shape = Shapes.WINDOW)
             .padding(Spacers.LARGE)
     ) {
+        var message = "New Picture Received"
+        if (unseenPictures > 0) message += "($unseenPictures unseen pictures)"
         Text(
-            "New Picture Received ($unseenPictures unseen pictures)",
+            message,
             style = TextStyles.NORMAL
         )
     }

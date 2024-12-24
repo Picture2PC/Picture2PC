@@ -28,14 +28,13 @@ class PictureDisplayViewModel(
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
-    val unseenPictures: MutableStateFlow<Int> = MutableStateFlow(-1)
+    val unseenPictures: MutableStateFlow<Int> = MutableStateFlow(0)
     private var isMinimized = false
     private var displayPictureSize = Size(0f, 0f)
 
     init {
         picture.onEach {
             pictureQueue.addLast(it)
-            unseenPictures.value += 1
 //            isMinimized = (GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
 //                .any { it.fullScreenWindow is Frame && (it.fullScreenWindow as Frame).state == Frame.ICONIFIED })
             notificationHandler.displayNotification(
@@ -45,13 +44,13 @@ class PictureDisplayViewModel(
             )
             if (totalPictures.value == 0) setPicture(it)
             totalPictures.value = pictureQueue.size
+            unseenPictures.value = totalPictures.value - (selectedPictureIndex.value + 1)
         }.launchIn(viewModelScope)
     }
 
 
     fun adjustCurrentPictureIndex(amount: Int) {
         var newIndex = selectedPictureIndex.value + amount
-        unseenPictures.value -= 1
         if (pictureQueue.isEmpty() || newIndex !in 0 until pictureQueue.size) return
 
         if (newIndex == 5) {
@@ -62,7 +61,7 @@ class PictureDisplayViewModel(
 
         selectedPictureIndex.value = newIndex
         setPicture(pictureQueue[selectedPictureIndex.value])
-
+        notificationHandler.showNotification.value = false
         mHVM.rotationState.value = RotationState.ROTATION_0
     }
 
