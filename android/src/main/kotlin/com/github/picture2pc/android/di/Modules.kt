@@ -16,15 +16,18 @@ import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewM
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.common.ui.NotificationHandler
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
     includes(commonAppModule)
 
-    single(named("backgroundCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
+    single(named("defaultDispatcher")) { Dispatchers.Default }
+    single(named("backgroundCoroutineScope")) { CoroutineScope(get<CoroutineDispatcher>(named("defaultDispatcher")) + SupervisorJob()) }
     single<DataTransmitter> {
         MulticastTcpDataTransmitter(
             get(),
@@ -42,10 +45,17 @@ val appModule = module {
 
 
     single { BroadcastViewModel(get()) }
-    single<EdgeDetect> { YOLOv8SegEdgeDetect() }
+    single<EdgeDetect> { YOLOv8SegEdgeDetect(get(named("ioDispatcher"))) }
     single { ClientsViewModel(get()) }
-    single<PictureManager> { CameraPictureManager(get(), get()) }
-    single { CameraViewModel(get(), get(), get()) }
+    single<PictureManager> {
+        CameraPictureManager(
+            get(),
+            get(),
+            get(named("backgroundCoroutineScope")),
+            get(named("defaultDispatcher"))
+        )
+    }
+    single { CameraViewModel(get(), get()) }
     single { ScreenSelectorViewModel() }
     single<NotificationHandler> { TrayNotificationHandler(get()) }
 

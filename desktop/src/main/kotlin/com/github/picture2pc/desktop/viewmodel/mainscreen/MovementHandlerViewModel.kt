@@ -43,7 +43,13 @@ class MovementHandlerViewModel {
      */
     fun addClick(click: Offset) {
         val clickC = clampOffset(click)
-        if (clicks.value.size == CLICK_COUNT) clearClicks()
+        if (clicks.value.size == CLICK_COUNT) {
+            val (closestPoint, distance) = getClosestPoint(click) // if  circle made in rage of other replace other
+            if (distance < BUTTON_CHOOSE_HITRADIUS)
+                removeClick(closestPoint)
+            else
+                clearClicks()
+        }
         _clicks.value = sortClicks(clicks.value + clickC) // Set clicks to sort clicks
     }
 
@@ -110,17 +116,17 @@ class MovementHandlerViewModel {
         clearClicks()
     }
 
-    fun setClicks(clicks: List<Offset>) {
-        _clicks.value = clicks.map {
+    fun setClicks(newClicks: List<Offset>) {
+        _clicks.value = newClicks.map {
             clampOffset(it)
         }
     }
 
     fun rotate(clockwise: Boolean) {
         rotationState.value = rotationState.value.next(clockwise)
-        _clicks.value = _clicks.value.map {
+        _clicks.value = sortClicks(_clicks.value.map {
             it.toCenteredOrigin(Size(1f, 1f)).translate(clockwise).toTopLeftOrigin(Size(1f, 1f))
-        }
+        })
     }
 
     fun updateDraggingSpeed() {
@@ -129,6 +135,6 @@ class MovementHandlerViewModel {
 
     companion object {
         const val CLICK_COUNT = 4
-        const val BUTTON_CHOOSE_HITRADIUS = 0.01
+        const val BUTTON_CHOOSE_HITRADIUS = 0.013
     }
 }

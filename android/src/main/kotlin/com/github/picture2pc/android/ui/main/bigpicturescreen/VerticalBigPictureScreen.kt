@@ -31,7 +31,7 @@ fun VerticalBigPictureScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
-    val image = cameraViewModel.takenImage.collectAsState(initial = null).value
+    val image = cameraViewModel.takenImage.collectAsState().value?.first
 
     Box(
         modifier = Modifier

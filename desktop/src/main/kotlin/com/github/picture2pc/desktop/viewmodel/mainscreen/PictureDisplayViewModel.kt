@@ -67,9 +67,9 @@ class PictureDisplayViewModel(
         pP.setOriginalPicture(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
+        pP.calculateRatio(displayPictureSize)
         if (payload.corners == null) return
-        mHVM.clear()
-        mHVM.setClicks((payload.corners ?: return).map {
+        mHVM.setClicks((payload.corners!!).map {
             Offset(it.first, it.second)
         })
     }
@@ -90,7 +90,6 @@ class PictureDisplayViewModel(
 
     fun reset() {
         if (pictureQueue.isEmpty()) return
-        mHVM.clear()
         setPicture(pictureQueue[selectedPictureIndex.value])
     }
 
