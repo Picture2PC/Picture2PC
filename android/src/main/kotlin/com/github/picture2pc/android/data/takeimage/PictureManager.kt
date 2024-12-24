@@ -14,4 +14,5 @@ interface PictureManager {
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)
     fun saveImageToCache()
+    fun injectImage(bitmap: Bitmap)
 }

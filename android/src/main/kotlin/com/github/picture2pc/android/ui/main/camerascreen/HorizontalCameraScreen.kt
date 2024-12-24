@@ -23,7 +23,6 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun HorizontalCameraScreen(
-    modifier: Modifier = Modifier,
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {

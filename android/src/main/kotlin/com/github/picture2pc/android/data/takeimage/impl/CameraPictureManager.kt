@@ -42,9 +42,8 @@ class CameraPictureManager(
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
-    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(
-        context
-    )
+    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+        ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
     private val _pictureCorners: MutableStateFlow<DetectedBox?> =
@@ -141,10 +140,16 @@ class CameraPictureManager(
         }
     }
 
-    fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+    private fun rotateImage(img: Bitmap, degree: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(degree)
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
+
+    override fun injectImage(bitmap: Bitmap) {
+        lifecycleOwner.lifecycleScope.launch {
+            _takenImages.emit(bitmap)
+        }
     }
 
     private val _takenImages =

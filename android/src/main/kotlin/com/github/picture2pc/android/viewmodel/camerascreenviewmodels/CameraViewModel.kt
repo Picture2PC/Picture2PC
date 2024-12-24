@@ -36,7 +36,7 @@ class CameraViewModel(
             return pictureManager.pictureCorners
         }
 
-    fun getLastImage(): Bitmap {
+    private fun getLastImage(): Bitmap {
         return pictureManager.takenImages.replayCache.last()
     }
 
@@ -48,6 +48,12 @@ class CameraViewModel(
         lastCorners =
             pictureCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
+    }
+
+    fun injectImage(bitmap: Bitmap) {
+        viewModelScope.launch {
+            pictureManager.injectImage(bitmap)
+        }
     }
 
     fun sendImage() {
