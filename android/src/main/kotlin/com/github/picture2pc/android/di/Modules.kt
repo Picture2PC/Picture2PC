@@ -55,7 +55,7 @@ val appModule = module {
             get(named("defaultDispatcher"))
         )
     }
-    single { CameraViewModel(get(), get()) }
+    single { CameraViewModel(get(), get(), get()) }
     single { ScreenSelectorViewModel() }
     single<NotificationHandler> { TrayNotificationHandler(get()) }
 

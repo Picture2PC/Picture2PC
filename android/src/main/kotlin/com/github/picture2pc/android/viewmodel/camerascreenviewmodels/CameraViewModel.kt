@@ -47,7 +47,6 @@ class CameraViewModel(
             return
         viewModelScope.launch {
             notificationHandler.displayNotification("Picture2PC", "Image sending ...", false)
-            val success = dataTransmitter.sendPicture(
             val points = takenImage.value!!.second.await()?.pointsBox?.map {
                 Pair(
                     it.x.toFloat(),
@@ -55,7 +54,7 @@ class CameraViewModel(
                 )
             }
             println(points)
-            dataTransmitter.sendPicture(
+            val success = dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     takenImage.value!!.first.toByteArray(),
                     points
