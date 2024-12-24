@@ -30,8 +30,7 @@ import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen() {
-    val notificationHandler = rememberKoinInject<NotificationHandler>()
+fun MainScreen(notificationHandler: NotificationHandler = rememberKoinInject<NotificationHandler>()) {
     val showNotification = notificationHandler.showNotification.collectAsState().value
 
     Box(

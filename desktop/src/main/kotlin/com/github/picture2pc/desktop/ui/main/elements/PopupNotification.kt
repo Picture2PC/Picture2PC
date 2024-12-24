@@ -18,8 +18,7 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun PopupNotification(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
-    val unseenPictures =
-        pDVM.totalPictures.collectAsState().value - pDVM.selectedPictureIndex.collectAsState().value
+    val unseenPictures = pDVM.unseenPictures.collectAsState().value
 
     Box(
         modifier = Modifier
