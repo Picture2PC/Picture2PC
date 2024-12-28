@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,8 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.github.picture2pc.android.R
+import com.github.picture2pc.android.data.edgedetection.EdgeDetect
+import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
@@ -38,21 +42,27 @@ import org.koin.core.qualifier.named
 fun BottomOfScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
     cameraViewModel: CameraViewModel = rememberKoinInject(),
-    coroutineScope: CoroutineScope = rememberKoinInject<CoroutineScope>(named("backgroundCoroutineScope"))
+    coroutineScope: CoroutineScope = rememberKoinInject<CoroutineScope>(
+        named("backgroundCoroutineScope")
+    ),
+    edgeDetect: EdgeDetect = rememberKoinInject()
 ) {
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
             coroutineScope.launch {
                 val loader = ImageLoader(context)
                 val request = ImageRequest.Builder(context).data(uri).build()
 
                 val result = (loader.execute(request) as SuccessResult).drawable
                 bitmap.value = (result as BitmapDrawable).bitmap
-                cameraViewModel.injectImage(bitmap.value!!)
-                cameraViewModel.sendImage()
+
+                val edges = edgeDetect.detect(bitmap.value!!).minByOrNull { it.points.size }
+                cameraViewModel.injectImage(bitmap.value!!, edges)
+                screenSelectorViewModel.toBigPicture()
             }
         }
     )
@@ -60,7 +70,9 @@ fun BottomOfScreen(
     Row(modifier = Modifier.fillMaxWidth()) {
         IconButton(
             onClick = {
-                photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             },
             modifier = Modifier,
             colors = IconButtonDefaults.iconButtonColors(Colors.PRIMARY)

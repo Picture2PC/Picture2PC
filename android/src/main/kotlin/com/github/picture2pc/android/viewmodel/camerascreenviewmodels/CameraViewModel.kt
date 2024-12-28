@@ -22,19 +22,18 @@ class CameraViewModel(
     private val dataTransmitter: DataTransmitter
 ) : ViewModel() {
     val takenImage: SharedFlow<Bitmap>
-        get() {
-            return pictureManager.takenImages
-        }
+        get() { return pictureManager.takenImages }
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
 
     private var lastCorners: List<Pair<Float, Float>>? = null
 
+    private var galleryCorners: List<Pair<Float, Float>>? = null
+    private var isGalleryPicture: Boolean = false
+
     val pictureCorners: StateFlow<DetectedBox?>
-        get() {
-            return pictureManager.pictureCorners
-        }
+        get() { return pictureManager.pictureCorners }
 
     private fun getLastImage(): Bitmap {
         return pictureManager.takenImages.replayCache.last()
@@ -45,24 +44,22 @@ class CameraViewModel(
     }
 
     fun takeImage() {
+        isGalleryPicture = false
         lastCorners =
             pictureCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
     }
 
-    fun injectImage(bitmap: Bitmap) {
-        viewModelScope.launch {
-            pictureManager.injectImage(bitmap)
-        }
+    fun injectImage(bitmap: Bitmap, corners: DetectedBox?) {
+        isGalleryPicture = true
+        galleryCorners = corners?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
+        viewModelScope.launch { pictureManager.injectImage(bitmap) }
     }
 
     fun sendImage() {
-        viewModelScope.launch {
-            dataTransmitter.sendPicture(
-                TcpPayload.Picture(
-                    getLastImage().toByteArray(),
-                    lastCorners
-                )
+        lastCorners = if (isGalleryPicture) galleryCorners else lastCorners
+        viewModelScope.launch { dataTransmitter.sendPicture(
+                TcpPayload.Picture(getLastImage().toByteArray(), lastCorners)
             )
         }
     }

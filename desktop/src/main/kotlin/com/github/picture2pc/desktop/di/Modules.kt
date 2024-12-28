@@ -2,7 +2,7 @@ package com.github.picture2pc.desktop.di
 
 import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.android.data.serverpreferences.impl.TestServerPreferencesRepository
-import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.net.datatransmitter.impl.MulticastTcpDataTransmitter
 import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation

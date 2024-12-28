@@ -4,7 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
