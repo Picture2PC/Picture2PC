@@ -25,11 +25,11 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.github.picture2pc.android.R
-import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
@@ -42,7 +42,9 @@ fun BottomOfScreen(
     coroutineScope: CoroutineScope = rememberKoinInject<CoroutineScope>(
         named("backgroundCoroutineScope")
     ),
-    edgeDetect: EdgeDetect = rememberKoinInject()
+    ioDispatcher: CoroutineDispatcher = rememberKoinInject<CoroutineDispatcher>(
+        named("ioDispatcher")
+    ),
 ) {
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
@@ -50,15 +52,14 @@ fun BottomOfScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            coroutineScope.launch {
+            coroutineScope.launch(ioDispatcher) {
                 val loader = ImageLoader(context)
                 val request = ImageRequest.Builder(context).data(uri).build()
 
                 val result = (loader.execute(request) as SuccessResult).drawable
                 bitmap.value = (result as BitmapDrawable).bitmap
 
-                val edges = edgeDetect.detect(bitmap.value!!).minByOrNull { it.points.size }
-                cameraViewModel.injectImage(bitmap.value!!, edges)
+                bitmap.value?.let { cameraViewModel.injectImage(it) }
                 screenSelectorViewModel.toBigPicture()
             }
         }

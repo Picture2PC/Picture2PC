@@ -15,5 +15,5 @@ interface PictureManager {
     fun takeImage()
     fun setViewFinder(previewView: PreviewView)
     fun saveImageToCache()
-    fun injectImage(bitmap: Bitmap, detectedBox: Deferred<DetectedBox?>)
+    fun injectImage(picture: Bitmap)
 }

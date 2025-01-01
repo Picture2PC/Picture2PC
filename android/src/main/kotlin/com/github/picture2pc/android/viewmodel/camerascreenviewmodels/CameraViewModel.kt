@@ -46,10 +46,9 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun injectImage(bitmap: Bitmap, corners: DetectedBox?) {
+    fun injectImage(bitmap: Bitmap) {
         isGalleryPicture = true
-        galleryCorners = corners?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
-        viewModelScope.launch { pictureManager.injectImage(bitmap, galleryCorners) }
+        viewModelScope.launch { pictureManager.injectImage(bitmap) }
     }
 
     fun sendImage() {
