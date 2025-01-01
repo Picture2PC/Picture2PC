@@ -1,7 +1,7 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,9 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.github.picture2pc.android.R
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
@@ -53,12 +50,10 @@ fun BottomOfScreen(
         onResult = { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
             coroutineScope.launch(ioDispatcher) {
-                val loader = ImageLoader(context)
-                val request = ImageRequest.Builder(context).data(uri).build()
-
-                val result = (loader.execute(request) as SuccessResult).drawable
-                bitmap.value = (result as BitmapDrawable).bitmap
-
+                bitmap.value =
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        Bitmap.createBitmap(BitmapFactory.decodeStream(stream))
+                    }
                 bitmap.value?.let { cameraViewModel.injectImage(it) }
                 screenSelectorViewModel.toBigPicture()
             }
