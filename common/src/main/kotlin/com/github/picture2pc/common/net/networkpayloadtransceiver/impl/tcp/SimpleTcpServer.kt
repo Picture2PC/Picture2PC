@@ -52,7 +52,16 @@ class SimpleTcpServer(
     val socketAddress
         get() = jvmServerSocket.localSocketAddress as InetSocketAddress
 
-
+    // make a list of clients that want to connect clients have to be approved first to be able to connect
+    // both try to make a connection
+    // If one tells that he already accepted the other one will close the connection and accept the other
+    /*
+        C1 -> connect
+        C2 -> connect
+        C1 -> Ok
+        C2 -> OK
+        C1 -> OK
+     */
     suspend fun start() {
         withContext(ioDispatcher)
         {

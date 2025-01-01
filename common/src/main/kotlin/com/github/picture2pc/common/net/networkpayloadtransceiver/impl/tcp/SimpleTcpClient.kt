@@ -38,6 +38,13 @@ class SimpleTcpClient(
     private val jvmSocket: Socket
 ) : Client()
 {
+    // State diagram:
+    /*
+    * Connecting
+    * Suspended
+    * Connected
+    * Declined
+     */
     private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
     override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads
     override var peer: Peer = Peer.any()
