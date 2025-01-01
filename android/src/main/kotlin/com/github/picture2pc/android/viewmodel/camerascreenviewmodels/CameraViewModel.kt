@@ -46,7 +46,6 @@ class CameraViewModel(
         if (takenImage.value == null)
             return
         viewModelScope.launch {
-            notificationHandler.displayNotification("Picture2PC", "Image sending ...", false)
             val points = takenImage.value!!.second.await()?.pointsBox?.map {
                 Pair(
                     it.x.toFloat(),
@@ -61,7 +60,7 @@ class CameraViewModel(
                 )
             )
             val message = if (success) "Image sent successfully" else "Image sending failed"
-            notificationHandler.displayNotification("Picture2PC", message, false)
+            notificationHandler.displayNotification("Picture2PC", message, true)
         }
     }
 

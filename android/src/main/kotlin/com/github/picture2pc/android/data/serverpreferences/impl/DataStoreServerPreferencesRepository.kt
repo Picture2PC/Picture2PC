@@ -22,7 +22,7 @@ private object PreferenceKeys {
 
 class DataStoreServerPreferencesRepository(
     private val context: Context,
-    private val backgroundScope: CoroutineScope,
+    backgroundScope: CoroutineScope,
 ) : ServerPreferencesRepository() {
 
     companion object {
