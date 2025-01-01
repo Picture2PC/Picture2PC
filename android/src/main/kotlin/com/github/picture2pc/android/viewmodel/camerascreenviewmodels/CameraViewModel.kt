@@ -35,10 +35,6 @@ class CameraViewModel(
     val pictureCorners: StateFlow<DetectedBox?>
         get() { return pictureManager.pictureCorners }
 
-    private fun getLastImage(): Bitmap {
-        return pictureManager.takenImages.replayCache.last()
-    }
-
     fun setViewFinder(previewView: PreviewView) {
         pictureManager.setViewFinder(previewView)
     }
@@ -53,7 +49,7 @@ class CameraViewModel(
     fun injectImage(bitmap: Bitmap, corners: DetectedBox?) {
         isGalleryPicture = true
         galleryCorners = corners?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
-        viewModelScope.launch { pictureManager.injectImage(bitmap) }
+        viewModelScope.launch { pictureManager.injectImage(bitmap, galleryCorners) }
     }
 
     fun sendImage() {

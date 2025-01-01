@@ -16,6 +16,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.takeimage.PictureManager
@@ -174,9 +175,9 @@ class CameraPictureManager(
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
     }
 
-    override fun injectImage(bitmap: Bitmap) {
+    override fun injectImage(bitmap: Bitmap, detectedBox: Deferred<DetectedBox?>) {
         lifecycleOwner.lifecycleScope.launch {
-            _takenImages.emit(bitmap)
+            _takenImages.emit(Pair(bitmap, detectedBox))
         }
     }
 
