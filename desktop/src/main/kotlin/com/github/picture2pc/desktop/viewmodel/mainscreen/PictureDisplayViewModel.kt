@@ -20,27 +20,35 @@ class PictureDisplayViewModel(
     private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
 ) {
-    private val pictures = dataReceiver.pictures
+    private val picture = dataReceiver.picture
+
+    private val pictureQueue: ArrayDeque<TcpPayload.Picture> = ArrayDeque()
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
-    var displayPictureSize = Size(0f, 0f)
+    private var displayPictureSize = Size(0f, 0f)
 
     init {
-        pictures.onEach {
+        picture.onEach {
+            pictureQueue.addLast(it)
             if (totalPictures.value == 0) setPicture(it)
-            totalPictures.value = pictures.replayCache.size
+            totalPictures.value = pictureQueue.size
         }.launchIn(viewModelScope)
     }
 
 
     fun adjustCurrentPictureIndex(amount: Int) {
-        if (pictures.replayCache.isEmpty()) return
-        val newIndex = selectedPictureIndex.value + amount
-        if (newIndex < 0 || newIndex > pictures.replayCache.size - 1) return
+        var newIndex = selectedPictureIndex.value + amount
+        if (pictureQueue.isEmpty() || newIndex !in 0 until pictureQueue.size) return
+
+        if (newIndex == 5) {
+            pictureQueue.removeFirst()
+            newIndex -= 1
+            totalPictures.value -= 1
+        }
 
         selectedPictureIndex.value = newIndex
-        setPicture(pictures.replayCache[newIndex])
+        setPicture(pictureQueue[selectedPictureIndex.value])
 
         mHVM.rotationState.value = RotationState.ROTATION_0
     }
@@ -49,9 +57,9 @@ class PictureDisplayViewModel(
         pP.setOriginalPicture(
             payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
+        pP.calculateRatio(displayPictureSize)
         if (payload.corners == null) return
-        mHVM.clear()
-        mHVM.setClicks((payload.corners ?: return).map {
+        mHVM.setClicks((payload.corners!!).map {
             Offset(it.first, it.second)
         })
     }
@@ -61,9 +69,18 @@ class PictureDisplayViewModel(
         this.displayPictureSize = displayPictureSize
     }
 
+    fun rotate(clockwise: Boolean) {
+        pP.rotate(clockwise)
+        mHVM.rotate(clockwise)
+    }
+
+    fun getRatio(): Float {
+        return pP.ratio
+    }
+
     fun reset() {
-        mHVM.clear()
-        setPicture(pictures.replayCache[selectedPictureIndex.value])
+        if (pictureQueue.isEmpty()) return
+        setPicture(pictureQueue[selectedPictureIndex.value])
     }
 
     fun doAll() {

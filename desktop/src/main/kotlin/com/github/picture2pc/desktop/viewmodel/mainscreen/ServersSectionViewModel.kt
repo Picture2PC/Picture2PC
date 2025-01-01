@@ -7,6 +7,5 @@ import kotlinx.coroutines.flow.StateFlow
 class ServersSectionViewModel(
     dataTransmitter: DataTransmitter,
 ) {
-    val availableServers: StateFlow<List<DefaultDevice>> =
-        dataTransmitter.connectedDevices
+    val availableServers: StateFlow<List<DefaultDevice>> = dataTransmitter.connectedDevices
 }

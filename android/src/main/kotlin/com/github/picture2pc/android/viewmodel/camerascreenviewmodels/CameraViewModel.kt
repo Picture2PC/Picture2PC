@@ -12,17 +12,17 @@ import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter
 ) : ViewModel() {
-    val takenImage: SharedFlow<Bitmap>
-        get() { return pictureManager.takenImages }
+    val takenImage = pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
@@ -57,9 +57,21 @@ class CameraViewModel(
     }
 
     fun sendImage() {
-        lastCorners = if (isGalleryPicture) galleryCorners else lastCorners
-        viewModelScope.launch { dataTransmitter.sendPicture(
-                TcpPayload.Picture(getLastImage().toByteArray(), lastCorners)
+        if (takenImage.value == null)
+            return
+        viewModelScope.launch {
+            val points = if (isGalleryPicture) galleryCorners else  takenImage.value!!.second.await()?.pointsBox?.map {
+                Pair(
+                    it.x.toFloat(),
+                    it.y.toFloat()
+                )
+            }
+            println(points)
+            dataTransmitter.sendPicture(
+                TcpPayload.Picture(
+                    takenImage.value!!.first.toByteArray(),
+                    points
+                )
             )
         }
     }
