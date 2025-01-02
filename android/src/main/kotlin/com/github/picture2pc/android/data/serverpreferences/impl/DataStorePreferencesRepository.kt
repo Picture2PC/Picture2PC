@@ -52,7 +52,7 @@ class DataStorePreferencesRepository(
     override suspend fun setName(name: String) {
         withContext(Dispatchers.IO) {
             context.settingsDataStore.edit { preferences ->
-                preferences[PreferenceKeys.NAME] = name
+                preferences[PreferenceKeys.NAME] = name.trim()
             }
         }
     }

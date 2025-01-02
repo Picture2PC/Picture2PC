@@ -21,8 +21,8 @@ class DesktopPreferencesRepository : PreferencesRepository() {
     private val file = File("preferences.cbor")
 
     override suspend fun setName(name: String) {
-        _name.value = name
-        preferences.name = name
+        _name.value = name.trim()
+        preferences.name = name.trim()
         savePreferences()
     }
 

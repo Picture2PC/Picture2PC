@@ -15,6 +15,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
@@ -49,7 +50,8 @@ fun NameInputField(
                     focusManager.clearFocus()
                 }
                 true
-            },
+            }
+            .onGloballyPositioned { broadcastViewModel.setConnectable(!isError.value) },
         singleLine = true,
         shape = Shapes.BUTTON,
         textStyle = TextStyles.NORMAL,
