@@ -13,6 +13,7 @@ class BroadcastViewModel(
     }
 
     fun getName() = preferences.name.value
+    fun getConnectable() = preferences.connectable
 
     fun saveName(newName: String) {
         scope.launch {
