@@ -39,19 +39,21 @@ class DesktopPreferencesRepository : PreferencesRepository() {
     }
 
     override fun loadPreferences(): Preferences {
-        if (!ensurePreferencesFile()) {
-            savePreferences()
-        }
+        ensurePreferencesFile()
         preferences = Cbor.decodeFromByteArray<Preferences>(file.readBytes())
         _name.value = preferences.name
         _connectable.value = preferences.connectable
         return preferences
     }
 
-    private fun ensurePreferencesFile(): Boolean {
+    /**
+     * Ensures that the preferences file exists and is not empty.
+     * @return true if the file is not empty, false otherwise.
+     */
+    private fun ensurePreferencesFile() {
         if (!file.exists()) {
             file.createNewFile()
+            savePreferences()
         }
-        return file.readBytes().isNotEmpty()
     }
 }
