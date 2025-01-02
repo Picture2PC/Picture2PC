@@ -7,7 +7,7 @@ import com.github.picture2pc.desktop.data.imageprep.impl.PicturePreparationImpl
 import com.github.picture2pc.desktop.data.preferences.impl.DesktopPreferencesRepository
 import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.desktop.net.datatransmitter.impl.MulticastTcpDataTransmitter
-import com.github.picture2pc.desktop.viewmodel.mainscreen.ClientPreferencesViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.BroadcastViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
@@ -44,5 +44,5 @@ val appModule = module {
             get()
         )
     }
-    single { ClientPreferencesViewModel(get(named("viewModelCoroutineScope")), get()) }
+    single { BroadcastViewModel(get(named("viewModelCoroutineScope")), get()) }
 }

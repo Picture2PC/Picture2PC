@@ -4,7 +4,7 @@ import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class ClientPreferencesViewModel(
+class BroadcastViewModel(
     private val scope: CoroutineScope,
     private val preferences: PreferencesRepository
 ) {
@@ -20,4 +20,6 @@ class ClientPreferencesViewModel(
             preferences.setConnectable(true)
         }
     }
+
+    fun nameIsInvalid(name: String) = preferences.nameIsInvalid(name)
 }

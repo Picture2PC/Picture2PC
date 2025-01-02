@@ -20,19 +20,16 @@ import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.desktop.ui.constants.Settings
-import com.github.picture2pc.desktop.viewmodel.mainscreen.ClientPreferencesViewModel
+import com.github.picture2pc.desktop.viewmodel.mainscreen.BroadcastViewModel
 import org.koin.compose.rememberKoinInject
-
-fun nameIsInvalid(name: String) = name.isEmpty() || name.isBlank() || name.length > Settings.MAX_NAME_LENGTH
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NameInputField(
     focusManager: FocusManager,
-    clientPreferences: ClientPreferencesViewModel = rememberKoinInject()
+    broadcastViewModel: BroadcastViewModel = rememberKoinInject()
 ) {
-    val name = remember { mutableStateOf(clientPreferences.getName()) }
+    val name = remember { mutableStateOf(broadcastViewModel.getName()) }
     val isError = remember { mutableStateOf(false) }
     val submitKeys = setOf(Key.Enter, Key.NumPadEnter)
 
@@ -45,10 +42,10 @@ fun NameInputField(
             .fillMaxWidth()
             .height(Heights.BUTTON + 10.dp)
             .onKeyEvent { keyEvent ->
-                isError.value = nameIsInvalid(name.value)
-                if (isError.value) clientPreferences.setConnectable(false)
+                isError.value = broadcastViewModel.nameIsInvalid(name.value)
+                if (isError.value) broadcastViewModel.setConnectable(false)
                 else if (keyEvent.key in submitKeys) {
-                    clientPreferences.saveName(name.value)
+                    broadcastViewModel.saveName(name.value)
                     focusManager.clearFocus()
                 }
                 true

@@ -17,4 +17,6 @@ abstract class PreferencesRepository {
     abstract suspend fun setConnectable(connectable: Boolean)
     abstract fun savePreferences()
     abstract fun loadPreferences(): Preferences
+
+    fun nameIsInvalid(name: String) = name.isEmpty() || name.isBlank() || name.length > PreferencesDefaults.MAX_NAME_LENGTH
 }
