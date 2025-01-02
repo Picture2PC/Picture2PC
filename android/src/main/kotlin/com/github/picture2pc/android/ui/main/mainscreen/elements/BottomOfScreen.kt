@@ -1,7 +1,5 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,48 +13,27 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.R
-import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
+import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.PicturePickerViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
-import org.koin.core.qualifier.named
 
 @Composable
 fun BottomOfScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
-    cameraViewModel: CameraViewModel = rememberKoinInject(),
-    coroutineScope: CoroutineScope = rememberKoinInject<CoroutineScope>(
-        named("backgroundCoroutineScope")
-    ),
-    ioDispatcher: CoroutineDispatcher = rememberKoinInject<CoroutineDispatcher>(
-        named("ioDispatcher")
-    ),
+    picturePickerViewModel: PicturePickerViewModel = rememberKoinInject(),
 ) {
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-    val context = LocalContext.current
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            coroutineScope.launch(ioDispatcher) {
-                bitmap.value =
-                    context.contentResolver.openInputStream(uri)?.use { stream ->
-                        Bitmap.createBitmap(BitmapFactory.decodeStream(stream))
-                    }
-                bitmap.value?.let { cameraViewModel.injectImage(it) }
-                screenSelectorViewModel.toBigPicture()
-            }
+            picturePickerViewModel.injectUri(uri)
+            screenSelectorViewModel.toBigPicture()
         }
     )
 

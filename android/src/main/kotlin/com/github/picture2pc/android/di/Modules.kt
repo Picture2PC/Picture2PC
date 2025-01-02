@@ -13,6 +13,7 @@ import com.github.picture2pc.android.net.datatransmitter.impl.MulticastTcpDataTr
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
+import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.PicturePickerViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,7 +45,6 @@ val appModule = module {
 
     single<GalleryManager> { GalleryManager(get()) }
 
-
     single { BroadcastViewModel(get()) }
     single<EdgeDetect> { YOLOv8SegEdgeDetect(get(named("ioDispatcher"))) }
     single { ClientsViewModel(get()) }
@@ -58,6 +58,7 @@ val appModule = module {
     }
     single { CameraViewModel(get(), get()) }
     single { ScreenSelectorViewModel() }
+    single { PicturePickerViewModel(get(named("backgroundCoroutineScope")), get(), get(named("ioDispatcher")), get()) }
 
     single { SavedStateHandle() }
 
