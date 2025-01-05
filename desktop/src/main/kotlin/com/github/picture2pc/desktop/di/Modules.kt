@@ -44,7 +44,8 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get()
+            get(),
+            getProperty("isMinimized")
         )
     }
 }

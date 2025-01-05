@@ -21,6 +21,7 @@ class PictureDisplayViewModel(
     private val notificationHandler: NotificationHandler,
     private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
+    private var isMinimized: Boolean,
 ) {
     private val picture = dataReceiver.picture
 
@@ -29,7 +30,6 @@ class PictureDisplayViewModel(
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
     val unseenPictures: MutableStateFlow<Int> = MutableStateFlow(0)
-    private var isMinimized = false
     private var displayPictureSize = Size(0f, 0f)
 
     init {
