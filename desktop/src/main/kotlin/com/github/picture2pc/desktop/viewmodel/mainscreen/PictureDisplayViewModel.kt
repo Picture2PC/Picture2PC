@@ -10,6 +10,7 @@ import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
+import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -21,7 +22,6 @@ class PictureDisplayViewModel(
     private val notificationHandler: NotificationHandler,
     private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
-    private var isMinimized: Boolean,
 ) {
     private val picture = dataReceiver.picture
 
@@ -31,17 +31,20 @@ class PictureDisplayViewModel(
     val currentPicture = pP.editedBitmap
     val unseenPictures: MutableStateFlow<Int> = MutableStateFlow(0)
     private var displayPictureSize = Size(0f, 0f)
+    var isFocused = false
 
     init {
         picture.onEach {
             pictureQueue.addLast(it)
-//            isMinimized = (GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
-//                .any { it.fullScreenWindow is Frame && (it.fullScreenWindow as Frame).state == Frame.ICONIFIED })
+
+            var message = Settings.NEW_PICTURE
+            if (unseenPictures.value + 1 > 0) message += " (${unseenPictures.value + 1} unseen pictures)"
             notificationHandler.displayNotification(
                 "Picture2PC",
-                "Picture received",
-                isMinimized
+                message,
+                isFocused
             )
+
             if (totalPictures.value == 0) setPicture(it)
             totalPictures.value = pictureQueue.size
             unseenPictures.value = totalPictures.value - (selectedPictureIndex.value + 1)

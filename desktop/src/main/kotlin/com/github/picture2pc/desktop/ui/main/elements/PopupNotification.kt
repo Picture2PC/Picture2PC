@@ -13,6 +13,7 @@ import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
+import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 
@@ -30,8 +31,8 @@ fun PopupNotification(pDVM: PictureDisplayViewModel = rememberKoinInject()) {
             .background(color = Colors.SECONDARY.copy(.9f), shape = Shapes.WINDOW)
             .padding(Spacers.LARGE)
     ) {
-        var message = "New Picture Received"
-        if (unseenPictures > 0) message += "($unseenPictures unseen pictures)"
+        var message = Settings.NEW_PICTURE
+        if (unseenPictures > 0) message += " ($unseenPictures unseen pictures)"
         Text(
             message,
             style = TextStyles.NORMAL
