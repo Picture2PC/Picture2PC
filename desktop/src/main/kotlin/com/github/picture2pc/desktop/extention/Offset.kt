@@ -7,9 +7,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 
-fun Offset.translate(
-    clockwise: Boolean
-): Offset {
+fun Offset.translate(clockwise: Boolean): Offset {
     return when (clockwise) {
         true -> Offset(-this.y, this.x)
         false -> Offset(this.y, -this.x)
@@ -30,15 +28,6 @@ fun Offset.denormalize(maxSize: Size): Offset {
     )
 }
 
-fun Offset.isInBounds(rectangle: Rect): Boolean {
-    return !(
-            this.x < rectangle.left ||
-                    this.x > rectangle.right ||
-                    this.y < rectangle.top ||
-                    this.y > rectangle.bottom
-            )
-}
-
 fun Offset.clampInBounds(rectangle: Rect): Offset {
     return Offset(
         this.x.coerceIn(rectangle.left, rectangle.right),
@@ -47,9 +36,7 @@ fun Offset.clampInBounds(rectangle: Rect): Offset {
 }
 
 fun Offset.distanceTo(secondPair: Offset): Float {
-    return sqrt(
-        (secondPair.x - this.x).pow(2) + (secondPair.y - this.y).pow(2)
-    )
+    return sqrt((secondPair.x - this.x).pow(2) + (secondPair.y - this.y).pow(2))
 }
 
 fun Offset.toCenteredOrigin(size: Size): Offset {
