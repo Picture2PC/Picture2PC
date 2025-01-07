@@ -31,8 +31,8 @@ fun HorizontalBigPictureScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
-    val cameraImage = cameraViewModel.takenImage.collectAsState(initial = null).value
-    val image = galleryImage ?: cameraImage!!.first
+    val cameraImage = cameraViewModel.takenImage.collectAsState().value?.first
+    val image = galleryImage ?: cameraImage
 
     Box(
         modifier = Modifier
@@ -40,13 +40,15 @@ fun HorizontalBigPictureScreen(
             .padding(20.dp)
     ) {
         Row(modifier = Modifier.align(Alignment.Center)) {
-            Image(
-                image.asImageBitmap(),
-                contentDescription = "Big Picture",
-                modifier = Modifier
-                    .clickable(onClick = screenSelectorViewModel::toCamera)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            if (image != null) {
+                Image(
+                    image.asImageBitmap(),
+                    contentDescription = "Big Picture",
+                    modifier = Modifier
+                        .clickable(onClick = screenSelectorViewModel::toCamera)
+                        .clip(RoundedCornerShape(20.dp))
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
