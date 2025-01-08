@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.viewmodel.mainscreen
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.extention.clampInBounds
@@ -11,24 +10,12 @@ import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.toCenteredOrigin
 import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.extention.translate
-import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.atan2
 
-enum class DraggingSpeed(val iconPath: String, val speed: Float) {
-    SLOW(Desktop.SLOW, Settings.SLOW_DRAGGING_SPEED),
-    FAST(Desktop.FAST, Settings.HIGH_DRAGGING_SPEED);
-
-    fun next(): DraggingSpeed = when (this) {
-        SLOW -> FAST
-        FAST -> SLOW
-    }
-}
 class MovementHandlerViewModel {
-    private val _draggingSpeed = MutableStateFlow(DraggingSpeed.SLOW)
-    val draggingSpeed = _draggingSpeed.asStateFlow()
     private val _clicks: MutableStateFlow<List<Offset>> = MutableStateFlow(listOf())
     val clicks: StateFlow<List<Offset>> = _clicks.asStateFlow()
     val rotationState = MutableStateFlow(RotationState.ROTATION_0)
@@ -127,10 +114,6 @@ class MovementHandlerViewModel {
         _clicks.value = sortClicks(_clicks.value.map {
             it.toCenteredOrigin(Size(1f, 1f)).translate(clockwise).toTopLeftOrigin(Size(1f, 1f))
         })
-    }
-
-    fun updateDraggingSpeed() {
-        _draggingSpeed.value = draggingSpeed.value.next()
     }
 
     companion object {

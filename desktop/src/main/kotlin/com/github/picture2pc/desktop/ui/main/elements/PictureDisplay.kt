@@ -45,42 +45,29 @@ fun Picture(
     val clicks = mHVM.clicks.collectAsState().value
     val dragPoint = mHVM.dragPoint.collectAsState().value
 
-
     Box(Modifier.onGloballyPositioned { canvasSize.value = it.size.toSize() }) {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
             modifier = Modifier
                 .onGloballyPositioned {
-                    imageSize.value = it.size.toSize(); pDVM.calculateRatio(
-                    imageSize.value
-                )
+                    imageSize.value = it.size.toSize(); pDVM.calculateRatio(imageSize.value)
                 }
                 .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        mHVM.addClick(offset.normalize(imageSize.value))
-                    }
+                    detectTapGestures { offset -> mHVM.addClick(offset.normalize(imageSize.value)) }
                 }
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { dragStart ->
-                            mHVM.setDrag(
-                                dragStart.normalize(imageSize.value)
-                            )
+                            mHVM.setDrag(dragStart.normalize(imageSize.value))
                         },
                         onDrag = { change, _ ->
-                            mHVM.setDrag(
-                                change.position.normalize(imageSize.value),
-                            )
+                            mHVM.setDrag(change.position.normalize(imageSize.value))
                         },
-                        onDragEnd = {
-                            mHVM.endDrag()
-                        }
+                        onDragEnd = { mHVM.endDrag() }
                     )
                 }
-                .pointerHoverIcon(
-                    PointerIcon.Default
-                )
+                .pointerHoverIcon(PointerIcon.Default)
         )
         Canvas(Modifier) {
             val scale = canvasSize.value.minDimension
@@ -140,9 +127,7 @@ fun Picture(
                             -absoluteDragPoint.y * Settings.ZOOM_FACTOR
                         ) {
                             scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
-                                drawImage(
-                                    pictureBitmap.asComposeImageBitmap()
-                                )
+                                drawImage(pictureBitmap.asComposeImageBitmap())
                             }
                         }
                     }
