@@ -26,6 +26,11 @@ kotlin {
                 implementation(libs.kotlinx.serialization.cbor)
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val jvmMain by getting
         val linuxX64Main by getting
         val mingwX64Main by getting
@@ -38,10 +43,4 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     }
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir("src/main/res")
-        }
-    }
-}
+sourceSets["commonTest"].dependsOn(sourceSets["commonMain"])
