@@ -50,7 +50,6 @@ class CameraViewModel(
                     it.y.toFloat()
                 )
             }
-            println(points)
             dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     takenImage.value!!.first.toByteArray(),

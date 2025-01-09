@@ -1,7 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    kotlin("multiplatform")
     alias(libs.plugins.compose.multiplatform)
 }
 
@@ -12,13 +12,31 @@ repositories {
 group = "com.github.picture2pc.desktop"
 version = "${rootProject.version}.0"
 
-dependencies {
-    implementation(compose.desktop.common)
-    implementation(compose.desktop.currentOs)
-    implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
-    implementation(libs.opencv)
+kotlin {
+    jvm()
+    linuxX64()
+    mingwX64()
 
-    implementation(project(":common"))
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.desktop.common)
+                implementation(compose.desktop.currentOs)
+                implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
+                implementation(libs.opencv)
+                implementation(project(":common"))
+            }
+        }
+        val jvmMain by getting
+        val linuxX64Main by getting
+        val mingwX64Main by getting
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 compose.desktop {

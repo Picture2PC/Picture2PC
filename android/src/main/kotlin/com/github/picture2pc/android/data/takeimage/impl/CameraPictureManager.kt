@@ -165,6 +165,10 @@ class CameraPictureManager(
             ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(image, 90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(image, 180f)
             ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(image, 270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> flipImage(image, true, false)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> flipImage(image, false, true)
+            ExifInterface.ORIENTATION_TRANSPOSE -> transposeImage(image)
+            ExifInterface.ORIENTATION_TRANSVERSE -> transverseImage(image)
             else -> image
         }
     }
@@ -172,6 +176,26 @@ class CameraPictureManager(
     fun rotateImage(img: Bitmap, degree: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(degree)
+        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
+
+    fun flipImage(img: Bitmap, horizontal: Boolean, vertical: Boolean): Bitmap {
+        val matrix = Matrix()
+        matrix.preScale(if (horizontal) -1f else 1f, if (vertical) -1f else 1f)
+        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
+
+    fun transposeImage(img: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.setRotate(90f)
+        matrix.postScale(-1f, 1f)
+        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
+
+    fun transverseImage(img: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.setRotate(-90f)
+        matrix.postScale(-1f, 1f)
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
     }
 

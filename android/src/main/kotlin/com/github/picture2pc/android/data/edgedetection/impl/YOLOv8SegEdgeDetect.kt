@@ -117,7 +117,6 @@ class YOLOv8SegEdgeDetect(private val ioDispatcher: CoroutineDispatcher) : EdgeD
 
         // Convert BGR to RGB and normalize to [0,1]
         Imgproc.cvtColor(paddedImg, paddedImg, Imgproc.COLOR_BGR2RGB)
-//        paddedImg.convertTo(paddedImg, CvType.CV_32FC3, 1.0 / 255.0)
 
         return Triple(paddedImg, ratio, Pair(padW, padH))
     }

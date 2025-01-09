@@ -155,8 +155,14 @@ class SimpleTcpServer(
     }
 
     private suspend fun tryAddPeer(peer: Peer, client: SimpleTcpClient): Boolean {
-        if (checkPeer(peer))
-            return peerToClientMap[peer] == client
+        if (checkPeer(peer)) {
+            if (peerToClientMap[peer] != client) {
+                peerToClientMap[peer]?.disconnect(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+                peerToClientMap[peer] = client
+                _connectedPeers.emit(peerToClientMap.values.toList())
+            }
+            return false
+        }
         _connectedPeers.emit(lock.withLock {
             peerToClientMap[peer] = client
             return@withLock peerToClientMap.values.toList()
