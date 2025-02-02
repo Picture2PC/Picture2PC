@@ -76,7 +76,6 @@ fun MainScreen(notificationHandler: NotificationHandler = rememberKoinInject<Not
                 Row(Modifier.padding(Spacers.NORMAL)) {
                     RotationButtons()
                     Spacer(Modifier.weight(1f))
-                    ZoomSpeedButton()
                 }
             }
         }
