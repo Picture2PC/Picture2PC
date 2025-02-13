@@ -9,16 +9,11 @@ import com.github.picture2pc.desktop.data.addToClipboard
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.toBitmap
-import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.extention.toMat
 import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ColorFilter
-import org.jetbrains.skia.ColorMatrix
 import org.jetbrains.skia.ImageInfo
-import org.jetbrains.skia.Paint
 import org.jetbrains.skiko.toBufferedImage
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -41,18 +36,16 @@ class PicturePreparationImpl : PicturePreparation {
 
     override fun contrast() {
         if (editedBitmap.value.isEmpty) return
-        val contrast = 1.6f
-        val cM = ColorMatrix(
-            contrast, 0f, 0f, 0f, 0f,
-            0f, contrast, 0f, 0f, 0f,
-            0f, 0f, contrast, 0f, 0f,
-            0f, 0f, 0f, 1f, 0f
-        )
-        val paint = Paint().apply { colorFilter = ColorFilter.makeMatrix(cM) }
 
-        val bitmap = clearBitmap()
-        Canvas(bitmap).drawImage(editedBitmap.value.toImage(), 0f, 0f, paint).close()
-        _editedBitmap.value = bitmap
+        val matrix = Mat(3, 3, CvType.CV_32F).apply {
+            put(0, 0, 0.0, -1.0, 0.0)
+            put(1, 0, -1.0, 5.0, -1.0)
+            put(2, 0, 0.0, -1.0, 0.0)
+        }
+
+        val mat = editedBitmap.value.toMat()
+        Imgproc.filter2D(mat, mat, -1, matrix, Point(0.0, 0.0))
+        _editedBitmap.value = mat.toBitmap()
     }
 
     override fun crop(clicks: List<Offset>, displayPictureSize: Size) {
