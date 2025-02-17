@@ -27,7 +27,6 @@ import kotlin.math.sqrt
 import org.opencv.core.Size as CvSize
 
 class PicturePreparationImpl : PicturePreparation {
-    //Bitmaps for the original, edited, overlay and drag overlay images
     override var originalBitmap: Bitmap = Bitmap()
     private var _editedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var editedBitmap: State<Bitmap> = _editedBitmap
@@ -44,8 +43,12 @@ class PicturePreparationImpl : PicturePreparation {
         }
 
         val mat = editedBitmap.value.toMat()
+        val dst = Mat()
         Imgproc.filter2D(mat, mat, -1, matrix, Point(0.0, 0.0))
-        _editedBitmap.value = mat.toBitmap()
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2BGR)
+        mat.convertTo(mat, CvType.CV_8UC3, 1.9, -80.0)
+        Imgproc.bilateralFilter(mat, dst, 10, 75.0, 75.0)
+        _editedBitmap.value = dst.toBitmap()
     }
 
     override fun crop(clicks: List<Offset>, displayPictureSize: Size) {
