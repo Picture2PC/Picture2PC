@@ -70,6 +70,7 @@ class PictureDisplayViewModel(
     }
 
     fun rotate(clockwise: Boolean) {
+        if (currentPicture.value.isEmpty) return
         pP.rotate(clockwise)
         mHVM.rotate(clockwise)
     }
