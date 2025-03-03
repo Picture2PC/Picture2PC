@@ -46,7 +46,7 @@ open class MulticastTcpDefaultDataTransmitter(
                 when (payload) {
                     is MulticastPayload.PeerTcpOnline -> {
                         newUUidName(payload.sourcePeer.uuid, payload.clientName)
-                        if (serverPreferences.connectable.value) {
+                        if (serverPreferences.preferences.value.connectable) {
                             backgroundScope.launch {
                                 tcpPayloadTransceiver.connect(
                                     payload.sourcePeer,
@@ -63,7 +63,7 @@ open class MulticastTcpDefaultDataTransmitter(
             tcpPayloadTransceiver.receivedPayloads.onEach {
                 when (it) {
                     is TcpPayload.RequestName -> {
-                        newName(serverPreferences.name.value, it.sourcePeer)
+                        newName(serverPreferences.preferences.value.name, it.sourcePeer)
                     }
 
                     is TcpPayload.NameUpdate -> {
@@ -77,13 +77,10 @@ open class MulticastTcpDefaultDataTransmitter(
                     else -> {}
                 }
             }.launchIn(backgroundScope)
-            serverPreferences.name.onEach {
-                newName(it)
-            }.launchIn(backgroundScope)
 
             while (isActive) {
-                if (serverPreferences.connectable.value) {
-                    emitServerOnline(serverPreferences.name.value)
+                if (serverPreferences.preferences.value.connectable) {
+                    emitServerOnline(serverPreferences.preferences.value.name)
                 }
                 kotlinx.coroutines.delay(TIME_BETWEEN_ONLINE_EMIT)
             }
@@ -129,7 +126,7 @@ open class MulticastTcpDefaultDataTransmitter(
     }
 
     private suspend fun emitListServers() {
-        multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.name.value))
+        multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.preferences.value.name))
     }
 
     private suspend fun emitServerOnline(serverName: String) {

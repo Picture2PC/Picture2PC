@@ -8,17 +8,17 @@ class BroadcastViewModel(
     private val scope: CoroutineScope,
     private val preferences: PreferencesRepository
 ) {
-    fun setConnectable(connectable: Boolean) {
-        scope.launch { preferences.setConnectable(connectable) }
-    }
+    fun getName() = preferences.preferences.value.name
+    fun getPreferences() = preferences.preferences
 
-    fun getName() = preferences.name.value
-    fun getConnectable() = preferences.connectable
+    fun setConnectable(connectable: Boolean) {
+        scope.launch { preferences.setPreferences(connectable) }
+    }
 
     fun saveName(newName: String) {
         scope.launch {
-            preferences.setName(newName)
-            preferences.setConnectable(true)
+            preferences.setPreferences(newName, true)
+            preferences.savePreferences()
         }
     }
 

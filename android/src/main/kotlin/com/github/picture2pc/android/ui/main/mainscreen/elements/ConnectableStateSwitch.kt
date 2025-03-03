@@ -22,12 +22,12 @@ import org.koin.compose.rememberKoinInject
 fun ConnectableStateSwitch(
     broadcastViewModel: BroadcastViewModel = rememberKoinInject()
 ) {
-    val connectableSwitch by broadcastViewModel.connectable.collectAsState()
+    val connectableSwitch by broadcastViewModel.getPreferences().collectAsState()
 
     Row {
         Switch(
-            checked = connectableSwitch,
-            onCheckedChange = { broadcastViewModel.setConnectable(it) },
+            checked = connectableSwitch.connectable,
+            onCheckedChange = broadcastViewModel::setConnectable,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = Colors.PRIMARY,
                 checkedThumbColor = Colors.TEXT,

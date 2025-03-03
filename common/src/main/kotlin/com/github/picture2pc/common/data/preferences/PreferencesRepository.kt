@@ -1,5 +1,6 @@
 package com.github.picture2pc.common.data.preferences
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
@@ -7,16 +8,28 @@ import kotlinx.serialization.Serializable
 data class Preferences(var name: String, var connectable: Boolean)
 
 abstract class PreferencesRepository {
-    abstract val name: StateFlow<String>
-    abstract val connectable: StateFlow<Boolean>
+    private val _preferences =
+        MutableStateFlow(Preferences(PreferencesDefaults.NAME, PreferencesDefaults.CONNECTABLE))
+    val preferences: StateFlow<Preferences> = _preferences
 
-    var preferences: Preferences =
-        Preferences(PreferencesDefaults.NAME, PreferencesDefaults.CONNECTABLE)
+    fun setPreferences(name: String, connectable: Boolean) {
+        _preferences.value = Preferences(name, connectable)
+    }
 
-    abstract suspend fun setName(name: String)
-    abstract suspend fun setConnectable(connectable: Boolean)
-    abstract fun savePreferences()
-    abstract fun loadPreferences(): Preferences
+    fun setPreferences(preferences: Preferences) {
+        _preferences.value = preferences
+    }
 
-    fun nameIsInvalid(name: String) = name.isEmpty() || name.isBlank() || name.length > PreferencesDefaults.MAX_NAME_LENGTH
+    fun setPreferences(name: String) {
+        _preferences.value = Preferences(name, preferences.value.connectable)
+    }
+
+    fun setPreferences(connectable: Boolean) {
+        _preferences.value = Preferences(preferences.value.name, connectable)
+    }
+
+    open fun savePreferences() {}
+
+    fun nameIsInvalid(name: String) =
+        name.isEmpty() || name.isBlank() || name.length > PreferencesDefaults.MAX_NAME_LENGTH
 }
