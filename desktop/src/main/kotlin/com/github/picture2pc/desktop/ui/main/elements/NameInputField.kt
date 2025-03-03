@@ -34,6 +34,8 @@ fun NameInputField(
     val isError = remember { mutableStateOf(false) }
     val submitKeys = setOf(Key.Enter, Key.NumPadEnter)
 
+    if (name.value.isEmpty()) isError.value = true
+
     OutlinedTextField(
         value = name.value,
         onValueChange = { name.value = it },

@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Preferences(var name: String, var connectable: Boolean)
+data class Preferences(
+    var name: String = PreferencesDefaults.NAME,
+    var connectable: Boolean = PreferencesDefaults.CONNECTABLE
+)
 
 abstract class PreferencesRepository {
     private val _preferences =
