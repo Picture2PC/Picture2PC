@@ -26,6 +26,7 @@ enum class DraggingSpeed(val iconPath: String, val speed: Float) {
         FAST -> SLOW
     }
 }
+
 class MovementHandlerViewModel {
     private val _draggingSpeed = MutableStateFlow(DraggingSpeed.SLOW)
     val draggingSpeed = _draggingSpeed.asStateFlow()
@@ -39,7 +40,7 @@ class MovementHandlerViewModel {
         private set
 
     /**
-     * @param click A normalized offset starting at (0, 0)[top left] ending (1, 1)[bottom, right]
+     * @param click A normalized offset starting at (0, 0)[top left] ending (1, 1)[bottom right]
      */
     fun addClick(click: Offset) {
         val clickC = clampOffset(click)
