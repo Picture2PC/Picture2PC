@@ -1,6 +1,5 @@
 package com.github.picture2pc.common.net.defaultdatatransmitter
 
-import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
