@@ -1,11 +1,11 @@
 package com.github.picture2pc.android.viewmodel.mainscreenviewmodels
 
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
-import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
+import com.github.picture2pc.common.net.defaultdatatransmitter.DefaultDevice
 import kotlinx.coroutines.flow.StateFlow
 
 class ClientsViewModel(
-    private val dataTransmitter: DataTransmitter
+    dataTransmitter: DataTransmitter
 ) {
     val serverEntries: StateFlow<List<DefaultDevice>> = dataTransmitter.connectedDevices
 }

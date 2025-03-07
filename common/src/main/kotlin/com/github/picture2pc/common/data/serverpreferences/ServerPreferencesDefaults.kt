@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.data.serverpreferences
+package com.github.picture2pc.common.data.serverpreferences
 
 object ServerPreferencesDefaults {
     const val NAME = ""

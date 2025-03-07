@@ -11,9 +11,6 @@ import com.github.picture2pc.desktop.extention.denormalize
 import com.github.picture2pc.desktop.extention.toBitmap
 import com.github.picture2pc.desktop.extention.toMat
 import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Color
-import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ImageInfo
 import org.jetbrains.skiko.toBufferedImage
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -116,20 +113,6 @@ class PicturePreparationImpl : PicturePreparation {
             editedBitmap.value.width.toFloat() / displayPictureSize.width,
             editedBitmap.value.height.toFloat() / displayPictureSize.height
         )
-    }
-
-    private fun clearBitmap(): Bitmap {
-        val bitmap = Bitmap().apply {
-            allocPixels(
-                ImageInfo.makeN32(
-                    editedBitmap.value.width,
-                    editedBitmap.value.height,
-                    ColorAlphaType.UNPREMUL
-                )
-            )
-            erase(Color.TRANSPARENT)
-        }
-        return bitmap
     }
 
     override fun setOriginalPicture(picture: Bitmap) {

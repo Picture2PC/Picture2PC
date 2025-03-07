@@ -1,6 +1,6 @@
 package com.github.picture2pc.desktop.data.serverpreferences.impl
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

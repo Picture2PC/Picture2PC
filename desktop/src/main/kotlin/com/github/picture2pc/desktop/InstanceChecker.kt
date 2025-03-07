@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.util
+package com.github.picture2pc.desktop
 
 import java.io.File
 import java.nio.channels.FileChannel

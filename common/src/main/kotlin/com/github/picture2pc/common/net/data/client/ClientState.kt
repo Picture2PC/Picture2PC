@@ -21,8 +21,8 @@ sealed class ClientState(val color: Color, val displayName: String) {
         ClientState(StateColors.RECEIVING, "Receiving")
 
     sealed class DISCONNECTED(
-        private val disconnectColor: Color,
-        private val disconnectMessage: String
+        disconnectColor: Color,
+        disconnectMessage: String
     ) :
         ClientState(disconnectColor, disconnectMessage) {
         object NO_ERROR :

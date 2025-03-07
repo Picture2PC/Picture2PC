@@ -13,6 +13,4 @@ object Descriptions {
     const val CROP = "Crop"
 
     const val INFO = "Connection info"
-
-    const val DRAGGING_SPEED = "Dragging speed"
 }
