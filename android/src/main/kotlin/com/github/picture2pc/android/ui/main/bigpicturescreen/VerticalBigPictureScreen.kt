@@ -34,7 +34,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.ui.main.bigpicturescreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.util.Settings
-import com.github.picture2pc.android.ui.util.clamp
 import com.github.picture2pc.android.ui.util.clampInRect
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
@@ -61,7 +60,7 @@ fun VerticalBigPictureScreen(
             .pointerInput(Unit) {
                 coroutineScope {
                     detectTransformGestures { _, pan, zoom, _ ->
-                        scale = clamp(lastScale * zoom, 1f, Settings.MAX_ZOOM_FACTOR)
+                        scale = (lastScale * zoom).coerceIn(1f, Settings.MAX_ZOOM_FACTOR)
                         offset = clampInRect(size, lastOffset + pan)
                     }
                 }
