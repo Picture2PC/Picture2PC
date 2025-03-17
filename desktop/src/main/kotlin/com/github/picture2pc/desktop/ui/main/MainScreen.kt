@@ -18,15 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
-import com.github.picture2pc.common.ui.NotificationHandler
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
+import com.github.picture2pc.common.ui.notification.NotificationHandler
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.PopupNotification
 import com.github.picture2pc.desktop.ui.main.elements.RotationButtons
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
-import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
 import org.koin.compose.rememberKoinInject
 
 @Composable

@@ -15,8 +15,6 @@ object Icons {
         const val ROTATE_RIGHT = "${desktopPath}rotate_right.svg"
         const val ROTATE_LEFT = "${desktopPath}rotate_left.svg"
         const val INFO = "${desktopPath}info.svg"
-        const val SLOW = "${desktopPath}trail_length_short.svg"
-        const val FAST = "${desktopPath}trail_length.svg"
     }
 
     object Mobile {

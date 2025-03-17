@@ -1,4 +1,4 @@
-package com.github.picture2pc.common.ui
+package com.github.picture2pc.common.ui.notification
 
 import kotlinx.coroutines.flow.MutableStateFlow
 

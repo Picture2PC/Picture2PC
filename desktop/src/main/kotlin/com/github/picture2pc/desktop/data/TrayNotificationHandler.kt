@@ -1,6 +1,6 @@
 package com.github.picture2pc.desktop.data
 
-import com.github.picture2pc.common.ui.NotificationHandler
+import com.github.picture2pc.common.ui.notification.NotificationHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.awt.SystemTray
 import java.awt.TrayIcon

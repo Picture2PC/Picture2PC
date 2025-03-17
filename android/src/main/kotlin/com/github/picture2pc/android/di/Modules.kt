@@ -15,7 +15,7 @@ import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastVie
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.di.commonAppModule
-import com.github.picture2pc.common.ui.NotificationHandler
+import com.github.picture2pc.common.ui.notification.NotificationHandler
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

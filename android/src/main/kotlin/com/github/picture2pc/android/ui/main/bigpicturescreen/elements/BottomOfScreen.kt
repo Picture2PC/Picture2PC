@@ -33,9 +33,7 @@ fun BottomOfScreen(
             )
         }
         Button(
-            onClick = {
-                cameraViewModel.sendImage()
-            },
+            onClick = cameraViewModel::sendImage,
             colors = Colors.BUTTON_PRIMARY,
             modifier = Modifier.weight(1f)
         ) {

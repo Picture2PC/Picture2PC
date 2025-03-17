@@ -5,12 +5,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.picture2pc.common.net.data.payload.TcpPayload
-import com.github.picture2pc.common.ui.NotificationHandler
+import com.github.picture2pc.common.ui.notification.NotificationHandler
+import com.github.picture2pc.common.ui.notification.NotificationMessages
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.imageprep.PicturePreparation
 import com.github.picture2pc.desktop.extention.toImage
 import com.github.picture2pc.desktop.net.datatransmitter.DataTransmitter
-import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -37,7 +37,7 @@ class PictureDisplayViewModel(
         picture.onEach {
             pictureQueue.addLast(it)
 
-            var message = Settings.NEW_PICTURE
+            var message = NotificationMessages.PICTURE_SENT
             if (unseenPictures.value + 1 > 0) message += " (${unseenPictures.value + 1} unseen pictures)"
             notificationHandler.displayNotification(
                 "Picture2PC",
