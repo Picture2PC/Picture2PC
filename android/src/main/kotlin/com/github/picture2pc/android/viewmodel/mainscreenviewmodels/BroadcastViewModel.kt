@@ -5,17 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.launch
 
-class BroadcastViewModel(private val preferences: PreferencesRepository) : ViewModel() {
-    fun getName() = preferences.preferences.value.name
-    fun getPreferences() = preferences.preferences
+class BroadcastViewModel(private val preferencesRepository: PreferencesRepository) : ViewModel() {
+    val name = preferencesRepository.preferences.value.name
+    val preferences = preferencesRepository.preferences
 
     fun setConnectable(connectable: Boolean) {
-        viewModelScope.launch { preferences.setPreferences(connectable) }
+        viewModelScope.launch { preferencesRepository.setPreferences(connectable) }
     }
 
     fun saveName(newName: String) {
-        viewModelScope.launch { preferences.setPreferences(newName, true) }
+        viewModelScope.launch { preferencesRepository.setPreferences(newName, true) }
     }
 
-    fun nameIsInvalid(name: String) = preferences.nameIsInvalid(name)
+    fun nameIsInvalid(name: String) = preferencesRepository.nameIsInvalid(name)
 }

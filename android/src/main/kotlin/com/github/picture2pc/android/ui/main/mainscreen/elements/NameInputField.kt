@@ -33,7 +33,7 @@ fun NameInputField(
     val isError = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        name.value = broadcastViewModel.getName()
+        name.value = broadcastViewModel.name
     }
 
     OutlinedTextField(
