@@ -14,12 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import com.github.picture2pc.android.ui.main.bigpicturescreen.HorizontalBigPictureScreen
-import com.github.picture2pc.android.ui.main.bigpicturescreen.VerticalBigPictureScreen
-import com.github.picture2pc.android.ui.main.camerascreen.HorizontalCameraScreen
-import com.github.picture2pc.android.ui.main.camerascreen.VerticalCameraScreen
-import com.github.picture2pc.android.ui.main.mainscreen.HorizontalMainScreen
-import com.github.picture2pc.android.ui.main.mainscreen.VerticalMainScreen
+import com.github.picture2pc.android.ui.main.bigpicturescreen.BigPictureScreen
+import com.github.picture2pc.android.ui.main.camerascreen.CameraScreen
+import com.github.picture2pc.android.ui.main.mainscreen.MainScreen
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -47,16 +44,13 @@ fun Screen(vertical: Boolean, screenSelector: ScreenSelectorViewModel = remember
             ) {
                 when (screenSelector.value) {
                     ScreenSelectorViewModel.Screens.MAIN ->
-                        if (vertical) VerticalMainScreen()
-                        else HorizontalMainScreen()
+                        MainScreen(isVertical = vertical)
 
                     ScreenSelectorViewModel.Screens.CAMERA ->
-                        if (vertical) VerticalCameraScreen()
-                        else HorizontalCameraScreen()
+                        CameraScreen(isVertical = vertical)
 
                     ScreenSelectorViewModel.Screens.BIG_PICTURE ->
-                        if (vertical) VerticalBigPictureScreen()
-                        else HorizontalBigPictureScreen()
+                        BigPictureScreen(isVertical = vertical)
                 }
             }
         }

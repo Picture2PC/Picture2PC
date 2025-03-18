@@ -5,7 +5,6 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
-import com.github.picture2pc.desktop.ui.util.getIcon
 
 @Composable
 fun ApplicationScope.OpenExitTray(openAction: () -> Unit, exitAction: () -> Unit) {

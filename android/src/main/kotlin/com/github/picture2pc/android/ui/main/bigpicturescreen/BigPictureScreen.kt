@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,9 +43,10 @@ import kotlinx.coroutines.coroutineScope
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun HorizontalBigPictureScreen(
+fun BigPictureScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
-    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
+    isVertical: Boolean = true
 ) {
     val image = cameraViewModel.takenImage.collectAsState().value?.first
     var scale by remember { mutableFloatStateOf(1f) }
@@ -96,8 +100,17 @@ fun HorizontalBigPictureScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(.5f)
+                .fillMaxWidth(if (isVertical) 1f else 0.5f)
         ) {
+            if (isVertical) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .padding(top = 10.dp, bottom = 10.dp),
+                    thickness = 4.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             BottomOfScreen()
         }
     }

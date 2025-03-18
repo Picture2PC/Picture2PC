@@ -5,9 +5,7 @@ import com.github.picture2pc.common.net.data.peer.Peer
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.serialization.ExperimentalSerializationApi
 
-@OptIn(ExperimentalSerializationApi::class)
 abstract class NetworkPayloadTransceiver {
     abstract val available: Boolean
     private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
