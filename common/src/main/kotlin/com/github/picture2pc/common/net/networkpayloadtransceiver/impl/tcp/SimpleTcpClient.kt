@@ -8,10 +8,10 @@ import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import com.github.picture2pc.common.net.data.serialization.getByteArray
-import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECTION_TIMEOUT
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.MAX_PACKET_SIZE
-import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PINGTIME
-import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PINGTIMEOUT
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PING_TIME
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.PING_TIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,8 +36,7 @@ class SimpleTcpClient(
     private val backgroundScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val jvmSocket: Socket
-) : Client()
-{
+) : Client() {
     private val _receivedPayloads: MutableSharedFlow<Payload> = MutableSharedFlow()
     override val receivedPayloads: SharedFlow<Payload> = _receivedPayloads
     override var peer: Peer = Peer.any()
@@ -67,7 +66,7 @@ class SimpleTcpClient(
             while (backgroundScope.isActive) {
                 kotlin.runCatching {
                     while (backgroundScope.isActive) {
-                        withTimeout(if (isServer) PINGTIME else PINGTIMEOUT) {
+                        withTimeout(if (isServer) PING_TIME else PING_TIMEOUT) {
                             kotlin.runCatching {
                                 clientStateFlow.single()
                             }
@@ -96,25 +95,26 @@ class SimpleTcpClient(
     }
 
     suspend fun connect(inetSocketAddress: InetSocketAddress): Boolean {
-        when (withTimeoutOrNull(CONNECION_TIMEOUT)
-            {
-                kotlin.runCatching {
-                    withContext(ioDispatcher) {
-                        jvmSocket.connect(inetSocketAddress)
-                    }
-                }.onFailure {
-                    disconnect(
-                        ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING(it.message ?: "")
-                    )
-                    return@withTimeoutOrNull false
+        when (withTimeoutOrNull(CONNECTION_TIMEOUT)
+        {
+            kotlin.runCatching {
+                withContext(ioDispatcher) {
+                    jvmSocket.connect(inetSocketAddress)
                 }
-                return@withTimeoutOrNull true
-            }) {
+            }.onFailure {
+                disconnect(
+                    ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING(it.message ?: "")
+                )
+                return@withTimeoutOrNull false
+            }
+            return@withTimeoutOrNull true
+        }) {
             false -> return false
             null -> {
                 disconnect(ClientState.DISCONNECTED.ERROR_WHILE_CONNECTING("Timeout"))
                 return false
             }
+
             true -> {
                 sendPing()
                 return true
@@ -181,8 +181,8 @@ class SimpleTcpClient(
                     backgroundScope.ensureActive()
                     _clientStateFlow.emit(
                         ClientState.RECEIVING_PAYLOAD(
-                        type,
-                        copied / size.toFloat()
+                            type,
+                            copied / size.toFloat()
                         )
                     )
                     copied += jvmSocket.getInputStream()

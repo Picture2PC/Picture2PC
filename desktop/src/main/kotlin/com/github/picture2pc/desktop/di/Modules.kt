@@ -1,6 +1,6 @@
 package com.github.picture2pc.desktop.di
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.di.commonAppModule
 import com.github.picture2pc.common.ui.notification.NotificationHandler
 import com.github.picture2pc.desktop.data.TrayNotificationHandler
