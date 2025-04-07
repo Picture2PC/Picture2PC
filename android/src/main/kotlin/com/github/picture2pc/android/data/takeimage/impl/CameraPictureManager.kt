@@ -70,7 +70,7 @@ class CameraPictureManager(
         }
     }
 
-    private fun emitPicture(picture: Bitmap){
+    private fun emitPicture(picture: Bitmap) {
         coroutineScope.launch {
             val cJob = coroutineScope.async {
                 val res = runDetection(picture)
@@ -117,8 +117,7 @@ class CameraPictureManager(
                 if (singleThreadContext[Job]?.isCompleted != false)
                     coroutineScope.launch {
                         val res = runDetection(image.toBitmap())
-                        if (res != null)
-                            _pictureCorners.value = res
+                        if (res != null) _pictureCorners.value = res
                         image.close()
                     }
                 else
@@ -183,7 +182,7 @@ class CameraPictureManager(
     }
 
     private val _takenImages =
-        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3)            //read and write
+        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3) //read and write
     override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
         _takenImages.asSharedFlow()  //read only
 }

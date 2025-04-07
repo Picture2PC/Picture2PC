@@ -22,7 +22,8 @@ class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter
 ) : ViewModel() {
-    val takenImage = pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val takenImage =
+        pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
@@ -33,7 +34,9 @@ class CameraViewModel(
     private var isGalleryPicture: Boolean = false
 
     val pictureCorners: StateFlow<DetectedBox?>
-        get() { return pictureManager.pictureCorners }
+        get() {
+            return pictureManager.pictureCorners
+        }
 
     fun setViewFinder(previewView: PreviewView) {
         pictureManager.setViewFinder(previewView)
@@ -48,19 +51,17 @@ class CameraViewModel(
 
     fun injectImage(bitmap: Bitmap) {
         isGalleryPicture = true
-        viewModelScope.launch { pictureManager.injectImage(bitmap) }
+        pictureManager.injectImage(bitmap)
     }
 
     fun sendImage() {
-        if (takenImage.value == null)
-            return
+        if (takenImage.value == null) return
         viewModelScope.launch {
-            val points = if (isGalleryPicture) galleryCorners else  takenImage.value!!.second.await()?.pointsBox?.map {
-                Pair(
-                    it.x.toFloat(),
-                    it.y.toFloat()
-                )
-            }
+            val points =
+                if (isGalleryPicture) galleryCorners
+                else takenImage.value!!.second.await()?.pointsBox?.map {
+                    Pair(it.x.toFloat(), it.y.toFloat())
+                }
             println(points)
             dataTransmitter.sendPicture(
                 TcpPayload.Picture(

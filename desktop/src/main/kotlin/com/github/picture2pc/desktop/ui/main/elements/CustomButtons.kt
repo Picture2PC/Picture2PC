@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Heights
 import com.github.picture2pc.common.ui.Shapes
-import com.github.picture2pc.desktop.ui.util.getIcon
+import com.github.picture2pc.desktop.ui.getIcon
 
 @Composable
 fun TooltipIconButton(

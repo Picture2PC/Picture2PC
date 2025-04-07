@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -22,13 +23,14 @@ import com.github.picture2pc.android.ui.main.camerascreen.elements.CameraPreview
 import com.github.picture2pc.android.ui.main.camerascreen.elements.DisplayImage
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
-import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Style
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun VerticalCameraScreen(
+fun CameraScreen(
     cameraViewModel: CameraViewModel = rememberKoinInject(),
-    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
+    isVertical: Boolean = true
 ) {
     val image = cameraViewModel.takenImage.collectAsState().value?.first
 
@@ -45,18 +47,36 @@ fun VerticalCameraScreen(
         ) {
             CameraPreview(cameraViewModel = cameraViewModel)
         }
-        if (image != null) DisplayImage(image = image)
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            HorizontalDivider(
+
+        if (isVertical) {
+            if (image != null) DisplayImage(image = image)
+        } else {
+            Row {
+                if (image != null) DisplayImage(image = image)
+            }
+        }
+
+        if (isVertical) {
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .padding(top = 10.dp, bottom = 10.dp),
+                    thickness = 4.dp,
+                    color = Style.Colors.PRIMARY
+                )
+                BottomOfScreen()
+            }
+        } else {
+            Row(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .padding(top = 10.dp, bottom = 10.dp),
-                thickness = 4.dp,
-                color = Colors.PRIMARY
-            )
-            BottomOfScreen()
+                    .fillMaxWidth(0.5f)
+                    .align(Alignment.BottomCenter)
+            ) {
+                BottomOfScreen()
+            }
         }
     }
     BackHandler {

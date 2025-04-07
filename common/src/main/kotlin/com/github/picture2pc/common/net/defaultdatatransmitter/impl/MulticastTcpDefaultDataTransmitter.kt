@@ -1,10 +1,11 @@
 package com.github.picture2pc.common.net.defaultdatatransmitter.impl
 
-import com.github.picture2pc.android.data.serverpreferences.ServerPreferencesRepository
-import com.github.picture2pc.android.net.datatransmitter.DefaultDevice
+import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
+import com.github.picture2pc.common.net.defaultdatatransmitter.DefaultDataTransmitter
+import com.github.picture2pc.common.net.defaultdatatransmitter.DefaultDevice
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.multicast.MulticastPayloadTransceiver
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpPayloadTransceiver
 import kotlinx.coroutines.CoroutineScope
@@ -22,14 +23,14 @@ open class MulticastTcpDefaultDataTransmitter(
     private val tcpPayloadTransceiver: TcpPayloadTransceiver,
     private val serverPreferences: ServerPreferencesRepository,
     private val backgroundScope: CoroutineScope,
-) {
+) : DefaultDataTransmitter {
     private val _connectedDevices: MutableStateFlow<List<DefaultDevice>> =
         MutableStateFlow(emptyList())
-    val connectedDevices: StateFlow<List<DefaultDevice>> = _connectedDevices
+    override val connectedDevices: StateFlow<List<DefaultDevice>> = _connectedDevices
 
     private val _pictures: MutableSharedFlow<TcpPayload.Picture> =
         MutableSharedFlow(extraBufferCapacity = 1)
-    val picture: SharedFlow<TcpPayload.Picture> = _pictures
+    override val picture: SharedFlow<TcpPayload.Picture> = _pictures
 
     companion object {
         const val TIME_BETWEEN_ONLINE_EMIT = 3000L
@@ -124,8 +125,8 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.sendPayload(TcpPayload.RequestName(peer))
     }
 
-    suspend fun sendPicture(payload: TcpPayload.Picture) {
-        tcpPayloadTransceiver.sendPayload(payload)
+    override suspend fun sendPicture(picture: TcpPayload.Picture) {
+        tcpPayloadTransceiver.sendPayload(picture)
     }
 
     private suspend fun emitListServers() {

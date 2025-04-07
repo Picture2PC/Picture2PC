@@ -22,7 +22,6 @@ import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.main.elements.Picture
 import com.github.picture2pc.desktop.ui.main.elements.RotationButtons
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
-import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
 
 @Composable
 fun MainScreen() {
@@ -58,7 +57,6 @@ fun MainScreen() {
                 Row(Modifier.padding(Spacers.NORMAL)) {
                     RotationButtons()
                     Spacer(Modifier.weight(1f))
-                    ZoomSpeedButton()
                 }
             }
         }

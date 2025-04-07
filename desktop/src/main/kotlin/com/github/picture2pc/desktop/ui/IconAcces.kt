@@ -1,4 +1,4 @@
-package com.github.picture2pc.desktop.ui.util
+package com.github.picture2pc.desktop.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
