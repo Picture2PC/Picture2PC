@@ -39,8 +39,8 @@ import com.github.picture2pc.android.ui.util.Settings
 import com.github.picture2pc.android.ui.util.clampInRect
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
-import kotlinx.coroutines.coroutineScope
 import com.github.picture2pc.common.ui.Style
+import kotlinx.coroutines.coroutineScope
 import org.koin.compose.rememberKoinInject
 
 @Composable
@@ -79,8 +79,6 @@ fun BigPictureScreen(
                 )
             }
     ) {
-        Row(modifier = Modifier.align(Alignment.Center)) {
-            if (image != null) {
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -91,13 +89,15 @@ fun BigPictureScreen(
                     translationY = offset.y
                 )
         ) {
+            if (image != null) {
                 Image(
                     image.asImageBitmap(),
                     contentDescription = "Big Picture",
                     modifier = Modifier
                         .clickable(onClick = screenSelectorViewModel::toCamera)
                         .clip(RoundedCornerShape(20.dp))
-             )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
