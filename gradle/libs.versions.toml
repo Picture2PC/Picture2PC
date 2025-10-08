@@ -3,6 +3,7 @@ activityCompose = "1.9.2"
 cameraxVersion = "1.4.0-rc01"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
+javacvPlatform = "1.5.12"
 kotlin = "1.8.20"
 androidGradlePlugin = "8.6.0"
 composeMultiplatformPlugin = "1.4.0"
@@ -24,6 +25,7 @@ camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = 
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVersion" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+javacv-platform = { module = "org.bytedeco:javacv-platform", version.ref = "javacvPlatform" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose" } # Version different for who knows what reason
