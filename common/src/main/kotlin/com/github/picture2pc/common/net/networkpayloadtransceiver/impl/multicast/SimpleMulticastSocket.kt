@@ -7,9 +7,6 @@ import com.github.picture2pc.common.net.data.serialization.asByteArray
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.DatagramPacket
@@ -72,9 +69,9 @@ class SimpleMulticastSocket(
             withContext(ioDispatcher) {
                 jvmMulticastSocket.receive(datagramPacket)
             }
-        } catch (e: SocketTimeoutException) {
+        } catch (_: SocketTimeoutException) {
             return null
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             close()
             return null
         }
