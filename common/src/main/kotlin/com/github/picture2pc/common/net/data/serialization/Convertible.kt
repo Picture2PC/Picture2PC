@@ -17,6 +17,17 @@ fun Packet.asByteArray(): ByteArray {
     return Serializer.format.encodeToByteArray(serializer(), this)
 }
 
+/**
+ * Encodes a Payload into a byte array using a length-prefix protocol.
+ * 
+ * Protocol format:
+ * [4-byte header length][header bytes][payload bytes]
+ * 
+ * The 4-byte length prefix is encoded as a big-endian integer representing
+ * the size of the packet header in bytes. This approach ensures that any
+ * byte value (including Byte.MIN_VALUE) can appear in the header without
+ * being misinterpreted as a delimiter.
+ */
 fun Payload.getByteArray(): ByteArray {
     val data = this.asByteArray()
     val packet = Packet(this::class.getFullName(), data.size, this.sourcePeer)
