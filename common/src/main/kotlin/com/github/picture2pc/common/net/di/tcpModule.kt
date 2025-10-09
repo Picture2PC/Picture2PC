@@ -13,6 +13,6 @@ val tcpConnectionModule = module {
         CoroutineScope(get<CoroutineDispatcher>(named("defaultDispatcher")) + SupervisorJob()) 
     }
 
-    factory { SimpleTcpServer(get(named("tcpCoroutineScope")), get(named("ioDispatcher"))) }
+    single { SimpleTcpServer(get(named("tcpCoroutineScope")), get(named("ioDispatcher"))) }
     single { TcpPayloadTransceiver(get(named("tcpCoroutineScope")), get()) }
 }
