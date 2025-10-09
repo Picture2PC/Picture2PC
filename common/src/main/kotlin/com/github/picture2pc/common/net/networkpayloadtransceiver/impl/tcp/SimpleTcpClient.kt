@@ -162,15 +162,37 @@ class SimpleTcpClient(
 
     private suspend fun receivePacket(): Payload? {
         try {
-            val sizeBuff = ByteArray(1024)
-            var offset = 0
+            // Read 4-byte length prefix
+            val lengthPrefix = ByteArray(4)
             withContext(ioDispatcher) {
-                do {
-                    jvmSocket.getInputStream().read(sizeBuff, offset, 1)
+                var read = 0
+                while (read < 4) {
+                    val n = jvmSocket.getInputStream().read(lengthPrefix, read, 4 - read)
+                    if (n < 0) throw Exception("End of stream while reading length prefix")
+                    read += n
                     backgroundScope.ensureActive()
-                } while (sizeBuff[offset++] != Byte.MIN_VALUE)
+                }
             }
-            val p = Packet.fromByteArray(sizeBuff.copyOf(offset))
+            
+            // Decode header length from prefix
+            val headerLength = ((lengthPrefix[0].toInt() and 0xFF) shl 24) or
+                             ((lengthPrefix[1].toInt() and 0xFF) shl 16) or
+                             ((lengthPrefix[2].toInt() and 0xFF) shl 8) or
+                             (lengthPrefix[3].toInt() and 0xFF)
+            
+            // Read exact header bytes
+            val headerBytes = ByteArray(headerLength)
+            withContext(ioDispatcher) {
+                var read = 0
+                while (read < headerLength) {
+                    val n = jvmSocket.getInputStream().read(headerBytes, read, headerLength - read)
+                    if (n < 0) throw Exception("End of stream while reading header")
+                    read += n
+                    backgroundScope.ensureActive()
+                }
+            }
+            
+            val p = Packet.fromByteArray(headerBytes)
             val type = Class.forName(p.type).kotlin
             val size = p.len
             check(size > 0) { "Size is not positive" }
