@@ -10,16 +10,23 @@ import com.github.picture2pc.desktop.net.datatransmitter.impl.MulticastTcpDataTr
 import com.github.picture2pc.desktop.viewmodel.mainscreen.MovementHandlerViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
     includes(commonAppModule)
 
-    single(named("backgroundCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
-    single(named("viewModelCoroutineScope")) { CoroutineScope(Dispatchers.Default) }
+    single<CoroutineDispatcher>(named("defaultDispatcher")) { Dispatchers.Default }
+    single(named("backgroundCoroutineScope")) { 
+        CoroutineScope(get<CoroutineDispatcher>(named("defaultDispatcher")) + SupervisorJob()) 
+    }
+    single(named("viewModelCoroutineScope")) { 
+        CoroutineScope(get<CoroutineDispatcher>(named("defaultDispatcher")) + SupervisorJob()) 
+    }
 
     single<DataTransmitter> {
         MulticastTcpDataTransmitter(

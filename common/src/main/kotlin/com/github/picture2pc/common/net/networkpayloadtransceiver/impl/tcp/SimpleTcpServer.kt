@@ -8,7 +8,7 @@ import com.github.picture2pc.common.net.data.serialization.getByteArray
 import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECTION_TIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -78,7 +78,7 @@ class SimpleTcpServer(
             } catch (e: Exception) {
                 return false
             }
-        val client = SimpleTcpClient(backgroundScope + Job(), ioDispatcher, jvmSocket)
+        val client = SimpleTcpClient(backgroundScope + SupervisorJob(), ioDispatcher, jvmSocket)
         addPeer(client)
         return true
     }
@@ -87,7 +87,7 @@ class SimpleTcpServer(
         if (!isAvailable || checkPeer(peer)) return false
         println("Connecting to: $peer")
         val client = SimpleTcpClient(
-            backgroundScope + Job(),
+            backgroundScope + SupervisorJob(),
             ioDispatcher,
             withContext(ioDispatcher) { java.net.Socket() })
 
