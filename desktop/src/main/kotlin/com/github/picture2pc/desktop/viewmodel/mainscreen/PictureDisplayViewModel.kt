@@ -15,6 +15,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.jetbrains.skia.Bitmap
+
+private interface QueuedPicture {
+    val payloadPicture: TcpPayload.Picture
+    var seen: Boolean
+}
 
 class PictureDisplayViewModel(
     viewModelScope: CoroutineScope,
@@ -23,9 +29,9 @@ class PictureDisplayViewModel(
     private val mHVM: MovementHandlerViewModel,
     private val pP: PicturePreparation,
 ) {
-    private val picture = dataReceiver.picture
+    private val picturePayloads = dataReceiver.picture
 
-    private val pictureQueue: ArrayDeque<TcpPayload.Picture> = ArrayDeque()
+    private val pictureQueue: ArrayDeque<QueuedPicture> = ArrayDeque()
     val totalPictures = MutableStateFlow(0)
     val selectedPictureIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentPicture = pP.editedBitmap
@@ -34,8 +40,11 @@ class PictureDisplayViewModel(
     var isFocused = false
 
     init {
-        picture.onEach {
-            pictureQueue.addLast(it)
+        picturePayloads.onEach { payload ->
+            pictureQueue.addLast(object : QueuedPicture {
+                override val payloadPicture = payload
+                override var seen = false
+            })
 
             var message = NotificationMessages.PICTURE_SENT
             if (unseenPictures.value + 1 > 0) message += " (${unseenPictures.value + 1} unseen pictures)"
@@ -45,9 +54,12 @@ class PictureDisplayViewModel(
                 isFocused
             )
 
-            if (totalPictures.value == 0) setPicture(it)
+            if (pictureQueue.size == 1) {
+                setPicture(0)
+                pictureQueue[0].seen = true
+            }
             totalPictures.value = pictureQueue.size
-            unseenPictures.value = totalPictures.value - (selectedPictureIndex.value + 1)
+            unseenPictures.value = pictureQueue.count { picture -> !picture.seen }
         }.launchIn(viewModelScope)
     }
 
@@ -63,18 +75,21 @@ class PictureDisplayViewModel(
         }
 
         selectedPictureIndex.value = newIndex
-        setPicture(pictureQueue[selectedPictureIndex.value])
+        setPicture(selectedPictureIndex.value)
         notificationHandler.showNotification.value = false
         mHVM.rotationState.value = RotationState.ROTATION_0
     }
 
-    private fun setPicture(payload: TcpPayload.Picture) {
+    private fun setPicture(queueIndex: Int) {
+        val payloadPicture = pictureQueue[queueIndex].payloadPicture
+        pictureQueue[queueIndex].seen = true
+
         pP.setOriginalPicture(
-            payload.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
+            payloadPicture.picture.toImage().toComposeImageBitmap().asSkiaBitmap()
         )
         pP.calculateRatio(displayPictureSize)
-        if (payload.corners == null) return
-        mHVM.setClicks((payload.corners!!).map {
+        if (payloadPicture.corners == null) return
+        mHVM.setClicks((payloadPicture.corners!!).map {
             Offset(it.first, it.second)
         })
     }
@@ -96,7 +111,7 @@ class PictureDisplayViewModel(
 
     fun reset() {
         if (pictureQueue.isEmpty()) return
-        setPicture(pictureQueue[selectedPictureIndex.value])
+        setPicture(0)
     }
 
     fun doAll() {

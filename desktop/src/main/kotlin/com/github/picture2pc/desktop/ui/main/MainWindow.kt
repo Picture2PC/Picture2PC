@@ -8,7 +8,6 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
-import com.github.picture2pc.desktop.ui.util.getIcon
 import com.github.picture2pc.desktop.viewmodel.mainscreen.PictureDisplayViewModel
 import org.koin.compose.rememberKoinInject
 import com.github.picture2pc.desktop.ui.getIcon
