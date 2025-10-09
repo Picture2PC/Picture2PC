@@ -60,8 +60,8 @@ class MulticastPayloadTransceiver(
                     stopSingleSocket(networkInterface)
                     return@launch
                 }
-                println(multicastSocket.receivePayload())
                 val payload = multicastSocket.receivePayload() ?: continue
+                println("Received payload: $payload")
                 launch {
                     withTimeoutOrNull(2000) {
                         sendPayloadExcluding(payload, multicastSocket)
