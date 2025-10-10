@@ -3,7 +3,6 @@ package com.github.picture2pc.android.di
 import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
-import com.github.picture2pc.android.data.galleryimageselection.GalleryManager
 import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.github.picture2pc.android.data.takeimage.impl.CameraPictureManager
@@ -42,8 +41,6 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-
-    single<GalleryManager> { GalleryManager(get()) }
 
     single { BroadcastViewModel(get()) }
     single<EdgeDetect> { YOLOv8SegEdgeDetect(get(named("ioDispatcher"))) }
