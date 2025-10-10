@@ -23,32 +23,26 @@ class DesktopPreferencesRepository(
 
     init {
         backgroundCoroutineScope.launch(ioDispatcher) {
-            ensurePreferencesFile()
+            file.createNewFile()
         }
-        val preferences = try {
-            Cbor.decodeFromByteArray<Preferences>(file.readBytes())
-        } catch (e: Exception) {
-            Preferences()
-        }
-        setPreferences(preferences)
+        loadPreferences()
     }
 
-    override fun savePreferences() {
+    fun savePreferences() {
         backgroundCoroutineScope.launch(ioDispatcher) {
-            val bytes = Cbor.encodeToByteArray(preferences.value)
-            ensurePreferencesFile()
+            val bytes = Cbor.encodeToByteArray(buildPreferences())
+            file.createNewFile()
             file.writeBytes(bytes)
         }
     }
 
-    /**
-     * Ensures that the preferences file exists and is not empty.
-     * @return true if the file is not empty, false otherwise.
-     */
-    private fun ensurePreferencesFile() {
-        if (!file.exists()) {
-            file.createNewFile()
-            savePreferences()
+    fun loadPreferences() {
+        val preferences = try {
+            Cbor.decodeFromByteArray<Preferences>(file.readBytes())
+        } catch (_: Exception) {
+            Preferences()
         }
+        setName(preferences.name)
+        setConnectable(preferences.connectable)
     }
 }

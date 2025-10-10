@@ -33,7 +33,7 @@ fun ConnectionInfo(
 ) {
     val availableServers = serversSectionViewModel.availableServers.collectAsState().value
     val scrollState = rememberScrollState()
-    val connectable = broadcastViewModel.getPreferences().collectAsState().value.connectable
+    val connectable = broadcastViewModel.getConnectable()
 
     Column(modifier = modifier) {
         Text(

@@ -9,6 +9,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,18 +31,19 @@ fun NameInputField(
     broadcastViewModel: BroadcastViewModel = rememberKoinInject(),
 ) {
     val focusManager = LocalFocusManager.current
-    val name = remember { mutableStateOf("") }
+    val dataName by broadcastViewModel.name.collectAsState()
+    val localName = remember { mutableStateOf(broadcastViewModel.name.value) }
     val isError = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        name.value = broadcastViewModel.name
+        localName.value = dataName
     }
 
     OutlinedTextField(
-        value = name.value,
+        value = localName.value,
         onValueChange = {
-            name.value = it
-            isError.value = broadcastViewModel.nameIsInvalid(name.value)
+            localName.value = it
+            isError.value = broadcastViewModel.nameIsInvalid(it)
         },
         placeholder = { Text("Username") },
         label = { Text("Name") },
@@ -51,15 +54,16 @@ fun NameInputField(
         shape = Shapes.BUTTON,
         textStyle = TextStyles.NORMAL,
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
+            capitalization = KeyboardCapitalization.Words,
             autoCorrectEnabled = true,
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(onDone = {
-            isError.value = broadcastViewModel.nameIsInvalid(name.value)
+            isError.value = broadcastViewModel.nameIsInvalid(localName.value)
             if (isError.value) broadcastViewModel.setConnectable(false)
             else {
-                broadcastViewModel.saveName(name.value)
+                broadcastViewModel.setName(localName.value)
+                broadcastViewModel.savePreferences()
                 focusManager.clearFocus()
             }
         }),

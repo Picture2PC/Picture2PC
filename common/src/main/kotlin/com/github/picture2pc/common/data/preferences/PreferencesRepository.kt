@@ -11,27 +11,28 @@ data class Preferences(
 )
 
 abstract class PreferencesRepository {
-    private val _preferences =
-        MutableStateFlow(Preferences(PreferencesDefaults.NAME, PreferencesDefaults.CONNECTABLE))
-    val preferences: StateFlow<Preferences> = _preferences
+    private val _name = MutableStateFlow(PreferencesDefaults.NAME)
+    open val name: StateFlow<String> = _name
+
+    private val _connectable = MutableStateFlow(PreferencesDefaults.CONNECTABLE)
+    open val connectable: StateFlow<Boolean> = _connectable
 
     fun setPreferences(name: String, connectable: Boolean) {
-        _preferences.value = Preferences(name, connectable)
+        _name.value = name
+        _connectable.value = connectable
     }
 
-    fun setPreferences(preferences: Preferences) {
-        _preferences.value = preferences
+    open fun setConnectable(connectable: Boolean) {
+        _connectable.value = connectable
     }
 
-    fun setPreferences(name: String) {
-        _preferences.value = Preferences(name, preferences.value.connectable)
+    open fun setName(name: String) {
+        _name.value = name
     }
 
-    fun setPreferences(connectable: Boolean) {
-        _preferences.value = Preferences(preferences.value.name, connectable)
+    fun buildPreferences(): Preferences {
+        return Preferences(name.value, connectable.value)
     }
-
-    open fun savePreferences() {}
 
     fun nameIsInvalid(name: String) =
         name.isEmpty() || name.isBlank() || name.length > PreferencesDefaults.MAX_NAME_LENGTH

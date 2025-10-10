@@ -14,6 +14,7 @@ import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
@@ -30,8 +31,7 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-    single<PreferencesRepository> { DesktopPreferencesRepository() }
-
+    single { DesktopPreferencesRepository() } bind PreferencesRepository::class
     single<PicturePreparation> { PicturePreparationImpl() }
 
     single { ServersSectionViewModel(get()) }

@@ -3,7 +3,7 @@ package com.github.picture2pc.android.di
 import androidx.lifecycle.SavedStateHandle
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
-import com.github.picture2pc.android.data.serverpreferences.impl.DataStorePreferencesRepository
+import com.github.picture2pc.android.data.serverpreferences.impl.AndroidPreferencesRepository
 import com.github.picture2pc.android.data.takeimage.PictureManager
 import com.github.picture2pc.android.data.takeimage.impl.CameraPictureManager
 import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
@@ -17,6 +17,7 @@ import com.github.picture2pc.common.di.commonAppModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
@@ -31,12 +32,12 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-    single<PreferencesRepository> {
-        DataStorePreferencesRepository(
+    single {
+        AndroidPreferencesRepository(
             get(),
             get(named("backgroundCoroutineScope"))
         )
-    }
+    } bind PreferencesRepository::class
 
 
     single { BroadcastViewModel(get()) }
