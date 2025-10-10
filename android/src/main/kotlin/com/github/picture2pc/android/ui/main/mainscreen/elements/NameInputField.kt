@@ -1,6 +1,5 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions

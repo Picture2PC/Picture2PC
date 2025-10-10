@@ -1,6 +1,7 @@
 package com.github.picture2pc.android.di
 
 import androidx.lifecycle.SavedStateHandle
+import com.github.picture2pc.android.data.TrayNotificationHandler
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import com.github.picture2pc.android.data.edgedetection.impl.YOLOv8SegEdgeDetect
 import com.github.picture2pc.android.data.serverpreferences.impl.DataStoreServerPreferencesRepository
@@ -14,6 +15,7 @@ import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.ClientsViewM
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
 import com.github.picture2pc.common.di.commonAppModule
+import com.github.picture2pc.common.ui.notification.NotificationHandler
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,8 +55,9 @@ val appModule = module {
             get(named("defaultDispatcher"))
         )
     }
-    single { CameraViewModel(get(), get()) }
+    single { CameraViewModel(get(), get(), get()) }
     single { ScreenSelectorViewModel() }
+    single<NotificationHandler> { TrayNotificationHandler(get()) }
 
     single { SavedStateHandle() }
 
