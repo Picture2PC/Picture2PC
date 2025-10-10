@@ -53,7 +53,7 @@ class MulticastPayloadTransceiver(
     private suspend fun startSingleSocket(networkInterface: NetworkInterface){
         val multicastSocket: SimpleMulticastSocket = get()
         multicastSocket.start(networkInterface)
-        multicastSockets.put(networkInterface, multicastSocket)
+        multicastSockets[networkInterface] = multicastSocket
         scope.launch {
             while (isActive) {
                 if (!multicastSocket.isAvailable){
