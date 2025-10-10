@@ -38,7 +38,6 @@ class MulticastPayloadTransceiver(
                 val interfaces = getDefaultNetworkInterfaces().toSet()
                 val newInterfaces = interfaces.minus(multicastSockets.keys)
                 val removeInterfaces = multicastSockets.keys.minus(interfaces)
-                println(multicastSockets)
                 newInterfaces.forEach {
                     startSingleSocket(it)
                 }
@@ -60,7 +59,6 @@ class MulticastPayloadTransceiver(
                     stopSingleSocket(networkInterface)
                     return@launch
                 }
-                println(multicastSocket.receivePayload())
                 val payload = multicastSocket.receivePayload() ?: continue
                 launch {
                     withTimeoutOrNull(2000) {
