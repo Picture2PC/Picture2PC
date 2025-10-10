@@ -7,10 +7,6 @@ plugins {
 group = "com.github.picture2pc.common"
 version = "${rootProject.version}.0"
 
-repositories {
-    google()
-}
-
 dependencies {
     api(compose.ui)
     api(compose.foundation)
@@ -19,16 +15,11 @@ dependencies {
 
     api(libs.koin.core)
     api(libs.koin.compose)
-
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.cbor)
-
-    api(libs.datastore.preferences)
-    api(libs.datastore)
-    implementation(libs.kotlinx.coroutines.core)
 }
 
-sourceSets {
+sourceSets{
     main {
         resources {
             srcDir("src/main/res")

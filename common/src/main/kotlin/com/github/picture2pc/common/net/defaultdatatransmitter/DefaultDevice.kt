@@ -1,4 +1,4 @@
-package com.github.picture2pc.android.net.datatransmitter
+package com.github.picture2pc.common.net.defaultdatatransmitter
 
 import com.github.picture2pc.common.net.data.client.ClientState
 import kotlinx.coroutines.flow.StateFlow

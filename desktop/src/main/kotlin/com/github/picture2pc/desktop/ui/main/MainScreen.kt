@@ -2,6 +2,7 @@ package com.github.picture2pc.desktop.ui.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,14 +20,18 @@ import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Shapes
 import com.github.picture2pc.common.ui.Spacers
+import com.github.picture2pc.common.ui.notification.NotificationHandler
 import com.github.picture2pc.desktop.ui.constants.Settings
 import com.github.picture2pc.desktop.ui.main.elements.Picture
+import com.github.picture2pc.desktop.ui.main.elements.PopupNotification
 import com.github.picture2pc.desktop.ui.main.elements.RotationButtons
 import com.github.picture2pc.desktop.ui.main.elements.Sidebar
-import com.github.picture2pc.desktop.ui.main.elements.ZoomSpeedButton
+import org.koin.compose.rememberKoinInject
 
 @Composable
-fun MainScreen() {
+fun MainScreen(notificationHandler: NotificationHandler = rememberKoinInject<NotificationHandler>()) {
+    val showNotification = notificationHandler.showNotification.collectAsState().value
+
     Box(
         Modifier
             .fillMaxSize()
@@ -55,10 +61,20 @@ fun MainScreen() {
                     Alignment.Center
                 ) { Picture() }
 
+                // Notification for received picture
+                if (showNotification) {
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(Spacers.LARGE)
+                            .clickable { notificationHandler.showNotification.value = false }) {
+                        PopupNotification()
+                    }
+                }
+
                 Row(Modifier.padding(Spacers.NORMAL)) {
                     RotationButtons()
                     Spacer(Modifier.weight(1f))
-                    ZoomSpeedButton()
                 }
             }
         }

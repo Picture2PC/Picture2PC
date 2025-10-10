@@ -45,45 +45,34 @@ fun Picture(
     val clicks = mHVM.clicks.collectAsState().value
     val dragPoint = mHVM.dragPoint.collectAsState().value
 
-
     Box(Modifier.onGloballyPositioned { canvasSize.value = it.size.toSize() }) {
         Image(
             bitmap = pictureBitmap.asComposeImageBitmap(),
             contentDescription = "Picture",
             modifier = Modifier
-                .onGloballyPositioned { imageSize.value = it.size.toSize() }
+                .onGloballyPositioned {
+                    imageSize.value = it.size.toSize(); pDVM.calculateRatio(imageSize.value)
+                }
                 .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        mHVM.addClick(offset.normalize(imageSize.value))
-                    }
+                    detectTapGestures { offset -> mHVM.addClick(offset.normalize(imageSize.value)) }
                 }
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { dragStart ->
-                            mHVM.setDrag(
-                                dragStart.normalize(imageSize.value)
-                            )
+                            mHVM.setDrag(dragStart.normalize(imageSize.value))
                         },
                         onDrag = { change, _ ->
-                            mHVM.setDrag(
-                                change.position.normalize(imageSize.value),
-                            )
+                            mHVM.setDrag(change.position.normalize(imageSize.value))
                         },
-                        onDragEnd = {
-                            mHVM.endDrag()
-                        }
+                        onDragEnd = { mHVM.endDrag() }
                     )
                 }
-                .pointerHoverIcon(
-                    PointerIcon.Default
-                )
+                .pointerHoverIcon(PointerIcon.Default)
         )
         Canvas(Modifier) {
             val scale = canvasSize.value.minDimension
 
-            clicks.forEach {
-                drawCircle(Colors.PRIMARY, 5f, it.denormalize(canvasSize.value))
-            }
+            // Draw box around corners
             val selectedClicks =
                 if (clicks.size == 3 && dragPoint != null && mHVM.prevEnabled) mHVM.sortClicks(
                     clicks + dragPoint
@@ -113,48 +102,50 @@ fun Picture(
             }
 
             // Part that is responsible for hover zoomed in preview
-            if (dragPoint == null) return@Canvas
-            val absoluteDragPoint = dragPoint.denormalize(canvasSize.value)
-            translate(
-                absoluteDragPoint.x,
-                absoluteDragPoint.y
-            ) {
-                clipPath(Path().apply {
-                    addOval(
-                        Rect(
-                            Offset(
-                                Settings.ZOOM_DIAMETER,
-                                Settings.ZOOM_DIAMETER
-                            ) * -scale,
-                            Size(
-                                Settings.ZOOM_DIAMETER * scale * 2,
-                                Settings.ZOOM_DIAMETER * scale * 2
+            if (dragPoint != null) {
+                val absoluteDragPoint = dragPoint.denormalize(canvasSize.value)
+                translate(
+                    absoluteDragPoint.x,
+                    absoluteDragPoint.y
+                ) {
+                    clipPath(Path().apply {
+                        addOval(
+                            Rect(
+                                Offset(
+                                    Settings.ZOOM_DIAMETER,
+                                    Settings.ZOOM_DIAMETER
+                                ) * -scale,
+                                Size(
+                                    Settings.ZOOM_DIAMETER * scale * 2,
+                                    Settings.ZOOM_DIAMETER * scale * 2
+                                )
                             )
                         )
-                    )
-                }) {
-                    translate(
-                        -absoluteDragPoint.x * Settings.ZOOM_FACTOR,
-                        -absoluteDragPoint.y * Settings.ZOOM_FACTOR
-                    ) {
-                        pDVM.calculateRatio(imageSize.value)
-                        scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
-                            drawImage(
-                                pictureBitmap.asComposeImageBitmap()
-                            )
+                    }) {
+                        translate(
+                            -absoluteDragPoint.x * Settings.ZOOM_FACTOR,
+                            -absoluteDragPoint.y * Settings.ZOOM_FACTOR
+                        ) {
+                            scale(Settings.ZOOM_FACTOR / pDVM.getRatio()) { // Scaled picture
+                                drawImage(pictureBitmap.asComposeImageBitmap())
+                            }
                         }
                     }
+                    drawCircle( //inner circle
+                        Colors.PRIMARY,
+                        Settings.ZOOM_DIAMETER * 0.1f * scale,
+                        style = Stroke(width = 2f)
+                    )
+                    drawCircle( //outer circle
+                        Colors.PRIMARY,
+                        Settings.ZOOM_DIAMETER * scale,
+                        style = Stroke(width = 2f)
+                    )
                 }
-                drawCircle( //inner circle
-                    Colors.PRIMARY,
-                    Settings.ZOOM_DIAMETER * 0.1f * scale,
-                    style = Stroke(width = 2f)
-                )
-                drawCircle( //outer circle
-                    Colors.PRIMARY,
-                    Settings.ZOOM_DIAMETER * scale,
-                    style = Stroke(width = 2f)
-                )
+            }
+            // Draw 4 corner dots
+            clicks.forEach {
+                drawCircle(Colors.PRIMARY, 0.01f * scale, it.denormalize(canvasSize.value))
             }
         }
     }

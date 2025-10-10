@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import com.github.picture2pc.android.R
 import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -28,19 +30,21 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class YOLOv8SegEdgeDetect : EdgeDetect {
+class YOLOv8SegEdgeDetect(private val ioDispatcher: CoroutineDispatcher) : EdgeDetect {
     private lateinit var documentModel: Net
 
-    private fun loadModel(context: Context): Net {
+    private suspend fun loadModel(context: Context): Net {
         val inputStream = context.resources.openRawResource(R.raw.documentdetect)
-        val buffer = ByteArray(inputStream.available())
-        inputStream.read(buffer)
-        inputStream.close()
-
+        val buffer : ByteArray
+        withContext(ioDispatcher) {
+            buffer = ByteArray(inputStream.available())
+            inputStream.read(buffer)
+            inputStream.close()
+        }
         return Dnn.readNetFromONNX(MatOfByte(*buffer))
     }
 
-    override fun load(context: Context) {
+    override suspend fun load(context: Context) {
         documentModel = loadModel(context)
     }
 
@@ -81,7 +85,7 @@ class YOLOv8SegEdgeDetect : EdgeDetect {
         val padH = (newShape.height - newUnpad.height) / 2
 
         // Resize the image if necessary
-        var resizedImg = img.clone()
+        val resizedImg = img.clone()
         if (shape != newUnpad) {
             Imgproc.resize(
                 img,

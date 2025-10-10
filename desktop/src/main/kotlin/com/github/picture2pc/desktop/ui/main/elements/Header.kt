@@ -13,7 +13,7 @@ import com.github.picture2pc.common.ui.Data
 import com.github.picture2pc.common.ui.Icons
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.TextStyles
-import com.github.picture2pc.desktop.ui.util.getIcon
+import com.github.picture2pc.desktop.ui.getIcon
 
 @Composable
 fun Header() {

@@ -3,7 +3,6 @@ package com.github.picture2pc.desktop.viewmodel.mainscreen
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.github.picture2pc.common.ui.Icons.Desktop
 import com.github.picture2pc.desktop.data.RotationState
 import com.github.picture2pc.desktop.data.next
 import com.github.picture2pc.desktop.extention.clampInBounds
@@ -11,25 +10,12 @@ import com.github.picture2pc.desktop.extention.distanceTo
 import com.github.picture2pc.desktop.extention.toCenteredOrigin
 import com.github.picture2pc.desktop.extention.toTopLeftOrigin
 import com.github.picture2pc.desktop.extention.translate
-import com.github.picture2pc.desktop.ui.constants.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.atan2
 
-enum class DraggingSpeed(val iconPath: String, val speed: Float) {
-    SLOW(Desktop.SLOW, Settings.SLOW_DRAGGING_SPEED),
-    FAST(Desktop.FAST, Settings.HIGH_DRAGGING_SPEED);
-
-    fun next(): DraggingSpeed = when (this) {
-        SLOW -> FAST
-        FAST -> SLOW
-    }
-}
-
 class MovementHandlerViewModel {
-    private val _draggingSpeed = MutableStateFlow(DraggingSpeed.SLOW)
-    val draggingSpeed = _draggingSpeed.asStateFlow()
     private val _clicks: MutableStateFlow<List<Offset>> = MutableStateFlow(listOf())
     val clicks: StateFlow<List<Offset>> = _clicks.asStateFlow()
     val rotationState = MutableStateFlow(RotationState.ROTATION_0)
@@ -44,7 +30,13 @@ class MovementHandlerViewModel {
      */
     fun addClick(click: Offset) {
         val clickC = clampOffset(click)
-        if (clicks.value.size == CLICK_COUNT) clearClicks()
+        if (clicks.value.size == CLICK_COUNT) {
+            val (closestPoint, distance) = getClosestPoint(click) // if  circle made in rage of other replace other
+            if (distance < BUTTON_CHOOSE_HITRADIUS)
+                removeClick(closestPoint)
+            else
+                clearClicks()
+        }
         _clicks.value = sortClicks(clicks.value + clickC) // Set clicks to sort clicks
     }
 
@@ -111,25 +103,21 @@ class MovementHandlerViewModel {
         clearClicks()
     }
 
-    fun setClicks(clicks: List<Offset>) {
-        _clicks.value = clicks.map {
+    fun setClicks(newClicks: List<Offset>) {
+        _clicks.value = newClicks.map {
             clampOffset(it)
         }
     }
 
     fun rotate(clockwise: Boolean) {
         rotationState.value = rotationState.value.next(clockwise)
-        _clicks.value = _clicks.value.map {
+        _clicks.value = sortClicks(_clicks.value.map {
             it.toCenteredOrigin(Size(1f, 1f)).translate(clockwise).toTopLeftOrigin(Size(1f, 1f))
-        }
-    }
-
-    fun updateDraggingSpeed() {
-        _draggingSpeed.value = draggingSpeed.value.next()
+        })
     }
 
     companion object {
         const val CLICK_COUNT = 4
-        const val BUTTON_CHOOSE_HITRADIUS = 0.01
+        const val BUTTON_CHOOSE_HITRADIUS = 0.013
     }
 }

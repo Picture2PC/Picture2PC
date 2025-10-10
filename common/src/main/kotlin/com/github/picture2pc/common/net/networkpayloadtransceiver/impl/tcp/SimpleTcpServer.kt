@@ -5,7 +5,7 @@ import com.github.picture2pc.common.net.data.client.ClientState
 import com.github.picture2pc.common.net.data.payload.Payload
 import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.data.serialization.getByteArray
-import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECION_TIMEOUT
+import com.github.picture2pc.common.net.networkpayloadtransceiver.impl.tcp.TcpConstants.CONNECTION_TIMEOUT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -28,7 +28,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import java.net.InetSocketAddress
-import kotlin.collections.set
 
 class SimpleTcpServer(
     private val backgroundScope: CoroutineScope,
@@ -72,10 +71,10 @@ class SimpleTcpServer(
         if (!isAvailable) return false
         val jvmSocket =
             try {
-                withTimeout(CONNECION_TIMEOUT) {
+                withTimeout(CONNECTION_TIMEOUT) {
                     jvmServerSocket.accept()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return false
             }
         val client = SimpleTcpClient(backgroundScope + Job(), ioDispatcher, jvmSocket)
@@ -104,14 +103,14 @@ class SimpleTcpServer(
         if (!isAvailable) return false
         val data = payload.getByteArray()
         if (payload.targetPeer.isAny) {
-                val jobs = peerToClientMap.values.map {
-                    backgroundScope.async {
-                        it.sendMessage(data)
-                    }
+            val jobs = peerToClientMap.values.map {
+                backgroundScope.async {
+                    it.sendMessage(data)
                 }
-                jobs.forEach {
-                    if (!it.await()) return false
-                }
+            }
+            jobs.forEach {
+                if (!it.await()) return false
+            }
             return true
         }
         println("Sending: $payload")
@@ -135,8 +134,7 @@ class SimpleTcpServer(
                         if (client.isServer == client.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode()) {
                             println("Disconnecting current ${client.peer}")
                             client.disconnect(ClientState.DISCONNECTED.NO_ERROR)
-                        }
-                        else {
+                        } else {
                             println("Disconnecting other ${client.peer}")
                             peerToClientMap[client.peer]?.disconnect(ClientState.DISCONNECTED.NO_ERROR)
                             _connectedPeers.emit(lock.withLock {
