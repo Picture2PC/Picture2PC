@@ -5,6 +5,8 @@ object MulticastConstants {
     const val PORT = 42851
     const val RETRY_DELAY = 2000L
     const val POLLING_TIMEOUT = 2000
+    const val UPDATE_INTERFACE_DELAY = 2000L
+    const val SEND_TO_NEXT_TIMEOUT = 2000
     const val PACKET_SIZE = 1024
 }
 

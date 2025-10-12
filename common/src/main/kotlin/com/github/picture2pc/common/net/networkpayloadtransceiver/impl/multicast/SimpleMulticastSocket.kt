@@ -5,17 +5,14 @@ import com.github.picture2pc.common.net.data.payload.PayloadInfo
 import com.github.picture2pc.common.net.data.peer.Peer
 import com.github.picture2pc.common.net.data.serialization.asByteArray
 import com.github.picture2pc.common.net.data.serialization.fromByteArray
-import com.github.picture2pc.common.net.extentions.getDefaultNetworkInterface
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.InetSocketAddress
 import java.net.MulticastSocket
+import java.net.NetworkInterface
 import java.net.SocketTimeoutException
 
 
@@ -25,15 +22,15 @@ class SimpleMulticastSocket(
     private val inetSocketAddress: InetSocketAddress
 ) {
     private lateinit var jvmMulticastSocket: MulticastSocket
-    private var lock: Mutex = Mutex()
     // get network interface for local dns
 
-    suspend fun start() {
+    suspend fun start(networkInterface: NetworkInterface) {
         withContext(ioDispatcher) {
             jvmMulticastSocket = MulticastSocket(inetSocketAddress.port)
             jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
-            jvmMulticastSocket.networkInterface = getDefaultNetworkInterface()
-            jvmMulticastSocket.joinGroup(inetSocketAddress, null)
+            jvmMulticastSocket.reuseAddress = true
+            jvmMulticastSocket.networkInterface = networkInterface
+            jvmMulticastSocket.joinGroup(inetSocketAddress, networkInterface)
         }
     }
 
@@ -59,7 +56,7 @@ class SimpleMulticastSocket(
 
     }
 
-    private fun close() {
+    fun close() {
         jvmMulticastSocket.close()
     }
 
@@ -72,22 +69,9 @@ class SimpleMulticastSocket(
             withContext(ioDispatcher) {
                 jvmMulticastSocket.receive(datagramPacket)
             }
-        } catch (e: SocketTimeoutException) {
-            scope.launch(ioDispatcher) {
-                if (lock.isLocked)
-                    return@launch
-                lock.withLock {
-                kotlin.runCatching {
-                    val new = getDefaultNetworkInterface()
-                    if (new != jvmMulticastSocket.networkInterface) {
-                        jvmMulticastSocket.networkInterface = new
-                        jvmMulticastSocket.joinGroup(inetSocketAddress, null)
-                    }
-                }
-                }
-            }
+        } catch (_: SocketTimeoutException) {
             return null
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             close()
             return null
         }

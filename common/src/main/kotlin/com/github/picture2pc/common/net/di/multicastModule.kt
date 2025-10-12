@@ -13,7 +13,7 @@ import java.net.InetSocketAddress
 val multicastModule = module {
     single(named("multicastCoroutineScope")) { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 
-    single { MulticastPayloadTransceiver(get(named("multicastCoroutineScope")), get()) }
+    single { MulticastPayloadTransceiver(get(named("multicastCoroutineScope"))) }
     factory {
         SimpleMulticastSocket(
             get(named("multicastCoroutineScope")),
