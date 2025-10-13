@@ -22,6 +22,9 @@ class AndroidPreferencesRepository(
 
     private val nameKey = stringPreferencesKey("server_name")
     private val connectableKey = booleanPreferencesKey("server_connectable")
+    private val deviceUuidKey = stringPreferencesKey("device_uuid")
+    private val groupUuidKey = stringPreferencesKey("group_uuid")
+    private val groupNameKey = stringPreferencesKey("group_name")
     companion object {
         private val Context.settingsDataStore by preferencesDataStore(name = "settings")
     }
@@ -42,6 +45,30 @@ class AndroidPreferencesRepository(
         initialValue = false
     )
 
+    override val deviceUuid = context.settingsDataStore.data.map { preferences ->
+        preferences[deviceUuidKey] ?: PreferencesDefaults.DEVICE_UUID
+    }.stateIn(
+        scope = backgroundScope,
+        started = SharingStarted.Eagerly,
+        initialValue = PreferencesDefaults.DEVICE_UUID
+    )
+
+    override val groupUuid = context.settingsDataStore.data.map { preferences ->
+        preferences[groupUuidKey] ?: PreferencesDefaults.GROUP_UUID
+    }.stateIn(
+        scope = backgroundScope,
+        started = SharingStarted.Eagerly,
+        initialValue = PreferencesDefaults.GROUP_UUID
+    )
+
+    override val groupName = context.settingsDataStore.data.map { preferences ->
+        preferences[groupNameKey] ?: PreferencesDefaults.GROUP_NAME
+    }.stateIn(
+        scope = backgroundScope,
+        started = SharingStarted.Eagerly,
+        initialValue = PreferencesDefaults.GROUP_NAME
+    )
+
     override suspend fun setName(name: String) {
         withContext(ioDispatcher) {
             context.settingsDataStore.edit { storedPreferences ->
@@ -54,6 +81,30 @@ class AndroidPreferencesRepository(
         withContext(ioDispatcher) {
             context.settingsDataStore.edit { storedPreferences ->
                 storedPreferences[connectableKey] = connectable
+            }
+        }
+    }
+
+    override suspend fun setDeviceUuid(uuid: String) {
+        withContext(ioDispatcher) {
+            context.settingsDataStore.edit { storedPreferences ->
+                storedPreferences[deviceUuidKey] = uuid
+            }
+        }
+    }
+
+    override suspend fun setGroupUuid(uuid: String) {
+        withContext(ioDispatcher) {
+            context.settingsDataStore.edit { storedPreferences ->
+                storedPreferences[groupUuidKey] = uuid
+            }
+        }
+    }
+
+    override suspend fun setGroupName(name: String) {
+        withContext(ioDispatcher) {
+            context.settingsDataStore.edit { storedPreferences ->
+                storedPreferences[groupNameKey] = name
             }
         }
     }

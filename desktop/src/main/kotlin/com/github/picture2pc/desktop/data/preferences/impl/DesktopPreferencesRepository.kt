@@ -19,7 +19,10 @@ import java.io.File
 @Serializable
 data class Preferences(
     var name: String = PreferencesDefaults.NAME,
-    var connectable: Boolean = PreferencesDefaults.CONNECTABLE
+    var connectable: Boolean = PreferencesDefaults.CONNECTABLE,
+    var deviceUuid: String = PreferencesDefaults.DEVICE_UUID,
+    var groupUuid: String = PreferencesDefaults.GROUP_UUID,
+    var groupName: String = PreferencesDefaults.GROUP_NAME
 )
 
 class DesktopPreferencesRepository(
@@ -30,6 +33,12 @@ class DesktopPreferencesRepository(
     override val name: StateFlow<String> = _name.asStateFlow()
     private val _connectable = MutableStateFlow(PreferencesDefaults.CONNECTABLE)
     override val connectable: StateFlow<Boolean> = _connectable.asStateFlow()
+    private val _deviceUuid = MutableStateFlow(PreferencesDefaults.DEVICE_UUID)
+    override val deviceUuid: StateFlow<String> = _deviceUuid.asStateFlow()
+    private val _groupUuid = MutableStateFlow(PreferencesDefaults.GROUP_UUID)
+    override val groupUuid: StateFlow<String> = _groupUuid.asStateFlow()
+    private val _groupName = MutableStateFlow(PreferencesDefaults.GROUP_NAME)
+    override val groupName: StateFlow<String> = _groupName.asStateFlow()
 
     override suspend fun setName(name: String) {
         _name.value = name
@@ -38,6 +47,21 @@ class DesktopPreferencesRepository(
 
     override suspend fun setConnectable(connectable: Boolean) {
         _connectable.value = connectable
+        savePreferences()
+    }
+
+    override suspend fun setDeviceUuid(uuid: String) {
+        _deviceUuid.value = uuid
+        savePreferences()
+    }
+
+    override suspend fun setGroupUuid(uuid: String) {
+        _groupUuid.value = uuid
+        savePreferences()
+    }
+
+    override suspend fun setGroupName(name: String) {
+        _groupName.value = name
         savePreferences()
     }
 
@@ -50,7 +74,7 @@ class DesktopPreferencesRepository(
     }
 
     private fun buildPreferences(): Preferences {
-        return Preferences(name.value, connectable.value)
+        return Preferences(name.value, connectable.value, deviceUuid.value, groupUuid.value, groupName.value)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -72,6 +96,9 @@ class DesktopPreferencesRepository(
             }
             _name.value = preferences.name
             _connectable.value = preferences.connectable
+            _deviceUuid.value = preferences.deviceUuid
+            _groupUuid.value = preferences.groupUuid
+            _groupName.value = preferences.groupName
         }
     }
 }

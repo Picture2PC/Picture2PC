@@ -37,6 +37,8 @@ open class MulticastTcpDefaultDataTransmitter(
     }
 
     private val uuidNameMap = mutableMapOf<String, MutableStateFlow<String>>()
+    private val uuidCanReceiveMap = mutableMapOf<String, MutableStateFlow<Boolean>>()
+    private val uuidGroupVerifiedMap = mutableMapOf<String, MutableStateFlow<Boolean>>()
 
     init {
         backgroundScope.launch {
@@ -71,8 +73,23 @@ open class MulticastTcpDefaultDataTransmitter(
                         newUUidName(it.sourcePeer.uuid, it.name)
                     }
 
+                    is TcpPayload.GroupVerification -> {
+                        val verified = verifyGroupHash(it.groupHash, it.sourcePeer.uuid)
+                        tcpPayloadTransceiver.sendPayload(TcpPayload.GroupVerified(verified, it.sourcePeer))
+                        if (verified) {
+                            uuidGroupVerifiedMap[it.sourcePeer.uuid]?.emit(true)
+                        }
+                    }
+
+                    is TcpPayload.GroupVerified -> {
+                        uuidGroupVerifiedMap[it.sourcePeer.uuid]?.emit(it.verified)
+                    }
+
                     is TcpPayload.Picture -> {
-                        _pictures.emit(it)
+                        // Only accept pictures from group-verified devices
+                        if (uuidGroupVerifiedMap[it.sourcePeer.uuid]?.value == true) {
+                            _pictures.emit(it)
+                        }
                     }
 
                     else -> {}
@@ -93,11 +110,16 @@ open class MulticastTcpDefaultDataTransmitter(
                     newUUidName(it.peer.uuid, "Unknown")
                     requestNameTcpPeer(it.peer)
                 }
+                ensureDeviceState(it.peer.uuid)
+                // Send group verification when a new peer connects
+                sendGroupVerification(it.peer)
             }
             _connectedDevices.emit(connected.map {
                 DefaultDevice(
                     uuidNameMap[it.peer.uuid]!!,
-                    it.clientStateFlow
+                    it.clientStateFlow,
+                    uuidCanReceiveMap[it.peer.uuid]!!,
+                    uuidGroupVerifiedMap[it.peer.uuid]!!
                 )
             })
         }.launchIn(backgroundScope)
@@ -114,6 +136,43 @@ open class MulticastTcpDefaultDataTransmitter(
             uuidNameMap[uuid] = MutableStateFlow(name)
     }
 
+    private suspend fun ensureDeviceState(uuid: String) {
+        if (!uuidCanReceiveMap.containsKey(uuid)) {
+            uuidCanReceiveMap[uuid] = MutableStateFlow(true)
+        }
+        if (!uuidGroupVerifiedMap.containsKey(uuid)) {
+            uuidGroupVerifiedMap[uuid] = MutableStateFlow(false)
+        }
+    }
+
+    private fun computeGroupHash(groupUuid: String, deviceUuid: String): String {
+        val combined = "$groupUuid:$deviceUuid"
+        return combined.hashCode().toString()
+    }
+
+    private suspend fun sendGroupVerification(peer: Peer) {
+        val groupUuid = serverPreferences.groupUuid.value
+        val deviceUuid = serverPreferences.deviceUuid.value
+        
+        if (groupUuid.isEmpty() || deviceUuid.isEmpty()) {
+            return
+        }
+        
+        val hash = computeGroupHash(groupUuid, deviceUuid)
+        tcpPayloadTransceiver.sendPayload(TcpPayload.GroupVerification(hash, peer))
+    }
+
+    private suspend fun verifyGroupHash(hash: String, peerUuid: String): Boolean {
+        val groupUuid = serverPreferences.groupUuid.value
+        
+        if (groupUuid.isEmpty()) {
+            return false
+        }
+        
+        val expectedHash = computeGroupHash(groupUuid, peerUuid)
+        return hash == expectedHash
+    }
+
     private suspend fun newName(name: String, peer: Peer = Peer.any()) {
         tcpPayloadTransceiver.sendPayload(TcpPayload.NameUpdate(name, peer))
     }
@@ -123,7 +182,24 @@ open class MulticastTcpDefaultDataTransmitter(
     }
 
     override suspend fun sendPicture(picturePayload: TcpPayload.Picture) : Boolean {
+        // Only send to devices that are group-verified and have receiving enabled
+        val targetUuid = if (picturePayload.targetPeer.isAny) null else picturePayload.targetPeer.uuid
+        
+        if (targetUuid != null) {
+            // Sending to specific peer
+            val groupVerified = uuidGroupVerifiedMap[targetUuid]?.value ?: false
+            val canReceive = uuidCanReceiveMap[targetUuid]?.value ?: false
+            
+            if (!groupVerified || !canReceive) {
+                return false
+            }
+        }
+        
         return tcpPayloadTransceiver.sendPayload(picturePayload)
+    }
+
+    override suspend fun setDeviceCanReceive(deviceUuid: String, canReceive: Boolean) {
+        uuidCanReceiveMap[deviceUuid]?.emit(canReceive)
     }
 
     private suspend fun emitListServers() {

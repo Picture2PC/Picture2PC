@@ -8,4 +8,5 @@ interface DefaultDataTransmitter {
     val connectedDevices: StateFlow<List<DefaultDevice>>
     val picture: SharedFlow<TcpPayload.Picture>
     suspend fun sendPicture(picturePayload: TcpPayload.Picture): Boolean
+    suspend fun setDeviceCanReceive(deviceUuid: String, canReceive: Boolean)
 }
