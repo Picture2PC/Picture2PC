@@ -116,6 +116,7 @@ open class MulticastTcpDefaultDataTransmitter(
             }
             _connectedDevices.emit(connected.map {
                 DefaultDevice(
+                    it.peer.uuid,
                     uuidNameMap[it.peer.uuid]!!,
                     it.clientStateFlow,
                     uuidCanReceiveMap[it.peer.uuid]!!,

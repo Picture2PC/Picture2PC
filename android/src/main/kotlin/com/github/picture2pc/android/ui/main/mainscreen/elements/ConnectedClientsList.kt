@@ -62,25 +62,65 @@ fun ConnectedClientsList(
                     items(connections) { client ->
                         val clientName = client.name.collectAsState().value
                         val clientState = client.deviceState.collectAsState().value
-                        Row {
-                            Text(
-                                text = clientName,
-                                style = TextStyles.NORMAL.copy(fontSize = 20.sp)
-                            )
-                            Spacer(Modifier.weight(1f))
-                            Text(
-                                text = clientState.displayName,
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                                style = TextStyles.SMALL.copy(fontSize = 16.sp)
-                            )
-                            Spacer(Modifier.width(Spacers.SMALL))
-                            Box(
-                                Modifier
-                                    .size(10.dp)
-                                    .clip(CircleShape)
-                                    .background(clientState.color)
-                                    .align(Alignment.CenterVertically)
-                            )
+                        val canReceive = client.canReceive.collectAsState().value
+                        val groupVerified = client.groupVerified.collectAsState().value
+                        
+                        Column(
+                            modifier = Modifier.padding(vertical = 5.dp)
+                        ) {
+                            Row {
+                                Text(
+                                    text = clientName,
+                                    style = TextStyles.NORMAL.copy(fontSize = 20.sp)
+                                )
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = clientState.displayName,
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    style = TextStyles.SMALL.copy(fontSize = 16.sp)
+                                )
+                                Spacer(Modifier.width(Spacers.SMALL))
+                                Box(
+                                    Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(clientState.color)
+                                        .align(Alignment.CenterVertically)
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.padding(top = 5.dp)
+                            ) {
+                                Text(
+                                    text = if (groupVerified) "✓ In Group" else "✗ Not in Group",
+                                    style = TextStyles.SMALL.copy(
+                                        fontSize = 14.sp,
+                                        color = if (groupVerified) Colors.PRIMARY else Colors.TEXT.copy(0.5f)
+                                    )
+                                )
+                                Spacer(Modifier.weight(1f))
+                                if (groupVerified) {
+                                    androidx.compose.material3.Switch(
+                                        checked = canReceive,
+                                        onCheckedChange = { 
+                                            viewModel.setDeviceCanReceive(client.uuid, it)
+                                        },
+                                        modifier = Modifier.height(20.dp),
+                                        colors = androidx.compose.material3.SwitchDefaults.colors(
+                                            checkedTrackColor = Colors.PRIMARY,
+                                            uncheckedTrackColor = Colors.BACKGROUND,
+                                            checkedThumbColor = Colors.TEXT,
+                                            uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                                        )
+                                    )
+                                    Spacer(Modifier.width(Spacers.SMALL))
+                                    Text(
+                                        text = "Receive",
+                                        style = TextStyles.SMALL.copy(fontSize = 14.sp),
+                                        modifier = Modifier.align(Alignment.CenterVertically)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

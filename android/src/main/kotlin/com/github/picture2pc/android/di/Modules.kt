@@ -48,7 +48,7 @@ val appModule = module {
 
     single { BroadcastViewModel(get()) }
     single<EdgeDetect> { YOLOv8SegEdgeDetect(get(named("ioDispatcher"))) }
-    single { ClientsViewModel(get()) }
+    single { ClientsViewModel(get(), get(named("backgroundCoroutineScope"))) }
     single<PictureManager> {
         CameraPictureManager(
             get(),

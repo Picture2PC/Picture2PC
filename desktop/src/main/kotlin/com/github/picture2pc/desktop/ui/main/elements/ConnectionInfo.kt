@@ -15,14 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.github.picture2pc.common.net.data.client.ClientState
+import com.github.picture2pc.common.net.defaultdatatransmitter.DefaultDevice
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.Style
 import com.github.picture2pc.common.ui.TextStyles
 import com.github.picture2pc.desktop.viewmodel.mainscreen.BroadcastViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.rememberKoinInject
 
 @Composable
@@ -53,7 +52,7 @@ fun ConnectionInfo(
         } else {
             Column(Modifier.verticalScroll(state = scrollState)) {
                 availableServers.forEach {
-                    Connection(it.name, it.deviceState)
+                    Connection(it, serversSectionViewModel)
                 }
             }
         }
@@ -62,32 +61,71 @@ fun ConnectionInfo(
 }
 
 @Composable
-fun Connection(name: StateFlow<String>, clientStateFlow: StateFlow<ClientState>) {
-    val clientName = name.collectAsState()
-    val clientState = clientStateFlow.collectAsState()
-    Row(
+fun Connection(device: DefaultDevice, viewModel: ServersSectionViewModel) {
+    val clientName = device.name.collectAsState()
+    val clientState = device.deviceState.collectAsState()
+    val canReceive = device.canReceive.collectAsState()
+    val groupVerified = device.groupVerified.collectAsState()
+    
+    Column(
         Modifier.padding(
             start = Spacers.NORMAL,
             end = Spacers.NORMAL,
             top = Spacers.SMALL
         )
     ) {
-        Text(clientName.value, color = Colors.TEXT, style = TextStyles.NORMAL)
-        Spacer(Modifier.weight(1f))
+        Row {
+            Text(clientName.value, color = Colors.TEXT, style = TextStyles.NORMAL)
+            Spacer(Modifier.weight(1f))
 
-        Text(
-            clientState.value.displayName,
-            color = Colors.TEXT,
-            style = TextStyles.NORMAL
-        )
-        Spacer(Modifier.width(Spacers.SMALL))
+            Text(
+                clientState.value.displayName,
+                color = Colors.TEXT,
+                style = TextStyles.NORMAL
+            )
+            Spacer(Modifier.width(Spacers.SMALL))
 
-        Canvas(
-            Modifier
-                .size(Style.Dimensions.StateIndicator)
-                .align(Alignment.CenterVertically)
+            Canvas(
+                Modifier
+                    .size(Style.Dimensions.StateIndicator)
+                    .align(Alignment.CenterVertically)
+            ) {
+                drawCircle(clientState.value.color)
+            }
+        }
+        
+        Row(
+            Modifier.padding(top = Spacers.SMALL)
         ) {
-            drawCircle(clientState.value.color)
+            Text(
+                if (groupVerified.value) "✓ In Group" else "✗ Not in Group",
+                color = if (groupVerified.value) Colors.PRIMARY else Colors.TEXT.copy(0.5f),
+                style = TextStyles.SMALL
+            )
+            Spacer(Modifier.weight(1f))
+            
+            if (groupVerified.value) {
+                androidx.compose.material3.Switch(
+                    checked = canReceive.value,
+                    onCheckedChange = { 
+                        viewModel.setDeviceCanReceive(device.uuid, it)
+                    },
+                    modifier = Modifier.height(20.dp),
+                    colors = androidx.compose.material3.SwitchDefaults.colors(
+                        checkedTrackColor = Colors.PRIMARY,
+                        uncheckedTrackColor = Colors.BACKGROUND,
+                        checkedThumbColor = Colors.TEXT,
+                        uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                    )
+                )
+                Spacer(Modifier.width(Spacers.SMALL))
+                Text(
+                    "Receive",
+                    color = Colors.TEXT,
+                    style = TextStyles.SMALL,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
         }
     }
 }

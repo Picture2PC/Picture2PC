@@ -42,7 +42,7 @@ val appModule = module {
     } bind PreferencesRepository::class
     single<PicturePreparation> { PicturePreparationImpl() }
 
-    single { ServersSectionViewModel(get()) }
+    single { ServersSectionViewModel(get(), get(named("viewModelCoroutineScope"))) }
     single { MovementHandlerViewModel() }
     single {
         PictureDisplayViewModel(
