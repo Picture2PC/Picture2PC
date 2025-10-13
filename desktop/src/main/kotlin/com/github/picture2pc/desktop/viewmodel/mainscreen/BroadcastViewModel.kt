@@ -14,14 +14,12 @@ class BroadcastViewModel(
     fun setConnectable(connectable: Boolean) {
         scope.launch {
             preferencesRepository.setConnectable(connectable)
-            preferencesRepository.savePreferences()
         }
     }
 
     fun saveName(newName: String) {
         scope.launch {
             preferencesRepository.setName(newName)
-            preferencesRepository.savePreferences()
         }
     }
 

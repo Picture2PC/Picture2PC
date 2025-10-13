@@ -54,7 +54,7 @@ class DesktopPreferencesRepository(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun savePreferences() {
+    private fun savePreferences() {
         backgroundCoroutineScope.launch(ioDispatcher) {
             val bytes = Cbor.encodeToByteArray<Preferences>(buildPreferences())
             file.writeBytes(bytes)
