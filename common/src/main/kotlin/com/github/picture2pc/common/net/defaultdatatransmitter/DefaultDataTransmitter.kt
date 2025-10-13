@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.StateFlow
 interface DefaultDataTransmitter {
     val connectedDevices: StateFlow<List<DefaultDevice>>
     val picture: SharedFlow<TcpPayload.Picture>
-    suspend fun sendPicture(picture: TcpPayload.Picture) : Boolean
+    suspend fun sendPicture(picturePayload: TcpPayload.Picture): Boolean
 }

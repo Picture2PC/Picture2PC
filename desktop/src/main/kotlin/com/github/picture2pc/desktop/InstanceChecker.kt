@@ -19,9 +19,9 @@ object InstanceChecker {
             )
             val lock = lockChannel?.tryLock()
             lock == null
-        } catch (e: OverlappingFileLockException) {
+        } catch (_: OverlappingFileLockException) {
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

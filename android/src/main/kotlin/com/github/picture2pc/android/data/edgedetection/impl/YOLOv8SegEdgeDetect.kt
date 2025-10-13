@@ -6,7 +6,6 @@ import com.github.picture2pc.android.R
 import com.github.picture2pc.android.data.edgedetection.DetectedBox
 import com.github.picture2pc.android.data.edgedetection.EdgeDetect
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
 import org.opencv.core.Core
@@ -86,7 +85,7 @@ class YOLOv8SegEdgeDetect(private val ioDispatcher: CoroutineDispatcher) : EdgeD
         val padH = (newShape.height - newUnpad.height) / 2
 
         // Resize the image if necessary
-        var resizedImg = img.clone()
+        val resizedImg = img.clone()
         if (shape != newUnpad) {
             Imgproc.resize(
                 img,
