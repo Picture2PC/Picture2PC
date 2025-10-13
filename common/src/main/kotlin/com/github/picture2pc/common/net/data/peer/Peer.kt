@@ -3,6 +3,7 @@ package com.github.picture2pc.common.net.data.peer
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -25,23 +26,38 @@ open class Peer {
 
         private val preferencesRepository: PreferencesRepository by inject()
         private var cachedUuid: String? = null
+        private var isInitializing = false
 
+        @Synchronized
         private fun getOrCreateUuid(): String {
+            // Return cached value if available
             if (cachedUuid != null) return cachedUuid!!
             
-            val storedUuid = preferencesRepository.deviceUuid.value
-            cachedUuid = if (storedUuid.isEmpty()) {
-                val newUuid = UUID.randomUUID().toString()
-                // Note: This is a synchronous call in a companion object
-                // The actual saving happens asynchronously in the repository
-                GlobalScope.launch {
-                    preferencesRepository.setDeviceUuid(newUuid)
-                }
-                newUuid
-            } else {
-                storedUuid
+            // Prevent concurrent initialization
+            if (isInitializing) {
+                // Wait a bit and retry if another thread is initializing
+                Thread.sleep(10)
+                return getOrCreateUuid()
             }
-            return cachedUuid!!
+            
+            isInitializing = true
+            
+            try {
+                val storedUuid = preferencesRepository.deviceUuid.value
+                cachedUuid = if (storedUuid.isEmpty()) {
+                    val newUuid = UUID.randomUUID().toString()
+                    // Save the new UUID asynchronously
+                    GlobalScope.launch {
+                        preferencesRepository.setDeviceUuid(newUuid)
+                    }
+                    newUuid
+                } else {
+                    storedUuid
+                }
+                return cachedUuid!!
+            } finally {
+                isInitializing = false
+            }
         }
 
         fun getSelf(): Peer {
