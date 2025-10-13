@@ -1,48 +1,77 @@
 package com.github.picture2pc.desktop.data.preferences.impl
 
-import com.github.picture2pc.common.data.preferences.Preferences
+import com.github.picture2pc.common.data.preferences.PreferencesDefaults
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
-import com.github.picture2pc.common.net.data.peer.Peer.Companion.getKoin
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
-import org.koin.core.qualifier.named
 import java.io.File
 
-@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class Preferences(
+    var name: String = PreferencesDefaults.NAME,
+    var connectable: Boolean = PreferencesDefaults.CONNECTABLE
+)
+
 class DesktopPreferencesRepository(
-    private val backgroundCoroutineScope: CoroutineScope = getKoin().get(named("backgroundCoroutineScope")),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val backgroundCoroutineScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : PreferencesRepository() {
+    private val _name = MutableStateFlow(PreferencesDefaults.NAME)
+    override val name: StateFlow<String> = _name.asStateFlow()
+    private val _connectable = MutableStateFlow(PreferencesDefaults.CONNECTABLE)
+    override val connectable: StateFlow<Boolean> = _connectable.asStateFlow()
+
+    override suspend fun setName(name: String) {
+        _name.value = name
+        savePreferences()
+    }
+
+    override suspend fun setConnectable(connectable: Boolean) {
+        _connectable.value = connectable
+        savePreferences()
+    }
+
     private val file = File("preferences.cbor")
 
     init {
-        backgroundCoroutineScope.launch(ioDispatcher) {
-            file.createNewFile()
+        backgroundCoroutineScope.launch {
+            loadPreferences()
         }
-        loadPreferences()
     }
 
+    private fun buildPreferences(): Preferences {
+        return Preferences(name.value, connectable.value)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
     fun savePreferences() {
         backgroundCoroutineScope.launch(ioDispatcher) {
-            val bytes = Cbor.encodeToByteArray(buildPreferences())
-            file.createNewFile()
+            val bytes = Cbor.encodeToByteArray<Preferences>(buildPreferences())
             file.writeBytes(bytes)
         }
     }
 
-    fun loadPreferences() {
-        val preferences = try {
-            Cbor.decodeFromByteArray<Preferences>(file.readBytes())
-        } catch (_: Exception) {
-            Preferences()
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun loadPreferences() {
+        withContext(ioDispatcher) {
+            file.createNewFile()
+            val preferences = try {
+                Cbor.decodeFromByteArray<Preferences>(file.readBytes())
+            } catch (_: Exception) {
+                Preferences()
+            }
+            _name.value = preferences.name
+            _connectable.value = preferences.connectable
         }
-        setName(preferences.name)
-        setConnectable(preferences.connectable)
     }
 }

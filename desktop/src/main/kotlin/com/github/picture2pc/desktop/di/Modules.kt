@@ -34,7 +34,12 @@ val appModule = module {
             get(named("backgroundCoroutineScope"))
         )
     }
-    single { DesktopPreferencesRepository() } bind PreferencesRepository::class
+    single {
+        DesktopPreferencesRepository(
+            get(named("backgroundCoroutineScope")),
+            get(named("ioDispatcher"))
+        )
+    } bind PreferencesRepository::class
     single<PicturePreparation> { PicturePreparationImpl() }
 
     single { ServersSectionViewModel(get()) }

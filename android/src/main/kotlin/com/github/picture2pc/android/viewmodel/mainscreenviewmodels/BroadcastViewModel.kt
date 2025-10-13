@@ -10,16 +10,14 @@ class BroadcastViewModel(private val preferencesRepository: AndroidPreferencesRe
     val connectable = preferencesRepository.connectable
 
     fun setName(name: String) {
-        preferencesRepository.setName(name)
+        viewModelScope.launch {
+            preferencesRepository.setName(name)
+        }
     }
 
     fun setConnectable(connectable: Boolean) {
-        preferencesRepository.setConnectable(connectable)
-    }
-
-    fun savePreferences() {
         viewModelScope.launch {
-            preferencesRepository.savePreferences()
+            preferencesRepository.setConnectable(connectable)
         }
     }
 

@@ -40,6 +40,7 @@ val appModule = module {
     single {
         AndroidPreferencesRepository(
             get(),
+            get(named("ioDispatcher")),
             get(named("backgroundCoroutineScope"))
         )
     } bind PreferencesRepository::class

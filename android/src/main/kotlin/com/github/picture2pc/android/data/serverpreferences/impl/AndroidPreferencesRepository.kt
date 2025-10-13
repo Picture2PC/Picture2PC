@@ -7,15 +7,16 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.github.picture2pc.common.data.preferences.PreferencesDefaults
 import com.github.picture2pc.common.data.preferences.PreferencesRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AndroidPreferencesRepository(
     private val context: Context,
+    private val ioDispatcher: CoroutineDispatcher,
     private val backgroundScope: CoroutineScope,
 ) : PreferencesRepository() {
 
@@ -41,29 +42,18 @@ class AndroidPreferencesRepository(
         initialValue = false
     )
 
-    override fun setName(name: String) {
-        super.setName(name)
-        backgroundScope.launch(Dispatchers.IO) {
+    override suspend fun setName(name: String) {
+        withContext(ioDispatcher) {
             context.settingsDataStore.edit { storedPreferences ->
                 storedPreferences[nameKey] = name.trim()
             }
         }
     }
 
-    override fun setConnectable(connectable: Boolean) {
-        super.setConnectable(connectable)
-        backgroundScope.launch(Dispatchers.IO) {
+    override suspend fun setConnectable(connectable: Boolean) {
+        withContext(ioDispatcher) {
             context.settingsDataStore.edit { storedPreferences ->
                 storedPreferences[connectableKey] = connectable
-            }
-        }
-    }
-
-    fun savePreferences() {
-        backgroundScope.launch(Dispatchers.IO) {
-            context.settingsDataStore.edit { storedPreferences ->
-                storedPreferences[connectableKey] = connectable.value
-                storedPreferences[nameKey] = name.value.trim()
             }
         }
     }

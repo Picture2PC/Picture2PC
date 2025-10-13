@@ -63,7 +63,6 @@ fun NameInputField(
             if (isError.value) broadcastViewModel.setConnectable(false)
             else {
                 broadcastViewModel.setName(localName.value)
-                broadcastViewModel.savePreferences()
                 focusManager.clearFocus()
             }
         }),
