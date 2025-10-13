@@ -8,7 +8,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.net.NetworkInterface
@@ -60,11 +59,11 @@ class MulticastPayloadTransceiver(
                     return@launch
                 }
                 val payload = multicastSocket.receivePayload() ?: continue
-                launch {
+                /*launch {
                     withTimeoutOrNull(2000) {
                         sendPayloadExcluding(payload, multicastSocket)
                     }
-                }
+                }*/
                 receivedPayload(payload)
             }
         }

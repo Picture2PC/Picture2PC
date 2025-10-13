@@ -30,6 +30,7 @@ class SimpleMulticastSocket(
             jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
             jvmMulticastSocket.reuseAddress = true
             jvmMulticastSocket.networkInterface = networkInterface
+            jvmMulticastSocket.loopbackMode = true // Disables loopback
             jvmMulticastSocket.joinGroup(inetSocketAddress, networkInterface)
         }
     }
