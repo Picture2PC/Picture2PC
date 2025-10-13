@@ -160,18 +160,6 @@ class SimpleTcpClient(
         backgroundScope.cancel()
     }
 
-    /**
-     * Receives a packet from the TCP socket using length-prefix protocol.
-     * 
-     * Protocol format:
-     * [4-byte header length][header bytes][payload bytes]
-     * 
-     * This method:
-     * 1. Reads the 4-byte length prefix to determine header size
-     * 2. Reads the exact number of header bytes
-     * 3. Decodes the Packet from header bytes to get payload size
-     * 4. Reads the payload bytes based on the size from the Packet
-     */
     private suspend fun receivePacket(): Payload? {
         try {
             // Read 4-byte length prefix
