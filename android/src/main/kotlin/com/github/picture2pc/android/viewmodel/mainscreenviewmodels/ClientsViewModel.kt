@@ -17,4 +17,10 @@ class ClientsViewModel(
             dataTransmitter.setDeviceCanReceive(deviceUuid, canReceive)
         }
     }
+    
+    fun inviteToGroup(deviceUuid: String) {
+        viewModelScope.launch {
+            dataTransmitter.sendGroupInvitation(deviceUuid)
+        }
+    }
 }

@@ -91,35 +91,51 @@ fun ConnectedClientsList(
                             Row(
                                 modifier = Modifier.padding(top = 5.dp)
                             ) {
-                                Text(
-                                    text = if (groupVerified) "✓ In Group" else "✗ Not in Group",
-                                    style = TextStyles.SMALL.copy(
-                                        fontSize = 14.sp,
-                                        color = if (groupVerified) Colors.PRIMARY else Colors.TEXT.copy(0.5f)
-                                    )
-                                )
-                                Spacer(Modifier.weight(1f))
-                                if (groupVerified) {
-                                    androidx.compose.material3.Switch(
-                                        checked = canReceive,
-                                        onCheckedChange = { 
-                                            viewModel.setDeviceCanReceive(client.uuid, it)
+                                if (!groupVerified) {
+                                    androidx.compose.material3.Button(
+                                        onClick = {
+                                            viewModel.inviteToGroup(client.uuid)
                                         },
-                                        modifier = Modifier.height(20.dp),
-                                        colors = androidx.compose.material3.SwitchDefaults.colors(
-                                            checkedTrackColor = Colors.PRIMARY,
-                                            uncheckedTrackColor = Colors.BACKGROUND,
-                                            checkedThumbColor = Colors.TEXT,
-                                            uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                            containerColor = Colors.PRIMARY
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "Invite to Group",
+                                            style = TextStyles.SMALL.copy(fontSize = 14.sp)
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        text = "✓ In Group",
+                                        style = TextStyles.SMALL.copy(
+                                            fontSize = 14.sp,
+                                            color = Colors.PRIMARY
                                         )
                                     )
-                                    Spacer(Modifier.width(Spacers.SMALL))
-                                    Text(
-                                        text = "Receive",
-                                        style = TextStyles.SMALL.copy(fontSize = 14.sp),
-                                        modifier = Modifier.align(Alignment.CenterVertically)
-                                    )
                                 }
+                                Spacer(Modifier.weight(1f))
+                                
+                                // Show slider for ALL devices
+                                androidx.compose.material3.Switch(
+                                    checked = canReceive,
+                                    onCheckedChange = { 
+                                        viewModel.setDeviceCanReceive(client.uuid, it)
+                                    },
+                                    modifier = Modifier.height(20.dp),
+                                    colors = androidx.compose.material3.SwitchDefaults.colors(
+                                        checkedTrackColor = Colors.PRIMARY,
+                                        uncheckedTrackColor = Colors.BACKGROUND,
+                                        checkedThumbColor = Colors.TEXT,
+                                        uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                                    )
+                                )
+                                Spacer(Modifier.width(Spacers.SMALL))
+                                Text(
+                                    text = "Receive",
+                                    style = TextStyles.SMALL.copy(fontSize = 14.sp),
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
                             }
                         }
                     }

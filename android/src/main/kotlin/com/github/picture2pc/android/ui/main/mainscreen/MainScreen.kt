@@ -20,6 +20,7 @@ import com.github.picture2pc.android.ui.main.mainscreen.elements.Banner
 import com.github.picture2pc.android.ui.main.mainscreen.elements.BottomOfScreen
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectableStateSwitch
 import com.github.picture2pc.android.ui.main.mainscreen.elements.ConnectedClientsList
+import com.github.picture2pc.android.ui.main.mainscreen.elements.GroupInvitationHandler
 import com.github.picture2pc.android.ui.main.mainscreen.elements.NameInputField
 import com.github.picture2pc.common.ui.Borders
 import com.github.picture2pc.common.ui.Colors
@@ -28,6 +29,7 @@ import com.github.picture2pc.common.ui.Spacers
 
 @Composable
 fun VerticalMainScreen() {
+    GroupInvitationHandler()
     Column(
         Modifier
             .fillMaxSize()
@@ -63,6 +65,7 @@ fun VerticalMainScreen() {
 
 @Composable
 fun HorizontalMainScreen() {
+    GroupInvitationHandler()
     Row(
         Modifier
             .fillMaxSize()

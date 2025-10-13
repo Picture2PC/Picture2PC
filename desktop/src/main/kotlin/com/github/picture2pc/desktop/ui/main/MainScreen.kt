@@ -32,6 +32,8 @@ import org.koin.compose.rememberKoinInject
 fun MainScreen(notificationHandler: NotificationHandler = rememberKoinInject<NotificationHandler>()) {
     val showNotification = notificationHandler.showNotification.collectAsState().value
 
+    GroupInvitationHandler()
+    
     Box(
         Modifier
             .fillMaxSize()

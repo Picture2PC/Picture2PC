@@ -28,6 +28,12 @@ sealed class TcpPayload : Payload() {
     data class GroupVerified(val verified: Boolean, override val targetPeer: Peer) : TcpPayload()
 
     @Serializable
+    data class GroupInvitation(val groupUuid: String, val groupName: String, override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class GroupInvitationResponse(val accepted: Boolean, override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
     data class Picture @OptIn(ExperimentalSerializationApi::class) constructor(
         @ByteString val picture: ByteArray,
         val corners: List<Pair<Float, Float>>?,

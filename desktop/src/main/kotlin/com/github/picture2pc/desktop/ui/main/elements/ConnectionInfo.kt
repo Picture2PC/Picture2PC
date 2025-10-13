@@ -97,35 +97,51 @@ fun Connection(device: DefaultDevice, viewModel: ServersSectionViewModel) {
         Row(
             Modifier.padding(top = Spacers.SMALL)
         ) {
-            Text(
-                if (groupVerified.value) "✓ In Group" else "✗ Not in Group",
-                color = if (groupVerified.value) Colors.PRIMARY else Colors.TEXT.copy(0.5f),
-                style = TextStyles.SMALL
-            )
-            Spacer(Modifier.weight(1f))
-            
-            if (groupVerified.value) {
-                androidx.compose.material3.Switch(
-                    checked = canReceive.value,
-                    onCheckedChange = { 
-                        viewModel.setDeviceCanReceive(device.uuid, it)
+            if (!groupVerified.value) {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        viewModel.inviteToGroup(device.uuid)
                     },
-                    modifier = Modifier.height(20.dp),
-                    colors = androidx.compose.material3.SwitchDefaults.colors(
-                        checkedTrackColor = Colors.PRIMARY,
-                        uncheckedTrackColor = Colors.BACKGROUND,
-                        checkedThumbColor = Colors.TEXT,
-                        uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Colors.PRIMARY
                     )
-                )
-                Spacer(Modifier.width(Spacers.SMALL))
+                ) {
+                    Text(
+                        "Invite to Group",
+                        color = Colors.TEXT,
+                        style = TextStyles.SMALL
+                    )
+                }
+            } else {
                 Text(
-                    "Receive",
-                    color = Colors.TEXT,
-                    style = TextStyles.SMALL,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    "✓ In Group",
+                    color = Colors.PRIMARY,
+                    style = TextStyles.SMALL
                 )
             }
+            Spacer(Modifier.weight(1f))
+            
+            // Show slider for ALL devices
+            androidx.compose.material3.Switch(
+                checked = canReceive.value,
+                onCheckedChange = { 
+                    viewModel.setDeviceCanReceive(device.uuid, it)
+                },
+                modifier = Modifier.height(20.dp),
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedTrackColor = Colors.PRIMARY,
+                    uncheckedTrackColor = Colors.BACKGROUND,
+                    checkedThumbColor = Colors.TEXT,
+                    uncheckedThumbColor = Colors.TEXT.copy(0.5f)
+                )
+            )
+            Spacer(Modifier.width(Spacers.SMALL))
+            Text(
+                "Receive",
+                color = Colors.TEXT,
+                style = TextStyles.SMALL,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
         }
     }
 }

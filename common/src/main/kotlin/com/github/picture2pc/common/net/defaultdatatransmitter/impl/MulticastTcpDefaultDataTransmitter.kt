@@ -32,6 +32,10 @@ open class MulticastTcpDefaultDataTransmitter(
         MutableSharedFlow(extraBufferCapacity = 1)
     override val picture: SharedFlow<TcpPayload.Picture> = _pictures
 
+    private val _groupInvitations: MutableSharedFlow<Pair<String, TcpPayload.GroupInvitation>> =
+        MutableSharedFlow(extraBufferCapacity = 1)
+    override val groupInvitations: SharedFlow<Pair<String, TcpPayload.GroupInvitation>> = _groupInvitations
+
     companion object {
         const val TIME_BETWEEN_ONLINE_EMIT = 3000L
     }
@@ -85,11 +89,22 @@ open class MulticastTcpDefaultDataTransmitter(
                         uuidGroupVerifiedMap[it.sourcePeer.uuid]?.emit(it.verified)
                     }
 
-                    is TcpPayload.Picture -> {
-                        // Only accept pictures from group-verified devices
-                        if (uuidGroupVerifiedMap[it.sourcePeer.uuid]?.value == true) {
-                            _pictures.emit(it)
+                    is TcpPayload.GroupInvitation -> {
+                        // Emit invitation for UI to handle
+                        val deviceName = uuidNameMap[it.sourcePeer.uuid]?.value ?: "Unknown"
+                        _groupInvitations.emit(Pair(deviceName, it))
+                    }
+
+                    is TcpPayload.GroupInvitationResponse -> {
+                        if (it.accepted) {
+                            // Mark device as group verified
+                            uuidGroupVerifiedMap[it.sourcePeer.uuid]?.emit(true)
                         }
+                    }
+
+                    is TcpPayload.Picture -> {
+                        // Accept pictures from any device with receiving enabled (no group restriction)
+                        _pictures.emit(it)
                     }
 
                     else -> {}
@@ -183,24 +198,68 @@ open class MulticastTcpDefaultDataTransmitter(
     }
 
     override suspend fun sendPicture(picturePayload: TcpPayload.Picture) : Boolean {
-        // Only send to devices that are group-verified and have receiving enabled
-        val targetUuid = if (picturePayload.targetPeer.isAny) null else picturePayload.targetPeer.uuid
-        
-        if (targetUuid != null) {
-            // Sending to specific peer
-            val groupVerified = uuidGroupVerifiedMap[targetUuid]?.value ?: false
-            val canReceive = uuidCanReceiveMap[targetUuid]?.value ?: false
+        if (picturePayload.targetPeer.isAny) {
+            // Send to all devices with receiving enabled
+            var success = false
+            uuidCanReceiveMap.forEach { (uuid, canReceiveFlow) ->
+                if (canReceiveFlow.value) {
+                    val peer = Peer(uuid, false)
+                    val targetedPayload = TcpPayload.Picture(
+                        picturePayload.picture,
+                        picturePayload.corners,
+                        peer
+                    )
+                    if (tcpPayloadTransceiver.sendPayload(targetedPayload)) {
+                        success = true
+                    }
+                }
+            }
+            return success
+        } else {
+            // Sending to specific peer - check if they can receive
+            val canReceive = uuidCanReceiveMap[picturePayload.targetPeer.uuid]?.value ?: false
             
-            if (!groupVerified || !canReceive) {
+            if (!canReceive) {
                 return false
             }
+            
+            return tcpPayloadTransceiver.sendPayload(picturePayload)
         }
-        
-        return tcpPayloadTransceiver.sendPayload(picturePayload)
     }
 
     override suspend fun setDeviceCanReceive(deviceUuid: String, canReceive: Boolean) {
         uuidCanReceiveMap[deviceUuid]?.emit(canReceive)
+    }
+
+    override suspend fun sendGroupInvitation(deviceUuid: String) {
+        val groupUuid = serverPreferences.groupUuid.value
+        val groupName = serverPreferences.groupName.value
+        
+        if (groupUuid.isEmpty()) {
+            return // Cannot invite without a group
+        }
+        
+        val peer = Peer(deviceUuid, false)
+        tcpPayloadTransceiver.sendPayload(TcpPayload.GroupInvitation(groupUuid, groupName, peer))
+    }
+
+    override suspend fun respondToGroupInvitation(invitation: TcpPayload.GroupInvitation, accepted: Boolean) {
+        if (accepted) {
+            // Join the group
+            serverPreferences.setGroupUuid(invitation.groupUuid)
+            serverPreferences.setGroupName(invitation.groupName)
+            
+            // Mark the inviter as verified
+            uuidGroupVerifiedMap[invitation.sourcePeer.uuid]?.emit(true)
+            
+            // Send verification to all connected devices
+            tcpPayloadTransceiver.connectedPeers.value.forEach { connectedPeer ->
+                sendGroupVerification(connectedPeer.peer)
+            }
+        }
+        
+        // Send response
+        tcpPayloadTransceiver.sendPayload(TcpPayload.GroupInvitationResponse(accepted, invitation.sourcePeer))
     }
 
     private suspend fun emitListServers() {
