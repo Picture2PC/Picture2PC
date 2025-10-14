@@ -59,11 +59,6 @@ class MulticastPayloadTransceiver(
                     return@launch
                 }
                 val payload = multicastSocket.receivePayload() ?: continue
-                /*launch {
-                    withTimeoutOrNull(2000) {
-                        sendPayloadExcluding(payload, multicastSocket)
-                    }
-                }*/
                 receivedPayload(payload)
             }
         }
