@@ -7,6 +7,7 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 
 fun Mat.toBitmap(): Bitmap {
+
     val buf = MatOfByte()
     Imgcodecs.imencode(".png", this, buf)
     val image = Image.makeFromEncoded(buf.toArray())
