@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface PictureManager {
     val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>
-    val pictureCorners: StateFlow<DetectedBox?>
+    val previewCorners: StateFlow<DetectedBox?>
 
     fun switchFlashMode()
     fun takeImage()

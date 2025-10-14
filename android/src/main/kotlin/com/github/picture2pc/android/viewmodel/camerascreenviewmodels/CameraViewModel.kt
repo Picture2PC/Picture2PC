@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -28,14 +30,23 @@ class CameraViewModel(
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
 
+    private val _sendAvailable = MutableStateFlow(true)
+    val sendAvailable = _sendAvailable.asStateFlow()
+
     private var lastCorners: List<Pair<Float, Float>>? = null
 
-    private var galleryCorners: List<Pair<Float, Float>>? = null
-    private var isGalleryPicture: Boolean = false
+    init {
+        pictureManager.takenImages.onEach {
+            _pictureCorners.value = null
+            _pictureCorners.value = it.second.await() ?: previewCorners.value
+        }.launchIn(viewModelScope)
+    }
 
-    val pictureCorners: StateFlow<DetectedBox?>
+    private val _pictureCorners = MutableStateFlow<DetectedBox?>(null)
+    val pictureCorners = _pictureCorners.asStateFlow()
+    val previewCorners: StateFlow<DetectedBox?>
         get() {
-            return pictureManager.pictureCorners
+            return pictureManager.previewCorners
         }
 
     fun setViewFinder(previewView: PreviewView) {
@@ -43,32 +54,33 @@ class CameraViewModel(
     }
 
     fun takeImage() {
-        isGalleryPicture = false
-        lastCorners =
-            pictureCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
+        lastCorners = previewCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
     }
 
     fun injectImage(bitmap: Bitmap) {
-        isGalleryPicture = true
         pictureManager.injectImage(bitmap)
     }
 
     fun sendImage() {
-        if (takenImage.value == null) return
+        if (takenImage.value == null || !sendAvailable.value) return
+        _sendAvailable.value = false
         viewModelScope.launch {
-            val points =
-                if (isGalleryPicture) galleryCorners
-                else takenImage.value!!.second.await()?.pointsBox?.map {
-                    Pair(it.x.toFloat(), it.y.toFloat())
-                }
-            println(points)
+            var newCorners = takenImage.value!!.second.await()?.pointsBox?.map {
+                Pair(
+                    it.x.toFloat(),
+                    it.y.toFloat()
+                )
+            }
+            if (newCorners == null) newCorners = lastCorners
             dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     takenImage.value!!.first.toByteArray(),
-                    points
+                    newCorners
                 )
             )
+            lastCorners = null
+            _sendAvailable.value = true
         }
     }
 

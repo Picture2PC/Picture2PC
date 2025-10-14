@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -60,7 +59,10 @@ class CameraPictureManager(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val singleThreadContext = defaultDispatcher.limitedParallelism(1)
-    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+    override val previewCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+
+    private val loaded = coroutineScope.launch { edgeDetect.load(context) }
+
 
     override fun switchFlashMode() {
         if (imageCapture.flashMode == FLASH_MODE_AUTO) {
@@ -113,6 +115,7 @@ class CameraPictureManager(
                 .setOutputImageRotationEnabled(true)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
+
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
                 if (singleThreadContext[Job]?.isCompleted != false)
                     coroutineScope.launch {
@@ -123,7 +126,6 @@ class CameraPictureManager(
                 else
                     image.close()
             }
-            runBlocking { edgeDetect.load(context) }
 
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -151,6 +153,7 @@ class CameraPictureManager(
     }
 
     private suspend fun runDetection(image: Bitmap): DetectedBox? {
+        loaded.join()
         return withContext(singleThreadContext) { // TODO: move single thread stuff to EdgeDetect.kt
             return@withContext edgeDetect.detect(image).filter { it.points.size >= 4 }
                 .minByOrNull { it.points.size }

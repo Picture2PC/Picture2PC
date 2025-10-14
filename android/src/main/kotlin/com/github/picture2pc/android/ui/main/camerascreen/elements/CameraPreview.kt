@@ -19,7 +19,7 @@ import com.github.picture2pc.common.ui.Shapes
 fun CameraPreview(
     cameraViewModel: CameraViewModel
 ) {
-    val pictureCorners = cameraViewModel.pictureCorners.collectAsState(null).value
+    val pictureCorners = cameraViewModel.previewCorners.collectAsState(null).value
     Box(
         modifier = Modifier
             .clip(Shapes.MOBILE) // Clip the content to a specific shape
