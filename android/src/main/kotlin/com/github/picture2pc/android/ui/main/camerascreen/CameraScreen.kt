@@ -33,6 +33,7 @@ fun CameraScreen(
     isVertical: Boolean = true
 ) {
     val image = cameraViewModel.takenImage.collectAsState().value?.first
+    val pictureCorners = cameraViewModel.pictureCorners.collectAsState().value
 
     Box(
         modifier = Modifier
@@ -49,10 +50,10 @@ fun CameraScreen(
         }
 
         if (isVertical) {
-            if (image != null) DisplayImage(image = image)
+            if (image != null) DisplayImage(image = image, pictureCorners)
         } else {
             Row {
-                if (image != null) DisplayImage(image = image)
+                if (image != null) DisplayImage(image = image, pictureCorners)
             }
         }
 
