@@ -18,7 +18,6 @@ import org.koin.environmentProperties
 import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
-
     @OptIn(InternalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

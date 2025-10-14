@@ -7,6 +7,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.github.picture2pc.android.R
@@ -21,6 +22,7 @@ fun BottomOfScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
     cameraViewModel: CameraViewModel = rememberKoinInject()
 ) {
+    val sendAvailable = cameraViewModel.sendAvailable.collectAsState()
     Row {
         IconButton(
             onClick = screenSelectorViewModel::toMain,
@@ -34,6 +36,7 @@ fun BottomOfScreen(
         }
         Button(
             onClick = cameraViewModel::sendImage,
+            enabled = sendAvailable.value,
             colors = Colors.BUTTON_PRIMARY,
             modifier = Modifier.weight(1f)
         ) {

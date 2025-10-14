@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -51,9 +50,8 @@ class CameraPictureManager(
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
         .build(),
-    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(
-        context
-    )
+    private val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+        ProcessCameraProvider.getInstance(context)
 ) : PictureManager {
     private val lifecycleOwner: LifecycleOwner = context as LifecycleOwner
     private val _pictureCorners: MutableStateFlow<DetectedBox?> =
@@ -61,13 +59,27 @@ class CameraPictureManager(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val singleThreadContext = defaultDispatcher.limitedParallelism(1)
-    override val pictureCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+    override val previewCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
+
+    private val loaded = coroutineScope.launch { edgeDetect.load(context) }
+
 
     override fun switchFlashMode() {
         if (imageCapture.flashMode == FLASH_MODE_AUTO) {
             imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
         } else {
             imageCapture.flashMode = FLASH_MODE_AUTO
+        }
+    }
+
+    private fun emitPicture(picture: Bitmap) {
+        coroutineScope.launch {
+            val cJob = coroutineScope.async {
+                val res = runDetection(picture)
+                return@async res
+            }
+            cJob.start()
+            _takenImages.emit(Pair(picture, cJob))
         }
     }
 
@@ -87,14 +99,7 @@ class CameraPictureManager(
                     val image =
                         BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
                     val rotatedImage = rotateImageIfRequired(image, imageData)
-                    coroutineScope.launch {
-                        val cJob = coroutineScope.async {
-                            val res = runDetection(rotatedImage)
-                            return@async res
-                        }
-                        cJob.start()
-                        _takenImages.emit(Pair(rotatedImage, cJob))
-                    }
+                    emitPicture(rotatedImage)
                 }
             }
         )
@@ -110,18 +115,17 @@ class CameraPictureManager(
                 .setOutputImageRotationEnabled(true)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
+
             analyzerUseCase.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
                 if (singleThreadContext[Job]?.isCompleted != false)
                     coroutineScope.launch {
                         val res = runDetection(image.toBitmap())
-                        if (res != null)
-                            _pictureCorners.value = res
+                        if (res != null) _pictureCorners.value = res
                         image.close()
                     }
                 else
                     image.close()
             }
-            runBlocking { edgeDetect.load(context) }
 
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -149,6 +153,7 @@ class CameraPictureManager(
     }
 
     private suspend fun runDetection(image: Bitmap): DetectedBox? {
+        loaded.join()
         return withContext(singleThreadContext) { // TODO: move single thread stuff to EdgeDetect.kt
             return@withContext edgeDetect.detect(image).filter { it.points.size >= 4 }
                 .minByOrNull { it.points.size }
@@ -175,8 +180,12 @@ class CameraPictureManager(
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
     }
 
+    override fun injectImage(picture: Bitmap) {
+        emitPicture(picture)
+    }
+
     private val _takenImages =
-        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3)            //read and write
+        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3) //read and write
     override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
         _takenImages.asSharedFlow()  //read only
 }

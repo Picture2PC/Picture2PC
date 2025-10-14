@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.camera.view)
 
     implementation(libs.opencv.opencv)
+    implementation(libs.coil.compose)
 
     implementation(project(":common"))
 }

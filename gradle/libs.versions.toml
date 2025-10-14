@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.9.2"
 cameraxVersion = "1.4.0-rc01"
+coilCompose = "2.1.0"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
 kotlin = "1.8.20"
@@ -22,6 +23,7 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraxVersion" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraxVersion" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraxVersion" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

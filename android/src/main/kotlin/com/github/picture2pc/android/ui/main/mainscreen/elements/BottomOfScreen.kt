@@ -1,29 +1,68 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.github.picture2pc.android.R
+import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.PicturePickerViewModel
 import com.github.picture2pc.android.viewmodel.screenselectorviewmodels.ScreenSelectorViewModel
 import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.TextStyles
 import org.koin.compose.rememberKoinInject
 
 @Composable
-fun BottomOfScreen(screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()) {
-    Button(
-        onClick = screenSelectorViewModel::toCamera,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(25.dp),
-        colors = ButtonDefaults.buttonColors(Colors.PRIMARY)
-    ) {
-        Text(
-            "Take Picture",
-            style = TextStyles.NORMAL
-        )
+fun BottomOfScreen(
+    screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
+    picturePickerViewModel: PicturePickerViewModel = rememberKoinInject(),
+) {
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            picturePickerViewModel.injectUri(uri)
+            screenSelectorViewModel.toBigPicture()
+        }
+    )
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        IconButton(
+            onClick = {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            colors = IconButtonDefaults.iconButtonColors(Colors.PRIMARY)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.photo_library),
+                contentDescription = "Gallery",
+                tint = Colors.TEXT
+            )
+        }
+        Button(
+            onClick = screenSelectorViewModel::toCamera,
+            shape = RoundedCornerShape(25.dp),
+            colors = ButtonDefaults.buttonColors(Colors.PRIMARY),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "Take Picture",
+                style = TextStyles.NORMAL
+            )
+        }
     }
 }
+
