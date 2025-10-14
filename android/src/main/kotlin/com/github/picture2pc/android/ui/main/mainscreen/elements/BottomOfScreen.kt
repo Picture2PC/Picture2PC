@@ -44,7 +44,6 @@ fun BottomOfScreen(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
-            modifier = Modifier,
             colors = IconButtonDefaults.iconButtonColors(Colors.PRIMARY)
         ) {
             Icon(
