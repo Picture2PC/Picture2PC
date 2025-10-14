@@ -1,16 +1,18 @@
 package com.github.picture2pc.android.ui.main.mainscreen.elements
 
-
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -18,38 +20,60 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.github.picture2pc.android.viewmodel.mainscreenviewmodels.BroadcastViewModel
 import com.github.picture2pc.common.ui.Colors
+import com.github.picture2pc.common.ui.Heights
+import com.github.picture2pc.common.ui.Shapes
+import com.github.picture2pc.common.ui.TextStyles
 import org.koin.compose.rememberKoinInject
 
 @Composable
 fun NameInputField(
-    modifier: Modifier = Modifier, viewModel: BroadcastViewModel = rememberKoinInject()
+    modifier: Modifier = Modifier,
+    broadcastViewModel: BroadcastViewModel = rememberKoinInject(),
 ) {
-    val nameInput by viewModel.serverName.collectAsState()
     val focusManager = LocalFocusManager.current
+    val dataName by broadcastViewModel.name.collectAsState()
+    val localName = remember { mutableStateOf(broadcastViewModel.name.value) }
+    val isError = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        localName.value = dataName
+    }
 
     OutlinedTextField(
-        value = nameInput,
-        modifier = modifier.fillMaxWidth(),
+        value = localName.value,
+        onValueChange = {
+            localName.value = it
+            isError.value = broadcastViewModel.nameIsInvalid(it)
+        },
+        placeholder = { Text("Username") },
+        label = { Text("Name") },
+        modifier = modifier
+            .fillMaxWidth()
+            .height(Heights.BUTTON + 10.dp),
         singleLine = true,
-        onValueChange = viewModel::nameChanged,
-        placeholder = { Text("Unknown", color = Colors.TEXT.copy(0.5f)) },
-        label = { Text("Name", color = Colors.TEXT) },
-        shape = RoundedCornerShape(20.dp),
+        shape = Shapes.BUTTON,
+        textStyle = TextStyles.NORMAL,
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
+            capitalization = KeyboardCapitalization.Words,
             autoCorrectEnabled = true,
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(onDone = {
-            viewModel.saveName(nameInput)
-            focusManager.clearFocus()
+            isError.value = broadcastViewModel.nameIsInvalid(localName.value)
+            if (isError.value) broadcastViewModel.setConnectable(false)
+            else {
+                broadcastViewModel.setName(localName.value)
+                focusManager.clearFocus()
+            }
         }),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Colors.TEXT,
-            unfocusedTextColor = Colors.TEXT,
             focusedBorderColor = Colors.PRIMARY,
             unfocusedBorderColor = Colors.PRIMARY,
-            cursorColor = Colors.ACCENT,
-        )
+            cursorColor = Colors.PRIMARY,
+            focusedLabelColor = Colors.TEXT,
+            unfocusedLabelColor = Colors.TEXT.copy(alpha = 0.8f),
+            errorBorderColor = Colors.ERROR
+        ),
+        isError = isError.value,
     )
 }

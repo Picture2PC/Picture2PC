@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import java.net.InetSocketAddress
-import kotlin.collections.set
 
 class SimpleTcpServer(
     private val backgroundScope: CoroutineScope,
@@ -75,7 +75,7 @@ class SimpleTcpServer(
                 withTimeout(CONNECTION_TIMEOUT) {
                     jvmServerSocket.accept()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return false
             }
         val client = SimpleTcpClient(backgroundScope + Job(), ioDispatcher, jvmSocket)
@@ -109,10 +109,7 @@ class SimpleTcpServer(
                     it.sendMessage(data)
                 }
             }
-            jobs.forEach {
-                if (!it.await()) return false
-            }
-            return true
+            return jobs.awaitAll().all { it }
         }
         println("Sending: $payload")
         val client = peerToClientMap.getOrDefault(payload.targetPeer, null) ?: return false

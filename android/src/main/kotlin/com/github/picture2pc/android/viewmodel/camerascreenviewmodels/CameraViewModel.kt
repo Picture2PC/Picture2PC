@@ -11,6 +11,8 @@ import com.github.picture2pc.android.net.datatransmitter.DataTransmitter
 import com.github.picture2pc.android.ui.util.FlashStates
 import com.github.picture2pc.android.ui.util.next
 import com.github.picture2pc.common.net.data.payload.TcpPayload
+import com.github.picture2pc.common.ui.notification.NotificationHandler
+import com.github.picture2pc.common.ui.notification.NotificationMessages
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +24,8 @@ import kotlinx.coroutines.launch
 
 class CameraViewModel(
     private val pictureManager: PictureManager,
-    private val dataTransmitter: DataTransmitter
+    private val dataTransmitter: DataTransmitter,
+    private val notificationHandler: NotificationHandler
 ) : ViewModel() {
     val takenImage =
         pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -72,8 +75,9 @@ class CameraViewModel(
                     it.y.toFloat()
                 )
             }
+
             if (newCorners == null) newCorners = lastCorners
-            dataTransmitter.sendPicture(
+            val success = dataTransmitter.sendPicture(
                 TcpPayload.Picture(
                     takenImage.value!!.first.toByteArray(),
                     newCorners
@@ -81,6 +85,10 @@ class CameraViewModel(
             )
             lastCorners = null
             _sendAvailable.value = true
+            val message =
+                if (success) NotificationMessages.PICTURE_SENT_SUCCESSFULLY
+                else NotificationMessages.PICTURE_NOT_SENT
+            notificationHandler.displayNotification(NotificationMessages.TITLE, message, true)
         }
     }
 
