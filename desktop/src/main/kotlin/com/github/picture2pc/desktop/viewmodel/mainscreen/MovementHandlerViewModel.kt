@@ -26,7 +26,7 @@ class MovementHandlerViewModel {
         private set
 
     /**
-     * @param click A normalized offset starting at (0, 0)[top left] ending (1, 1)[bottom, right]
+     * @param click A normalized offset starting at (0, 0)[top left] ending (1, 1)[bottom right]
      */
     fun addClick(click: Offset) {
         val clickC = clampOffset(click)

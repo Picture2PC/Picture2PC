@@ -20,6 +20,7 @@ import com.github.picture2pc.common.ui.Colors
 import com.github.picture2pc.common.ui.Spacers
 import com.github.picture2pc.common.ui.Style
 import com.github.picture2pc.common.ui.TextStyles
+import com.github.picture2pc.desktop.viewmodel.mainscreen.BroadcastViewModel
 import com.github.picture2pc.desktop.viewmodel.mainscreen.ServersSectionViewModel
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.rememberKoinInject
@@ -27,10 +28,12 @@ import org.koin.compose.rememberKoinInject
 @Composable
 fun ConnectionInfo(
     modifier: Modifier = Modifier,
-    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject()
+    serversSectionViewModel: ServersSectionViewModel = rememberKoinInject(),
+    broadcastViewModel: BroadcastViewModel = rememberKoinInject()
 ) {
     val availableServers = serversSectionViewModel.availableServers.collectAsState().value
     val scrollState = rememberScrollState()
+    val connectable = broadcastViewModel.getConnectable()
 
     Column(modifier = modifier) {
         Text(
@@ -42,7 +45,7 @@ fun ConnectionInfo(
 
         if (availableServers.isEmpty()) {
             Text(
-                "No connections",
+                if (connectable) "No connections" else "Not connectable",
                 Modifier.padding(Spacers.NORMAL),
                 Colors.TEXT,
                 style = TextStyles.NORMAL
@@ -80,7 +83,8 @@ fun Connection(name: StateFlow<String>, clientStateFlow: StateFlow<ClientState>)
         Spacer(Modifier.width(Spacers.SMALL))
 
         Canvas(
-            Modifier.size(Style.Dimensions.StateIndicator)
+            Modifier
+                .size(Style.Dimensions.StateIndicator)
                 .align(Alignment.CenterVertically)
         ) {
             drawCircle(clientState.value.color)

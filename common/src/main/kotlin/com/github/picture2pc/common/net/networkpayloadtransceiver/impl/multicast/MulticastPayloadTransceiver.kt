@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.net.NetworkInterface
@@ -37,7 +38,6 @@ class MulticastPayloadTransceiver(
                 val interfaces = getDefaultNetworkInterfaces().toSet()
                 val newInterfaces = interfaces.minus(multicastSockets.keys)
                 val removeInterfaces = multicastSockets.keys.minus(interfaces)
-                println(multicastSockets)
                 newInterfaces.forEach {
                     startSingleSocket(it)
                 }
@@ -52,15 +52,20 @@ class MulticastPayloadTransceiver(
     private suspend fun startSingleSocket(networkInterface: NetworkInterface){
         val multicastSocket: SimpleMulticastSocket = get()
         multicastSocket.start(networkInterface)
-        multicastSockets.put(networkInterface, multicastSocket)
+        multicastSockets[networkInterface] = multicastSocket
         scope.launch {
-            while (true) {
+            while (isActive) {
                 if (!multicastSocket.isAvailable){
                     stopSingleSocket(networkInterface)
                     return@launch
                 }
-                println(multicastSocket.receivePayload())
-                receivedPayload(multicastSocket.receivePayload() ?: continue)
+                val payload = multicastSocket.receivePayload() ?: continue
+                launch {
+                    withTimeoutOrNull(2000) {
+                        sendPayloadExcluding(payload, multicastSocket)
+                    }
+                }
+                receivedPayload(payload)
             }
         }
     }
@@ -69,7 +74,15 @@ class MulticastPayloadTransceiver(
         multicastSockets.remove(networkInterface)?.close()
     }
 
+    private suspend fun sendPayloadExcluding(
+        payload: Payload,
+        simpleMulticastSocket: SimpleMulticastSocket? = null
+    ): Boolean {
+        return multicastSockets.values.filter { it != simpleMulticastSocket }
+            .map { it.sendMessage(payload) }.any()
+    }
+
     override suspend fun _sendPayload(payload: Payload): Boolean {
-        return multicastSockets.values.map{it.sendMessage(payload)}.any()
+        return sendPayloadExcluding(payload)
     }
 }

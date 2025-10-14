@@ -1,6 +1,6 @@
 package com.github.picture2pc.common.net.defaultdatatransmitter.impl
 
-import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
 import com.github.picture2pc.common.net.data.payload.MulticastPayload
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.net.data.peer.Peer
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 open class MulticastTcpDefaultDataTransmitter(
     private val multicastPayloadTransceiver: MulticastPayloadTransceiver,
     private val tcpPayloadTransceiver: TcpPayloadTransceiver,
-    private val serverPreferences: ServerPreferencesRepository,
+    private val serverPreferences: PreferencesRepository,
     private val backgroundScope: CoroutineScope,
 ) : DefaultDataTransmitter {
     private val _connectedDevices: MutableStateFlow<List<DefaultDevice>> =
@@ -78,9 +78,6 @@ open class MulticastTcpDefaultDataTransmitter(
                     else -> {}
                 }
             }.launchIn(backgroundScope)
-            serverPreferences.name.onEach {
-                newName(it)
-            }.launchIn(backgroundScope)
 
             while (isActive) {
                 if (serverPreferences.connectable.value) {
@@ -106,9 +103,9 @@ open class MulticastTcpDefaultDataTransmitter(
         }.launchIn(backgroundScope)
     }
 
-    suspend fun refreshDevices() {
+    /*suspend fun refreshDevices() {
         emitListServers()
-    }
+    }*/
 
     private suspend fun newUUidName(uuid: String, name: String) {
         if (uuidNameMap.containsKey(uuid))
@@ -125,13 +122,13 @@ open class MulticastTcpDefaultDataTransmitter(
         tcpPayloadTransceiver.sendPayload(TcpPayload.RequestName(peer))
     }
 
-    override suspend fun sendPicture(picture: TcpPayload.Picture) {
-        tcpPayloadTransceiver.sendPayload(picture)
+    override suspend fun sendPicture(picturePayload: TcpPayload.Picture) : Boolean {
+        return tcpPayloadTransceiver.sendPayload(picturePayload)
     }
 
-    private suspend fun emitListServers() {
+    /*private suspend fun emitListServers() {
         multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.name.value))
-    }
+    }*/
 
     private suspend fun emitServerOnline(serverName: String) {
         multicastPayloadTransceiver.sendPayload(

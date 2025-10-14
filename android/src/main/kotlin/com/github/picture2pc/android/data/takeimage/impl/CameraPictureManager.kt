@@ -169,7 +169,7 @@ class CameraPictureManager(
         }
     }
 
-    fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+    private fun rotateImage(img: Bitmap, degree: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(degree)
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)

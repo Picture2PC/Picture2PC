@@ -3,10 +3,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose.multiplatform)
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 repositories {
-    mavenCentral()
+    google()
 }
 
 group = "com.github.picture2pc.desktop"
@@ -17,6 +18,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
     implementation(libs.javacv.platform)
+    implementation(libs.kotlinx.serialization.cbor)
 
     implementation(project(":common"))
 }

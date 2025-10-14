@@ -20,20 +20,20 @@ import org.koin.compose.rememberKoinInject
 
 @Composable
 fun ConnectableStateSwitch(
-    viewModel: BroadcastViewModel = rememberKoinInject()
+    broadcastViewModel: BroadcastViewModel = rememberKoinInject()
 ) {
-    val connectableSwitch by viewModel.connectable.collectAsState()
+    val connectable by broadcastViewModel.connectable.collectAsState()
 
     Row {
         Switch(
-            checked = connectableSwitch,
-            onCheckedChange = { viewModel.saveConnectable(it) },
+            checked = connectable,
+            onCheckedChange = { broadcastViewModel.setConnectable(it) },
             colors = SwitchDefaults.colors(
                 checkedTrackColor = Colors.PRIMARY,
-                checkedThumbColor = Colors.TEXT,
                 uncheckedTrackColor = Colors.BACKGROUND,
+                checkedThumbColor = Colors.TEXT,
                 uncheckedThumbColor = Colors.TEXT.copy(0.5f),
-                uncheckedBorderColor = Colors.TEXT.copy(0.5f)
+                uncheckedBorderColor = Colors.PRIMARY.copy(0.5f)
             )
         )
         Spacer(Modifier.width(10.dp))

@@ -5,34 +5,29 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesDefaults
-import com.github.picture2pc.common.data.serverpreferences.ServerPreferencesRepository
+import com.github.picture2pc.common.data.preferences.PreferencesDefaults
+import com.github.picture2pc.common.data.preferences.PreferencesRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
-
-private object PreferenceKeys {
-    val NAME = stringPreferencesKey("server_name")
-    val CONNECTABLE = booleanPreferencesKey("server_connectable")
-}
-
-class DataStoreServerPreferencesRepository(
+class AndroidPreferencesRepository(
     private val context: Context,
+    private val ioDispatcher: CoroutineDispatcher,
     backgroundScope: CoroutineScope,
-) : ServerPreferencesRepository() {
+) : PreferencesRepository() {
 
+    private val nameKey = stringPreferencesKey("server_name")
+    private val connectableKey = booleanPreferencesKey("server_connectable")
     companion object {
-        private val Context.settingsDataStore by preferencesDataStore(
-            name = "settings"
-        )
+        private val Context.settingsDataStore by preferencesDataStore(name = "settings")
     }
 
     override val name = context.settingsDataStore.data.map { preferences ->
-        preferences[PreferenceKeys.NAME] ?: ServerPreferencesDefaults.NAME
+        preferences[nameKey] ?: PreferencesDefaults.NAME
     }.stateIn(
         scope = backgroundScope,
         started = SharingStarted.Eagerly,
@@ -40,26 +35,25 @@ class DataStoreServerPreferencesRepository(
     )
 
     override val connectable = context.settingsDataStore.data.map { preferences ->
-        preferences[PreferenceKeys.CONNECTABLE] ?: ServerPreferencesDefaults.CONNECTABLE
+        preferences[connectableKey] ?: PreferencesDefaults.CONNECTABLE
     }.stateIn(
         scope = backgroundScope,
         started = SharingStarted.Eagerly,
         initialValue = false
     )
 
-
     override suspend fun setName(name: String) {
-        withContext(Dispatchers.IO) {
-            context.settingsDataStore.edit { preferences ->
-                preferences[PreferenceKeys.NAME] = name
+        withContext(ioDispatcher) {
+            context.settingsDataStore.edit { storedPreferences ->
+                storedPreferences[nameKey] = name.trim()
             }
         }
     }
 
     override suspend fun setConnectable(connectable: Boolean) {
-        withContext(Dispatchers.IO) {
-            context.settingsDataStore.edit { preferences ->
-                preferences[PreferenceKeys.CONNECTABLE] = connectable
+        withContext(ioDispatcher) {
+            context.settingsDataStore.edit { storedPreferences ->
+                storedPreferences[connectableKey] = connectable
             }
         }
     }
