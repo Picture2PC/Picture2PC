@@ -17,7 +17,7 @@ dependencies {
     implementation(compose.desktop.common)
     implementation(compose.desktop.currentOs)
     implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
-    implementation(libs.opencv)
+    implementation(libs.javacv.platform)
     implementation(libs.kotlinx.serialization.cbor)
 
     implementation(project(":common"))

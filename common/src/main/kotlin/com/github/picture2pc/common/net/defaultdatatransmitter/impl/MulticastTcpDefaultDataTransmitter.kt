@@ -103,9 +103,9 @@ open class MulticastTcpDefaultDataTransmitter(
         }.launchIn(backgroundScope)
     }
 
-    suspend fun refreshDevices() {
+    /*suspend fun refreshDevices() {
         emitListServers()
-    }
+    }*/
 
     private suspend fun newUUidName(uuid: String, name: String) {
         if (uuidNameMap.containsKey(uuid))
@@ -126,9 +126,9 @@ open class MulticastTcpDefaultDataTransmitter(
         return tcpPayloadTransceiver.sendPayload(picturePayload)
     }
 
-    private suspend fun emitListServers() {
+    /*private suspend fun emitListServers() {
         multicastPayloadTransceiver.sendPayload(MulticastPayload.ListPeers(serverPreferences.name.value))
-    }
+    }*/
 
     private suspend fun emitServerOnline(serverName: String) {
         multicastPayloadTransceiver.sendPayload(

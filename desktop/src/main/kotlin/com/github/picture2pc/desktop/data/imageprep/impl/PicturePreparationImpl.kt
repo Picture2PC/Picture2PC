@@ -25,6 +25,7 @@ import org.opencv.core.Size as CvSize
 
 class PicturePreparationImpl : PicturePreparation {
     override var originalBitmap: Bitmap = Bitmap()
+    private var _editedMat: Mat = Mat()
     private var _editedBitmap: MutableState<Bitmap> = mutableStateOf(Bitmap())
     override var editedBitmap: State<Bitmap> = _editedBitmap
 
@@ -39,13 +40,14 @@ class PicturePreparationImpl : PicturePreparation {
             put(2, 0, 0.0, -1.0, 0.0)
         }
 
-        val mat = editedBitmap.value.toMat()
         val dst = Mat()
-        Imgproc.filter2D(mat, mat, -1, matrix, Point(0.0, 0.0))
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2BGR)
-        mat.convertTo(mat, CvType.CV_8UC3, 1.9, -80.0)
-        Imgproc.bilateralFilter(mat, dst, 10, 75.0, 75.0)
-        _editedBitmap.value = dst.toBitmap()
+        val end = Mat()
+        Imgproc.filter2D(_editedMat, dst, -1, matrix, Point(0.0, 0.0))
+        Imgproc.cvtColor(dst, dst, Imgproc.COLOR_BGRA2BGR)
+        dst.convertTo(dst, CvType.CV_8UC3, 1.9, -80.0)
+        Imgproc.bilateralFilter(dst, end, 10, 75.0, 75.0)
+        _editedMat = end
+        _editedBitmap.value = _editedMat.toBitmap()
     }
 
     override fun crop(clicks: List<Offset>, displayPictureSize: Size) {
@@ -65,8 +67,8 @@ class PicturePreparationImpl : PicturePreparation {
         val heightB = sqrt((tl.x - bl.x).pow(2) + (tl.y - bl.y).pow(2))
         val maxHeight = max(heightA, heightB).toDouble()
 
-        val mat = editedBitmap.value.toMat()
-        val dst = Mat(CvSize(maxWidth, maxHeight), CvType.CV_8UC3)
+        val mat = _editedMat
+        //val dst = Mat(CvSize(maxWidth, maxHeight), CvType.CV_8UC3)
 
         val srcPoints = listOf(
             Point(tl.x.toDouble(), tl.y.toDouble()),
@@ -87,19 +89,18 @@ class PicturePreparationImpl : PicturePreparation {
         )
         Imgproc.warpPerspective(
             mat,
-            dst,
+            _editedMat,
             perspectiveTransform,
             CvSize(maxWidth, maxHeight)
         )
 
-        _editedBitmap.value = dst.toBitmap()
+        _editedBitmap.value = _editedMat.toBitmap()
     }
 
     override fun rotate(clockwise: Boolean) {
-        val dst = Mat()
         val rotation = if (clockwise) Core.ROTATE_90_CLOCKWISE else Core.ROTATE_90_COUNTERCLOCKWISE
-        Core.rotate(editedBitmap.value.toMat(), dst, rotation)
-        _editedBitmap.value = dst.toBitmap()
+        Core.rotate(_editedMat, _editedMat, rotation)
+        _editedBitmap.value = _editedMat.toBitmap()
     }
 
     override fun copy() {
@@ -118,5 +119,6 @@ class PicturePreparationImpl : PicturePreparation {
     override fun setOriginalPicture(picture: Bitmap) {
         originalBitmap = picture
         _editedBitmap.value = originalBitmap
+        _editedMat = originalBitmap.toMat()
     }
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 class AndroidPreferencesRepository(
     private val context: Context,
     private val ioDispatcher: CoroutineDispatcher,
-    private val backgroundScope: CoroutineScope,
+    backgroundScope: CoroutineScope,
 ) : PreferencesRepository() {
 
     private val nameKey = stringPreferencesKey("server_name")
