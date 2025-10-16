@@ -25,4 +25,8 @@ data class DetectedBox(
             val bl = points.minByOrNull { it.x - it.y }
             return listOf(tl!!, tr!!, br!!, bl!!)
         }
+
+    fun toFloatPair(): List<Pair<Float, Float>> {
+        return pointsBox.map { Pair(it.x.toFloat(), it.y.toFloat()) }
+    }
 }

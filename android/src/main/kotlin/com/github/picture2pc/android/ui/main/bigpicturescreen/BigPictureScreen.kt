@@ -47,7 +47,7 @@ fun BigPictureScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
     isVertical: Boolean = true
 ) {
-    val cameraImage = cameraViewModel.takenImage.collectAsState().value?.first
+    val cameraImage = cameraViewModel.currentPicture.collectAsState().value
     val pictureCorners = cameraViewModel.pictureCorners.collectAsState().value
     val image = galleryImage ?: cameraImage
     var scale by remember { mutableFloatStateOf(1f) }
