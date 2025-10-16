@@ -35,7 +35,12 @@ object Style {
         }
 
         val BUTTON_PRIMARY: ButtonColors
-            @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
+            @Composable get() = provideButtonColors(
+                PRIMARY,
+                TEXT,
+                ACCENT,
+                PRIMARY.copy(alpha = .5f)
+            )
         val BUTTON_SECONDARY: ButtonColors
             @Composable get() = provideButtonColors(PRIMARY, TEXT, ACCENT, TEXT)
 

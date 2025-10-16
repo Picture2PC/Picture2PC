@@ -27,8 +27,10 @@ class CameraViewModel(
     private val dataTransmitter: DataTransmitter,
     private val notificationHandler: NotificationHandler
 ) : ViewModel() {
-    val takenImage =
-        pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val takenImage = pictureManager.takenImages
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val isProcessing: StateFlow<Boolean> = pictureManager.isProcessing
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()

@@ -25,6 +25,7 @@ fun BottomOfScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     val flashMode = cameraViewModel.flashMode.collectAsState().value
+    val isProcessing = cameraViewModel.isProcessing.collectAsState().value
 
     Row {
         IconButton(
@@ -42,9 +43,12 @@ fun BottomOfScreen(
             onClick = cameraViewModel::takeImage,
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(20.dp),
-            colors = Colors.BUTTON_PRIMARY
+            colors = Colors.BUTTON_PRIMARY,
+            enabled = !isProcessing
         ) {
-            Text(text = "Take Picture", style = TextStyles.NORMAL)
+            val buttonText = if (isProcessing) "Processing..." else "Take Picture"
+            val textColor = if (isProcessing) Colors.TEXT.copy(alpha = 0.5f) else Colors.TEXT
+            Text(text = buttonText, style = TextStyles.NORMAL, color = textColor)
         }
         IconButton(
             onClick = cameraViewModel::switchFlashMode,

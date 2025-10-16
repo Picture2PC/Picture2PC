@@ -57,6 +57,14 @@ class CameraPictureManager(
     private val _pictureCorners: MutableStateFlow<DetectedBox?> =
         MutableStateFlow(null) //read and write
 
+    private val _takenImages =
+        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3)
+    override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
+        _takenImages.asSharedFlow()
+
+    private val _isProcessing = MutableStateFlow(false)
+    override val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val singleThreadContext = defaultDispatcher.limitedParallelism(1)
     override val previewCorners: StateFlow<DetectedBox?> = _pictureCorners.asStateFlow()
@@ -75,15 +83,19 @@ class CameraPictureManager(
     private fun emitPicture(picture: Bitmap) {
         coroutineScope.launch {
             val cJob = coroutineScope.async {
-                val res = runDetection(picture)
-                return@async res
+                return@async runDetection(picture)
             }
-            cJob.start()
+            cJob.invokeOnCompletion {
+                coroutineScope.launch {
+                    _isProcessing.value = false
+                }
+            }
             _takenImages.emit(Pair(picture, cJob))
         }
     }
 
     override fun takeImage() {
+        _isProcessing.value = true
         val outputStream = ByteArrayOutputStream()
         val options = ImageCapture.OutputFileOptions.Builder(outputStream).build()
         imageCapture.takePicture(
@@ -183,9 +195,4 @@ class CameraPictureManager(
     override fun injectImage(picture: Bitmap) {
         emitPicture(picture)
     }
-
-    private val _takenImages =
-        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3) //read and write
-    override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
-        _takenImages.asSharedFlow()  //read only
 }
