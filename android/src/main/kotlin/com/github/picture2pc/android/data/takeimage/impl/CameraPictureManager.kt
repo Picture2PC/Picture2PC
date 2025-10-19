@@ -180,8 +180,10 @@ class CameraPictureManager(
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
     }
 
-    override fun injectImage(picture: Bitmap) {
-        emitPicture(picture)
+    override fun injectImage(pictures: List<Bitmap>) {
+        for(picture in pictures){
+            emitPicture(picture)
+        }
     }
 
     private val _takenImages =

@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.compose.runtime.mutableStateOf
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -16,24 +15,25 @@ class PicturePickerViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val cameraViewModel: CameraViewModel,
 ) {
-    private val bitmap = mutableStateOf<Bitmap?>(null)
-
-    fun injectUri(uri: Uri) {
+    fun injectUri(uris: List<Uri>) {
         scope.launch(dispatcher) {
-            val options = BitmapFactory.Options().apply {
-                inJustDecodeBounds = true
-            }
-            context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream, null, options)
+            val bitmaps = mutableListOf<Bitmap>()
+
+            for (uri in uris) {
+                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                options.inSampleSize = calculateInSampleSize(options)
+                options.inJustDecodeBounds = false
+
+                val bitmap = context.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
+                if (bitmap != null) bitmaps += bitmap
             }
 
-            options.inSampleSize = calculateInSampleSize(options)
-            options.inJustDecodeBounds = false
-
-            bitmap.value = context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream, null, options)
+            if (bitmaps.isNotEmpty()) {
+                cameraViewModel.injectImage(bitmaps)   // <-- ONE call
             }
-            bitmap.value?.let { cameraViewModel.injectImage(it) }
         }
     }
 

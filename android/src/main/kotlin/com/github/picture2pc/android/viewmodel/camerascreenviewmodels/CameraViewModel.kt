@@ -13,13 +13,12 @@ import com.github.picture2pc.android.ui.util.next
 import com.github.picture2pc.common.net.data.payload.TcpPayload
 import com.github.picture2pc.common.ui.notification.NotificationHandler
 import com.github.picture2pc.common.ui.notification.NotificationMessages
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CameraViewModel(
@@ -27,8 +26,7 @@ class CameraViewModel(
     private val dataTransmitter: DataTransmitter,
     private val notificationHandler: NotificationHandler
 ) : ViewModel() {
-    val takenImage =
-        pictureManager.takenImages.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    private val takenImages = ArrayDeque<Pair<Bitmap, Deferred<DetectedBox?>>>()
 
     private val _flashMode: MutableStateFlow<FlashStates> = MutableStateFlow(FlashStates.FLASH_OFF)
     val flashMode: StateFlow<FlashStates> get() = _flashMode.asStateFlow()
@@ -40,6 +38,7 @@ class CameraViewModel(
 
     init {
         pictureManager.takenImages.onEach {
+            takenImages.add(it)
             _pictureCorners.value = null
             _pictureCorners.value = it.second.await() ?: previewCorners.value
         }.launchIn(viewModelScope)
@@ -61,36 +60,45 @@ class CameraViewModel(
         pictureManager.takeImage()
     }
 
-    fun injectImage(bitmap: Bitmap) {
-        pictureManager.injectImage(bitmap)
+    fun injectImage(bitmaps: List<Bitmap>) {
+        pictureManager.injectImage(bitmaps)
     }
 
     fun sendImage() {
-        if (takenImage.value == null || !sendAvailable.value) return
+        if (takenImages.isEmpty() || !sendAvailable.value) return
         _sendAvailable.value = false
-        viewModelScope.launch {
-            var newCorners = takenImage.value!!.second.await()?.pointsBox?.map {
-                Pair(
-                    it.x.toFloat(),
-                    it.y.toFloat()
-                )
-            }
 
-            if (newCorners == null) newCorners = lastCorners
-            val success = dataTransmitter.sendPicture(
-                TcpPayload.Picture(
-                    takenImage.value!!.first.toByteArray(),
-                    newCorners
-                )
-            )
-            lastCorners = null
-            _sendAvailable.value = true
-            val message =
-                if (success) NotificationMessages.PICTURE_SENT_SUCCESSFULLY
-                else NotificationMessages.PICTURE_NOT_SENT
-            notificationHandler.displayNotification(NotificationMessages.TITLE, message, true)
+        viewModelScope.launch {
+            try {
+                while (takenImages.isNotEmpty()) {
+                    val (bitmap, detectionTask) = takenImages.removeFirst()
+
+                    val newCorners = detectionTask.await()
+                        ?.pointsBox
+                        ?.map { it.x.toFloat() to it.y.toFloat() }
+                        ?: lastCorners
+
+                    val success = dataTransmitter.sendPicture(
+                        TcpPayload.Picture(bitmap.toByteArray(), newCorners)
+                    )
+
+                    notificationHandler.displayNotification(
+                        NotificationMessages.TITLE,
+                        if (success) NotificationMessages.PICTURE_SENT_SUCCESSFULLY
+                        else NotificationMessages.PICTURE_NOT_SENT,
+                        true
+                    )
+
+                    lastCorners = null
+                }
+            } finally {
+                _sendAvailable.value = true
+            }
         }
     }
+
+    val takenImage: Pair<Bitmap, Deferred<DetectedBox?>>?
+        get() = takenImages.lastOrNull()
 
     fun switchFlashMode() {
         pictureManager.switchFlashMode()
