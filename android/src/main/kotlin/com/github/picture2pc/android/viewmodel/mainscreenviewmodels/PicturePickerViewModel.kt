@@ -15,7 +15,7 @@ class PicturePickerViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val cameraViewModel: CameraViewModel,
 ) {
-    fun injectUri(uris: List<Uri>) {
+    fun injectUris(uris: List<Uri>) {
         scope.launch(dispatcher) {
             val bitmaps = mutableListOf<Bitmap>()
 
@@ -32,7 +32,7 @@ class PicturePickerViewModel(
             }
 
             if (bitmaps.isNotEmpty()) {
-                cameraViewModel.injectImage(bitmaps)   // <-- ONE call
+                cameraViewModel.injectImage(bitmaps)
             }
         }
     }

@@ -32,7 +32,7 @@ fun BottomOfScreen(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = { uris ->
             if (uris.isEmpty()) return@rememberLauncherForActivityResult
-            picturePickerViewModel.injectUri(uris)
+            picturePickerViewModel.injectUris(uris)
             screenSelectorViewModel.toBigPicture()
         }
     )

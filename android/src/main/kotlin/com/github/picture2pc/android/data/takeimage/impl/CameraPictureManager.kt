@@ -40,7 +40,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-
 class CameraPictureManager(
     private val context: Context,
     private val edgeDetect: EdgeDetect,
@@ -187,7 +186,7 @@ class CameraPictureManager(
     }
 
     private val _takenImages =
-        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 3) //read and write
+        MutableSharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>>(replay = 0) //read and write
     override val takenImages: SharedFlow<Pair<Bitmap, Deferred<DetectedBox?>>> =
         _takenImages.asSharedFlow()  //read only
 }
