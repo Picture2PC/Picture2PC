@@ -2,9 +2,10 @@ package org.picture2pc.picture2pc.domain.usecase
 
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 
+private const val MAX_NAME_LENGTH = 14
+
 class PreferencesUseCase(
-    private val preferencesRepository: PreferencesRepository,
-    private val maxNameLength: Int
+    private val preferencesRepository: PreferencesRepository
 ) {
 
     val name = preferencesRepository.name
@@ -23,5 +24,5 @@ class PreferencesUseCase(
     }
 
     fun nameIsInvalid(name: String) =
-        name.isEmpty() || name.isBlank() || name.length > maxNameLength
+        name.isEmpty() || name.isBlank() || name.length > MAX_NAME_LENGTH
 }

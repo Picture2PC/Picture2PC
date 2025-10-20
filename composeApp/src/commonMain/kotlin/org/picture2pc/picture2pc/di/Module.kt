@@ -25,8 +25,6 @@ val qualifiers = module {
             ) + SupervisorJob()
         )
     }
-
-    single(PreferencesMaxNameLengthQualifier) { 14 }
 }
 
 val sharedModule = module {
@@ -39,7 +37,7 @@ val sharedModule = module {
         )
     } bind PreferencesRepository::class
     single {
-        PreferencesUseCase(get(), get(PreferencesMaxNameLengthQualifier))
+        PreferencesUseCase(get())
     }
 
     viewModelOf(::AppViewModel)
