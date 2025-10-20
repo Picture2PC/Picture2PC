@@ -7,30 +7,29 @@ import com.russhwolf.settings.coroutines.getStringStateFlow
 import kotlinx.coroutines.CoroutineScope
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 
-enum class SettingKeys {
-    Name,
-    Connectable
-}
-
 @OptIn(ExperimentalSettingsApi::class)
 class PreferencesMultiplatformSettings(
     private val observableSettings: ObservableSettings,
     defaultCoroutineScope: CoroutineScope
 ) : PreferencesRepository {
+    private companion object {
+        const val NAME_KEY = "name"
+        const val CONNECTABLE_KEY = "connectable"
+    }
 
     override var name =
-        observableSettings.getStringStateFlow(defaultCoroutineScope, SettingKeys.Name.name, "")
+        observableSettings.getStringStateFlow(defaultCoroutineScope, NAME_KEY, "")
     override var connectable = observableSettings.getBooleanStateFlow(
         defaultCoroutineScope,
-        SettingKeys.Connectable.name, false
+        CONNECTABLE_KEY, false
     )
 
 
     override suspend fun setName(name: String) {
-        observableSettings.putString(SettingKeys.Name.name, name)
+        observableSettings.putString(NAME_KEY, name)
     }
 
     override suspend fun setConnectable(connectable: Boolean) {
-        observableSettings.putBoolean(SettingKeys.Connectable.name, connectable)
+        observableSettings.putBoolean(CONNECTABLE_KEY, connectable)
     }
 }
