@@ -18,7 +18,7 @@ expect val platformModule: Module
 
 val qualifiers = module {
     single(DefaultDispatcherQualifier) { Dispatchers.Default }
-    single(BackgroundCoroutineScope) {
+    factory(BackgroundCoroutineScope) {
         CoroutineScope(
             get<CoroutineDispatcher>(
                 DefaultDispatcherQualifier
