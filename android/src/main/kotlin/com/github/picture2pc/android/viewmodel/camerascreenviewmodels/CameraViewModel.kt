@@ -42,7 +42,6 @@ class CameraViewModel(
     private val pictureManager: PictureManager,
     private val dataTransmitter: DataTransmitter,
     private val notificationHandler: NotificationHandler,
-    private val defaultScope: CoroutineScope,
     private val defaultDispatcher: CoroutineDispatcher,
     private val imageCapture: ImageCapture = ImageCapture.Builder()
         .setFlashMode(ImageCapture.FLASH_MODE_OFF)
@@ -123,7 +122,7 @@ class CameraViewModel(
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    defaultScope.launch {
+                    viewModelScope.launch {
                         _pictureCorners.emit(previewCorners.value)
                         pictureManager.emitPicture(outputStream.toByteArray())
                     }

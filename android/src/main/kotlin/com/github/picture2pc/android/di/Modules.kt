@@ -60,7 +60,6 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get(named("backgroundCoroutineScope")),
             get(named("defaultDispatcher"))
         )
     }
