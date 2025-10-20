@@ -11,6 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.picture2pc.android.viewmodel.camerascreenviewmodels.CameraViewModel
 import com.github.picture2pc.common.ui.Shapes
@@ -20,6 +21,8 @@ fun CameraPreview(
     cameraViewModel: CameraViewModel
 ) {
     val pictureCorners = cameraViewModel.previewCorners.collectAsState(null).value
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .clip(Shapes.MOBILE) // Clip the content to a specific shape
@@ -29,7 +32,7 @@ fun CameraPreview(
             modifier = Modifier.fillMaxSize(),
             factory = {
                 PreviewView(it).apply {
-                    cameraViewModel.setViewFinder(this)
+                    cameraViewModel.setViewFinder(context, this)
                 }
             }
         )

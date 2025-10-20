@@ -32,7 +32,7 @@ fun CameraScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject(),
     isVertical: Boolean = true
 ) {
-    val image = cameraViewModel.takenImage.collectAsState().value?.first
+    val image = cameraViewModel.currentPicture.collectAsState().value
     val pictureCorners = cameraViewModel.pictureCorners.collectAsState().value
 
     Box(
