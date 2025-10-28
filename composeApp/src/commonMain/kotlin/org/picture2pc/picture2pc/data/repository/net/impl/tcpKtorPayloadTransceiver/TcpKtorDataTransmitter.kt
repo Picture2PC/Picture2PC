@@ -174,12 +174,18 @@ class TcpKtorDataTransmitter(
                 client
         else {
             client.client.securityState.filterIsInstance<ClientSecurityState.PeerKnown>().onEach {
-                if (it.peer.uuid.hashCode() < Peer.getSelf().uuid.hashCode()) {
-                    peerClientMap[it.peer]?.close()
-                    peerClientMap[it.peer] = client
-                    client.sendPayload(TcpPayload.RequestName(it.peer))
-                } else
-                    client.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+                val current = peerClientMap[it.peer]
+                if (current != null) {
+                    if (it.peer.uuid.hashCode() > Peer.getSelf().uuid.hashCode()) {
+                        client.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+                        return@onEach
+                    } else {
+                        current.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+                    }
+                }
+                peerClientMap[it.peer] = client
+                client.sendPayload(TcpPayload.RequestName(it.peer))
+
             }.take(1).launchIn(scope)
         }
         scope.launch {
