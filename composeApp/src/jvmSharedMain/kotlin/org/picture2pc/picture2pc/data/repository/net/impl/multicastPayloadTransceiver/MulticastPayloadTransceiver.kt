@@ -6,17 +6,14 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
-import org.picture2pc.picture2pc.data.repository.net.impl.MulticastTcpClient
 import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
 import org.picture2pc.picture2pc.data.repository.net.payload.Payload
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
-import org.picture2pc.picture2pc.domain.repository.net.client.ClientSecurityState
-import org.picture2pc.picture2pc.domain.repository.net.client.ClientState
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
@@ -52,18 +49,15 @@ actual class MulticastPayloadTransceiver actual constructor(
     actual override val available: Boolean
         get() = multicastSockets.values.any { it.isAvailable }
 
-    actual override fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<MulticastTcpClient> =
-        callbackFlow {
+    actual override fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline> =
+        channelFlow {
             kotlin.runCatching {
                 while (true) {
-                    println("start")
                     updateMulticastSockets(this)
-                    println("emmitting")
                     emitServerOnline(serviceOnline)
                     delay(MulticastConstants.UPDATE_INTERFACE_DELAY)
                 }
             }.onFailure {
-                println("failure")
                 withContext(NonCancellable) {
                     multicastSockets.keys.forEach {
                         stopSingleSocket(it)
@@ -72,7 +66,7 @@ actual class MulticastPayloadTransceiver actual constructor(
             }
         }
 
-    private suspend fun updateMulticastSockets(collector: ProducerScope<MulticastTcpClient>) {
+    private suspend fun updateMulticastSockets(collector: ProducerScope<DiscoverPayload.ServiceOnline>) {
         while (runCatching {
                 val interfaces = getDefaultNetworkInterfaces().toSet()
                 val newInterfaces = interfaces.minus(multicastSockets.keys)
@@ -90,7 +84,7 @@ actual class MulticastPayloadTransceiver actual constructor(
 
     private suspend fun startSingleSocket(
         networkInterface: NetworkInterface,
-        collector: ProducerScope<MulticastTcpClient>
+        collector: ProducerScope<DiscoverPayload.ServiceOnline>
     ) {
         val multicastSocket = SimpleMulticastSocket(
             ioDispatcher,
@@ -109,17 +103,13 @@ actual class MulticastPayloadTransceiver actual constructor(
 
     private fun handlePayload(
         payload: DiscoverPayload,
-        collector: ProducerScope<MulticastTcpClient>
+        collector: ProducerScope<DiscoverPayload.ServiceOnline>
     ) {
         when (payload) {
             is DiscoverPayload.ServiceOnline ->
                 payload.serviceAddresses?.let {
                     collector.trySend(
-                        MulticastTcpClient(
-                            ClientState.ONLINE,
-                            ClientSecurityState.PeerKnown.UnVerified(payload.sourcePeer),
-                            networkAddress = it
-                        )
+                        payload
                     )
                 }
 

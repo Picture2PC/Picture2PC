@@ -2,7 +2,6 @@ package org.picture2pc.picture2pc.domain.repository.net.client
 
 import androidx.compose.ui.graphics.Color
 import org.picture2pc.picture2pc.presentation.elements.Style
-import kotlin.reflect.KClass
 
 sealed class ClientState(val color: Color, val displayName: String) {
 
@@ -15,7 +14,7 @@ sealed class ClientState(val color: Color, val displayName: String) {
     data class SENDING_PAYLOAD(val percentage: Float) :
         ClientState(Style.Colors.States.RECEIVING, "Sending")
 
-    data class RECEIVING_PAYLOAD(val payloadType: KClass<*>, val percentage: Float) :
+    data class RECEIVING_PAYLOAD(val payloadType: String, val percentage: Float) :
         ClientState(Style.Colors.States.RECEIVING, "Receiving")
 
     sealed class DISCONNECTED(

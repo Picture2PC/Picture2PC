@@ -17,7 +17,7 @@ abstract class NetworkPayloadTransceiver {
         }
     }
 
-    abstract suspend fun start()
+    abstract suspend fun start(): Int?
 
     suspend fun sendPayload(payload: Payload): Boolean {
         return _sendPayload(payload)
