@@ -72,7 +72,7 @@ class CameraPictureManager(
         }
     }
 
-    private fun emitPicture(picture: Bitmap) {
+    override fun emitPicture(picture: Bitmap) {
         coroutineScope.launch {
             val cJob = coroutineScope.async {
                 val res = runDetection(picture)
@@ -178,10 +178,6 @@ class CameraPictureManager(
         val matrix = Matrix()
         matrix.postRotate(degree)
         return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
-    }
-
-    override fun injectImage(picture: Bitmap) {
-        emitPicture(picture)
     }
 
     private val _takenImages =
