@@ -1,0 +1,95 @@
+package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver
+
+import io.ktor.util.network.NetworkAddress
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.withContext
+import org.picture2pc.picture2pc.data.repository.net.payload.Payload
+import org.picture2pc.picture2pc.data.repository.net.payload.PayloadInfo
+import org.picture2pc.picture2pc.data.repository.net.peer.Peer
+import org.picture2pc.picture2pc.data.repository.net.serialization.asByteArray
+import org.picture2pc.picture2pc.data.repository.net.serialization.fromByteArray
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.InetSocketAddress
+import java.net.MulticastSocket
+import java.net.NetworkInterface
+import java.net.SocketTimeoutException
+
+
+class SimpleMulticastSocket(
+    private val ioDispatcher: CoroutineDispatcher,
+    private val inetSocketAddress: InetSocketAddress
+) {
+    private lateinit var jvmMulticastSocket: MulticastSocket
+    // get network interface for local dns
+
+    suspend fun start(networkInterface: NetworkInterface) {
+        withContext(ioDispatcher) {
+            jvmMulticastSocket = MulticastSocket(inetSocketAddress.port)
+            jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
+            jvmMulticastSocket.reuseAddress = true
+            jvmMulticastSocket.networkInterface = networkInterface
+            jvmMulticastSocket.loopbackMode = true // Disables loopback
+            jvmMulticastSocket.joinGroup(inetSocketAddress, networkInterface)
+        }
+    }
+
+    val isAvailable
+        get() = this::jvmMulticastSocket.isInitialized && jvmMulticastSocket.isBound && !jvmMulticastSocket.isClosed
+
+    suspend fun sendMessage(payload: Payload): Boolean {
+        // Currently only supports Message-size < PACKET_SIZE
+        if (!isAvailable) {
+            return false
+        }
+        val byteArray = payload.asByteArray()
+        val len = byteArray.size
+
+        val datagramPacket = DatagramPacket(byteArray, len, inetSocketAddress)
+        return runCatching {
+            withContext(ioDispatcher) {
+                jvmMulticastSocket.send(
+                    datagramPacket
+                )
+            }
+        }.isSuccess
+
+    }
+
+    fun close() {
+        jvmMulticastSocket.close()
+    }
+
+    fun receivePayload(): Flow<Payload> = callbackFlow {
+        loop@ while (true) {
+            ensureActive()
+            if (!isAvailable)
+                close()
+            val byteArray = ByteArray(MulticastConstants.PACKET_SIZE)
+            val datagramPacket = DatagramPacket(byteArray, 0, MulticastConstants.PACKET_SIZE)
+            try {
+                withContext(ioDispatcher) {
+                    jvmMulticastSocket.receive(datagramPacket)
+                }
+            } catch (_: SocketTimeoutException) {
+                continue
+            } catch (_: IOException) {
+                close()
+            }
+            runCatching {
+                val payload = Payload.fromByteArray(datagramPacket.data)
+                if (payload.sourcePeer == Peer.getSelf())
+                    continue@loop
+                payload.receivedPayloadInfo =
+                    PayloadInfo(
+                        NetworkAddress(datagramPacket.address.hostName, datagramPacket.port)
+                    )
+                this.trySend(payload)
+            }
+
+        }
+    }
+}

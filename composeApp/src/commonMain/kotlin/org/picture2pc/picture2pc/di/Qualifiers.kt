@@ -4,3 +4,5 @@ import org.koin.core.qualifier.named
 
 val DefaultDispatcherQualifier = named("defaultDispatcher")
 val BackgroundCoroutineScope = named("backgroundCoroutineScope")
+
+val IODispatcherQualifier = named("ioDispatcher")

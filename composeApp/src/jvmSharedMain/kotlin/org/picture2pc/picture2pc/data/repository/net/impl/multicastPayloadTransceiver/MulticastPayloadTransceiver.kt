@@ -1,0 +1,139 @@
+package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver
+
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
+import org.picture2pc.picture2pc.data.repository.net.impl.MulticastTcpClient
+import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
+import org.picture2pc.picture2pc.data.repository.net.payload.Payload
+import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
+import org.picture2pc.picture2pc.domain.repository.net.client.ClientSecurityState
+import org.picture2pc.picture2pc.domain.repository.net.client.ClientState
+import java.net.Inet4Address
+import java.net.InetSocketAddress
+import java.net.NetworkInterface
+
+actual class MulticastPayloadTransceiver actual constructor(
+    val scope: CoroutineScope,
+    val ioDispatcher: CoroutineDispatcher
+) :
+    ClientDiscovery {
+    companion object {
+        init {
+            System.setProperty("java.net.preferIPv4Stack", "true")
+        }
+
+        fun getDefaultNetworkInterfaces(): Sequence<NetworkInterface> {
+            val possible = NetworkInterface.getNetworkInterfaces().asSequence().filter(::isPossible)
+            return possible
+        }
+
+        private fun isPossible(networkInterface: NetworkInterface): Boolean {
+            return (networkInterface.isUp && !networkInterface.isVirtual && !networkInterface.isLoopback
+                    && networkInterface.supportsMulticast() && !networkInterface.name.startsWith(
+                "vEthernet",
+                true
+            ) && !networkInterface.isPointToPoint && networkInterface.inetAddresses.asSequence()
+                .any { !it.isLoopbackAddress && it::class == Inet4Address::class })
+        }
+    }
+
+    private val multicastSockets: MutableMap<NetworkInterface, SimpleMulticastSocket> =
+        mutableMapOf()
+
+    actual override val available: Boolean
+        get() = multicastSockets.values.any { it.isAvailable }
+
+    actual override fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<MulticastTcpClient> =
+        callbackFlow {
+            kotlin.runCatching {
+                while (true) {
+                    println("start")
+                    updateMulticastSockets(this)
+                    println("emmitting")
+                    emitServerOnline(serviceOnline)
+                    delay(MulticastConstants.UPDATE_INTERFACE_DELAY)
+                }
+            }.onFailure {
+                println("failure")
+                withContext(NonCancellable) {
+                    multicastSockets.keys.forEach {
+                        stopSingleSocket(it)
+                    }
+                }
+            }
+        }
+
+    private suspend fun updateMulticastSockets(collector: ProducerScope<MulticastTcpClient>) {
+        while (runCatching {
+                val interfaces = getDefaultNetworkInterfaces().toSet()
+                val newInterfaces = interfaces.minus(multicastSockets.keys)
+                val removeInterfaces = multicastSockets.keys.minus(interfaces)
+                newInterfaces.forEach {
+                    startSingleSocket(it, collector)
+                }
+                removeInterfaces.forEach {
+                    stopSingleSocket(it)
+                }
+            }.isFailure) {
+            delay(MulticastConstants.RETRY_DELAY)
+        }
+    }
+
+    private suspend fun startSingleSocket(
+        networkInterface: NetworkInterface,
+        collector: ProducerScope<MulticastTcpClient>
+    ) {
+        val multicastSocket = SimpleMulticastSocket(
+            ioDispatcher,
+            InetSocketAddress(MulticastConstants.ADDRESS, MulticastConstants.PORT)
+        )
+        multicastSocket.start(networkInterface)
+        multicastSockets[networkInterface] = multicastSocket
+        multicastSocket.receivePayload().onEach {
+            if (it is DiscoverPayload) handlePayload(it, collector)
+        }.onCompletion { stopSingleSocket(networkInterface) }.launchIn(scope)
+    }
+
+    private suspend fun emitServerOnline(serviceOnline: DiscoverPayload.ServiceOnline) {
+        sendPayload(serviceOnline)
+    }
+
+    private fun handlePayload(
+        payload: DiscoverPayload,
+        collector: ProducerScope<MulticastTcpClient>
+    ) {
+        when (payload) {
+            is DiscoverPayload.ServiceOnline ->
+                payload.serviceAddresses?.let {
+                    collector.trySend(
+                        MulticastTcpClient(
+                            ClientState.ONLINE,
+                            ClientSecurityState.PeerKnown.UnVerified(payload.sourcePeer),
+                            networkAddress = it
+                        )
+                    )
+                }
+
+            is DiscoverPayload.ServicesList ->
+                null
+            //emitServerOnline()
+        }
+    }
+
+    private fun stopSingleSocket(networkInterface: NetworkInterface) {
+        multicastSockets.remove(networkInterface)?.close()
+    }
+
+    private suspend fun sendPayload(payload: Payload): Boolean {
+        return multicastSockets.values.map { it.sendMessage(payload) }.any()
+    }
+}

@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.presentation.ui
+package org.picture2pc.picture2pc.presentation.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import org.picture2pc.picture2pc.presentation.viewmodel.AppViewModel
+import org.picture2pc.picture2pc.presentation.app.viewmodel.AppViewModel
 
 @Composable
 @Preview
@@ -42,7 +42,7 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
             Spacer(Modifier.height(20.dp))
             Switch(
                 connectable,
-                onCheckedChange = appViewModel::setConnectable,
+                appViewModel::setConnectable,
                 modifier = Modifier
             )
         }

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -28,11 +29,24 @@ kotlin {
 
     jvm()
 
+
+
+
     sourceSets {
+        val jvmSharedMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+            }
+        }
+
+        androidMain.get().dependsOn(jvmSharedMain)
+        jvmMain.get().dependsOn(jvmSharedMain)
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -42,6 +56,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.kotlinx.serialization.cbor)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -50,8 +65,8 @@ kotlin {
 
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.coroutines)
-            //implementation("com.russhwolf:multiplatform-settings-coroutines:1.3.0")
-            //implementation("com.russhwolf:multiplatform-settings-datastore:1.3.0")
+
+            implementation(libs.ktor.network)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
