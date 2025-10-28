@@ -2,10 +2,12 @@ package org.picture2pc.picture2pc.presentation.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.picture2pc.picture2pc.domain.repository.net.DataTransmitter
+import org.picture2pc.picture2pc.domain.repository.net.client.ClientState
 import org.picture2pc.picture2pc.domain.usecase.PreferencesUseCase
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -23,7 +25,9 @@ class AppViewModel(
             it.forEach { c ->
                 c.name.onEach { println("${c.name.value} ${c.securityState.value} ${c.state.value}") }
                     .launchIn(viewModelScope)
-                //c.state.onEach { println("${c.name.value} ${c.securityState.value} ${c.state.value}") }.launchIn(viewModelScope)
+                c.state.filterIsInstance<ClientState.DISCONNECTED>()
+                    .onEach { println("${c.name.value} ${c.securityState.value} ${it}") }
+                    .launchIn(viewModelScope)
                 c.securityState.onEach { println("${c.name.value} ${c.securityState.value} ${c.state.value}") }
                     .launchIn(viewModelScope)
             }

@@ -37,7 +37,11 @@ sealed class ClientState(val color: Color, val displayName: String) {
             DISCONNECTED(
                 Style.Colors.States.DISCONNECTED,
                 "Disconnected with error while receiving"
-            )
+            ) {
+            override fun toString(): String {
+                return errorMessage
+            }
+        }
 
         class ERROR_WHILE_SENDING(val errorMessage: String) :
             DISCONNECTED(Style.Colors.States.DISCONNECTED, "Disconnected with error while sending")

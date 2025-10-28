@@ -5,13 +5,11 @@ import io.ktor.network.sockets.Socket
 import io.ktor.network.sockets.isClosed
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
-import io.ktor.utils.io.counted
 import io.ktor.utils.io.readAvailable
-import io.ktor.utils.io.readByteArray
+import io.ktor.utils.io.readFully
 import io.ktor.utils.io.readInt
 import io.ktor.utils.io.writeByteArray
 import io.ktor.utils.io.writeInt
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.sync.Mutex
@@ -26,7 +24,7 @@ import org.picture2pc.picture2pc.domain.repository.net.client.ClientSecurityStat
 import org.picture2pc.picture2pc.domain.repository.net.client.ClientState
 
 class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpClient) {
-    private val writeChannel = socket.openWriteChannel(autoFlush = false)
+    private val writeChannel = socket.openWriteChannel(autoFlush = true)
     private val writeMutex = Mutex()
 
     val connectedAddress: InetSocketAddress?
@@ -46,14 +44,15 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
         kotlin.runCatching {
             writeMutex.withLock {
                 // Sending Start
+
                 client._state.emit(ClientState.SENDING_PAYLOAD(0f))
                 writeChannel.writeInt(packetBytes.size)
                 writeChannel.writeByteArray(packetBytes)
                 writeChannel.writeByteArray(payloadBytes)
                 writeChannel.flush()
+
                 // Sending done
                 client._state.emit(ClientState.CONNECTED)
-                delay(10)
             }
         }.onFailure {
             close(ClientState.DISCONNECTED.ERROR_WHILE_SENDING(it.toString()))
@@ -69,22 +68,29 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
 
     fun receivePayloads(): Flow<Payload> = channelFlow {
         val readChannel = socket.openReadChannel()
-        while (true) {
+        while (!readChannel.isClosedForRead) {
             runCatching {
                 val headerLength = readChannel.readInt()
-                val header = Packet.fromByteArray(readChannel.readByteArray(headerLength))
+                val headerByteArray = ByteArray(headerLength)
+                readChannel.readFully(headerByteArray)
+                val header = Packet.fromByteArray(headerByteArray)
                 val byteArray = ByteArray(header.len)
-                with(readChannel.counted()) {
-                    while (this.totalBytesRead.toInt() != byteArray.size) {
-                        client._state.tryEmit(
-                            ClientState.RECEIVING_PAYLOAD(
-                                header.type,
-                                totalBytesRead.toFloat() / byteArray.size
-                            )
+
+                var totalRead = 0
+                while (totalRead < byteArray.size) {
+                    client._state.tryEmit(
+                        ClientState.RECEIVING_PAYLOAD(
+                            header.type,
+                            totalRead.toFloat() / byteArray.size
                         )
-                        this.readAvailable(byteArray, totalBytesRead.toInt())
-                    }
+                    )
+                    totalRead += readChannel.readAvailable(
+                        byteArray,
+                        totalRead,
+                        byteArray.size - totalRead
+                    )
                 }
+
                 if (client.securityState.value is ClientSecurityState.PeerUnknown) {
                     client._securityState.emit(ClientSecurityState.PeerKnown.UnVerified(header.sourcePeer))
                 }

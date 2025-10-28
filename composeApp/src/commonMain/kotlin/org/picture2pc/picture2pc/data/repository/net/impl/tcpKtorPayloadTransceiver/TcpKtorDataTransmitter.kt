@@ -183,7 +183,6 @@ class TcpKtorDataTransmitter(
             }.take(1).launchIn(scope)
         }
         scope.launch {
-            delay(1000)
             while (!client.isClosed) {
                 client.sendPayload(TcpPayload.Ping(Peer.any()))
                 delay(2000)
