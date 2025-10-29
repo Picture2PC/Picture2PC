@@ -33,7 +33,6 @@ fun BottomOfScreen(
         onResult = { uri ->
             if (uri.isEmpty()) return@rememberLauncherForActivityResult
             picturePickerViewModel.processAndSendUris(uri)
-            screenSelectorViewModel.toBigPicture()
         }
     )
 
