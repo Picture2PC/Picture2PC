@@ -1,7 +1,6 @@
 package com.github.picture2pc.android.viewmodel.mainscreenviewmodels
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.github.picture2pc.android.data.takeimage.PictureManager
@@ -21,8 +20,6 @@ class PicturePickerViewModel(
 
     fun processAndSendUris(uris: List<Uri>) {
         scope.launch(dispatcher) {
-            val bitmaps = mutableListOf<Bitmap>()
-
             for (uri in uris) {
                 val options = BitmapFactory.Options().apply {
                     inJustDecodeBounds = true
@@ -39,15 +36,11 @@ class PicturePickerViewModel(
                 }
 
                 if (bitmap != null) {
-                    bitmaps.add(bitmap)
+                    pictureManager.emitPicture(bitmap)
+                    val emitted = pictureManager.takenImages.first { (bmp, _) -> bmp === bitmap }
+                    emitted.second.await()
+                    viewModel.sendImage()
                 }
-            }
-
-            for (bitmap in bitmaps) {
-                pictureManager.emitPicture(bitmap)
-                val emitted = pictureManager.takenImages.first { (bmp, _) -> bmp === bitmap }
-                emitted.second.await()
-                viewModel.sendImage()
             }
         }
     }
