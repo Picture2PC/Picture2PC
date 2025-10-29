@@ -111,6 +111,8 @@ class CameraViewModel(
     }
 
     fun takeImage() {
+        _refiningCorners.value = true
+
         val outputStream = ByteArrayOutputStream()
         val options = ImageCapture.OutputFileOptions.Builder(outputStream).build()
         imageCapture.takePicture(
@@ -119,6 +121,7 @@ class CameraViewModel(
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("CameraImageManager", "Error taking picture", exception)
+                    viewModelScope.launch { _refiningCorners.emit(false) }
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
@@ -130,7 +133,6 @@ class CameraViewModel(
             }
         )
     }
-
 
     fun sendImage() {
         if (currentPicture.value == null || !sendAvailable.value) return
