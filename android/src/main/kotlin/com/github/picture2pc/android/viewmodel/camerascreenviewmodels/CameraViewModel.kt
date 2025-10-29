@@ -1,6 +1,5 @@
 package com.github.picture2pc.android.viewmodel.camerascreenviewmodels
 
-import android.graphics.Bitmap
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,10 +58,6 @@ class CameraViewModel(
     fun takeImage() {
         lastCorners = previewCorners.value?.pointsBox?.map { Pair(it.x.toFloat(), it.y.toFloat()) }
         pictureManager.takeImage()
-    }
-
-    fun injectImage(bitmap: Bitmap) {
-        pictureManager.injectImage(bitmap)
     }
 
     fun sendImage() {

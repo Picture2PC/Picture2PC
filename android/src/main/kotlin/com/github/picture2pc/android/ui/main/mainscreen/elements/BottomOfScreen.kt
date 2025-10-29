@@ -29,11 +29,10 @@ fun BottomOfScreen(
     picturePickerViewModel: PicturePickerViewModel = rememberKoinInject(),
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = { uri ->
-            if (uri == null) return@rememberLauncherForActivityResult
-            picturePickerViewModel.injectUri(uri)
-            screenSelectorViewModel.toBigPicture()
+            if (uri.isEmpty()) return@rememberLauncherForActivityResult
+            picturePickerViewModel.processAndSendUris(uri)
         }
     )
 
