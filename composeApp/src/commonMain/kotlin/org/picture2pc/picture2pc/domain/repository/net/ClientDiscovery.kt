@@ -5,5 +5,5 @@ import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
 
 interface ClientDiscovery {
     val available: Boolean
-    fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline>
+    fun discover(serviceOnlineProvider: () -> (DiscoverPayload.ServiceOnline)): Flow<DiscoverPayload.ServiceOnline>
 }

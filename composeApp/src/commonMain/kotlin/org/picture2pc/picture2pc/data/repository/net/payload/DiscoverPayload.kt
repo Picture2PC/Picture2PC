@@ -10,7 +10,7 @@ sealed class DiscoverPayload : Payload() {
     @Serializable
     data class ServiceOnline(val port: Int, val peerName: String, override val targetPeer: Peer) :
         DiscoverPayload() {
-        val serviceAddresses: NetworkAddress?
+        val serviceAddress: NetworkAddress?
             get() = this.receivedPayloadInfo?.senderInetSocketAddress?.hostname?.let {
                 NetworkAddress(
                     it,

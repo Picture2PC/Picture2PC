@@ -2,7 +2,8 @@ package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTrans
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
 import org.picture2pc.picture2pc.data.repository.net.payload.Payload
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
@@ -49,20 +49,12 @@ actual class MulticastPayloadTransceiver actual constructor(
     actual override val available: Boolean
         get() = multicastSockets.values.any { it.isAvailable }
 
-    actual override fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline> =
+    actual override fun discover(serviceOnlineProvider: () -> DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline> =
         channelFlow {
-            kotlin.runCatching {
-                while (true) {
-                    updateMulticastSockets(this)
-                    emitServerOnline(serviceOnline)
-                    delay(MulticastConstants.UPDATE_INTERFACE_DELAY)
-                }
-            }.onFailure {
-                withContext(NonCancellable) {
-                    multicastSockets.keys.forEach {
-                        stopSingleSocket(it)
-                    }
-                }
+            while (true) {
+                updateMulticastSockets(this)
+                emitServerOnline(serviceOnlineProvider())
+                delay(MulticastConstants.UPDATE_INTERFACE_DELAY)
             }
         }
 
@@ -77,6 +69,7 @@ actual class MulticastPayloadTransceiver actual constructor(
                 removeInterfaces.forEach {
                     stopSingleSocket(it)
                 }
+
             }.isFailure) {
             delay(MulticastConstants.RETRY_DELAY)
         }
@@ -94,7 +87,7 @@ actual class MulticastPayloadTransceiver actual constructor(
         multicastSockets[networkInterface] = multicastSocket
         multicastSocket.receivePayload().onEach {
             if (it is DiscoverPayload) handlePayload(it, collector)
-        }.onCompletion { stopSingleSocket(networkInterface) }.launchIn(scope)
+        }.onCompletion { stopSingleSocket(networkInterface) }.launchIn(collector)
     }
 
     private suspend fun emitServerOnline(serviceOnline: DiscoverPayload.ServiceOnline) {
@@ -107,7 +100,7 @@ actual class MulticastPayloadTransceiver actual constructor(
     ) {
         when (payload) {
             is DiscoverPayload.ServiceOnline ->
-                payload.serviceAddresses?.let {
+                payload.serviceAddress?.let {
                     collector.trySend(
                         payload
                     )
@@ -118,12 +111,13 @@ actual class MulticastPayloadTransceiver actual constructor(
             //emitServerOnline()
         }
     }
-
     private fun stopSingleSocket(networkInterface: NetworkInterface) {
         multicastSockets.remove(networkInterface)?.close()
     }
 
     private suspend fun sendPayload(payload: Payload): Boolean {
-        return multicastSockets.values.map { it.sendMessage(payload) }.any()
+        val jobs = multicastSockets.values.map { scope.async { it.sendMessage(payload) } }
+
+        return jobs.awaitAll().any()
     }
 }
