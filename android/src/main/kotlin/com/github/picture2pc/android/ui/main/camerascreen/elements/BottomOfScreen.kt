@@ -25,6 +25,7 @@ fun BottomOfScreen(
     screenSelectorViewModel: ScreenSelectorViewModel = rememberKoinInject()
 ) {
     val flashMode = cameraViewModel.flashMode.collectAsState().value
+    val isRedefining = cameraViewModel.refiningCorners.collectAsState().value
 
     Row {
         IconButton(
@@ -40,6 +41,7 @@ fun BottomOfScreen(
         }
         Button(
             onClick = cameraViewModel::takeImage,
+            enabled = !isRedefining,
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(20.dp),
             colors = Colors.BUTTON_PRIMARY
