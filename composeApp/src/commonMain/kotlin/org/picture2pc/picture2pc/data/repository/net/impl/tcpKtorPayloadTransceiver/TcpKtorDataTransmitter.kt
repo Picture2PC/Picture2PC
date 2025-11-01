@@ -57,16 +57,15 @@ class TcpKtorDataTransmitter(
     private val peerClientMap = mutableMapOf<Peer, SimpleTcpKtorClient>()
 
     init {
-        serverPreferences.name.onEach {
-            sendPayload(TcpPayload.NameUpdate(it, Peer.any()))
-            restartDiscovery()
-        }.launchIn(scope)
-        serverPreferences.connectable.onEach {
-            restartDiscovery(it)
-        }.launchIn(scope)
         scope.launch {
             port = start()
             restartDiscovery(true)
+            serverPreferences.name.onEach {
+                sendPayload(TcpPayload.NameUpdate(it, Peer.any()))
+            }.launchIn(scope)
+            serverPreferences.connectable.onEach {
+                restartDiscovery(it)
+            }.launchIn(scope)
         }
     }
 
@@ -74,20 +73,20 @@ class TcpKtorDataTransmitter(
         currentDiscovery?.cancel()
         currentDiscovery = null
         if (start && port != null) {
-            currentDiscovery = clientDiscovery.discover(
+            currentDiscovery = clientDiscovery.discover {
                 DiscoverPayload.ServiceOnline(
                     port!!,
                     serverPreferences.name.value,
                     Peer.any()
                 )
-            ).onEach { payload ->
-                payload.serviceAddresses ?: return@onEach
-                if (hostExists(payload.serviceAddresses!!.address))
+            }.onEach { payload ->
+                payload.serviceAddress ?: return@onEach
+                if (hostExists(payload.serviceAddress!!.address))
                     return@onEach
                 val newClient = MulticastTcpClient(
                     payload.peerName, ClientState.ONLINE,
                     ClientSecurityState.PeerKnown.UnVerified(payload.sourcePeer), InetSocketAddress(
-                        payload.serviceAddresses!!.address, payload.serviceAddresses!!.port
+                        payload.serviceAddress!!.address, payload.serviceAddress!!.port
                     )
                 )
                 connect(newClient)
@@ -155,7 +154,7 @@ class TcpKtorDataTransmitter(
         }
     }
 
-    private fun runClientLoop(client: SimpleTcpKtorClient) {
+    private suspend fun runClientLoop(client: SimpleTcpKtorClient) {
         _connectedClients.value += client.client
 
         client.receivePayloads().onEach {
@@ -169,22 +168,14 @@ class TcpKtorDataTransmitter(
             _connectedClients.value -= client.client
         }.launchIn(scope)
 
-        if (client.client.securityState.value is ClientSecurityState.PeerKnown)
-            peerClientMap[(client.client.securityState.value as ClientSecurityState.PeerKnown).peer] =
-                client
+        if (client.client.securityState.value is ClientSecurityState.PeerKnown) {
+            val peer = (client.client.securityState.value as ClientSecurityState.PeerKnown).peer
+            addPeer(peer, client)
+        }
         else {
             client.client.securityState.filterIsInstance<ClientSecurityState.PeerKnown>().onEach {
-                val current = peerClientMap[it.peer]
-                if (current != null) {
-                    if (it.peer.uuid.hashCode() > Peer.getSelf().uuid.hashCode()) {
-                        client.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
-                        return@onEach
-                    } else {
-                        current.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
-                    }
-                }
-                peerClientMap[it.peer] = client
-                client.sendPayload(TcpPayload.RequestName(it.peer))
+                if (addPeer(it.peer, client))
+                    client.sendPayload(TcpPayload.RequestName(it.peer))
 
             }.take(1).launchIn(scope)
         }
@@ -194,6 +185,20 @@ class TcpKtorDataTransmitter(
                 delay(2000)
             }
         }
+    }
+
+    private suspend fun addPeer(peer: Peer, client: SimpleTcpKtorClient): Boolean {
+        val current = peerClientMap[peer]
+        if (current != null) {
+            if (peer.uuid.hashCode() > Peer.getSelf().uuid.hashCode()) {
+                client.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+                return false
+            } else {
+                current.close(ClientState.DISCONNECTED.ALREADY_CONNECTED)
+            }
+        }
+        peerClientMap[peer] = client
+        return true
     }
 
     private suspend fun sendPayload(payload: Payload): Boolean {

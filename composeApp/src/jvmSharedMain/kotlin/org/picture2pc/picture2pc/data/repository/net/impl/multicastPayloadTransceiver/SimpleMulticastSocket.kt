@@ -27,13 +27,15 @@ class SimpleMulticastSocket(
     // get network interface for local dns
 
     suspend fun start(networkInterface: NetworkInterface) {
+        jvmMulticastSocket = MulticastSocket(inetSocketAddress.port)
         withContext(ioDispatcher) {
-            jvmMulticastSocket = MulticastSocket(inetSocketAddress.port)
-            jvmMulticastSocket.soTimeout = MulticastConstants.POLLING_TIMEOUT
-            jvmMulticastSocket.reuseAddress = true
-            jvmMulticastSocket.networkInterface = networkInterface
-            jvmMulticastSocket.loopbackMode = true // Disables loopback
-            jvmMulticastSocket.joinGroup(inetSocketAddress, networkInterface)
+            jvmMulticastSocket.apply {
+                soTimeout = MulticastConstants.POLLING_TIMEOUT
+                reuseAddress = true
+                this.networkInterface = networkInterface
+                loopbackMode = true // Disables loopback
+                joinGroup(inetSocketAddress, networkInterface)
+            }
         }
     }
 
@@ -60,7 +62,8 @@ class SimpleMulticastSocket(
     }
 
     fun close() {
-        jvmMulticastSocket.close()
+        if (isAvailable)
+            jvmMulticastSocket.close()
     }
 
     fun receivePayload(): Flow<Payload> = callbackFlow {

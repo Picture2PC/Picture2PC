@@ -10,5 +10,5 @@ expect class MulticastPayloadTransceiver(scope: CoroutineScope, ioDispatcher: Co
     ClientDiscovery {
     override val available: Boolean
 
-    override fun discover(serviceOnline: DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline>
+    override fun discover(serviceOnlineProvider: () -> DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline>
 }
