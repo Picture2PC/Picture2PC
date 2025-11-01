@@ -5,5 +5,3 @@ build/
 .gradle/
 .idea/
 tmp/
-
-preferences.cbor
