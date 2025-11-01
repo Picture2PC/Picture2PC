@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.presentation.theme
+package org.picture2pc.picture2pc.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
@@ -25,7 +25,7 @@ val displayFontFamily
 
 val baseline = Typography()
 
-val Typography: Typography
+val pictureTypes: Typography
     @Composable get() = Typography(
         displayLarge = baseline.displayLarge.copy(fontFamily = displayFontFamily),
         displayMedium = baseline.displayMedium.copy(fontFamily = displayFontFamily),

@@ -16,7 +16,7 @@ import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
 import org.picture2pc.picture2pc.domain.repository.net.DataTransmitter
 import org.picture2pc.picture2pc.domain.usecase.PreferencesUseCase
-import org.picture2pc.picture2pc.presentation.app.viewmodel.AppViewModel
+import org.picture2pc.picture2pc.ui.app.viewmodels.AppViewModel
 
 expect val platformModule: Module
 

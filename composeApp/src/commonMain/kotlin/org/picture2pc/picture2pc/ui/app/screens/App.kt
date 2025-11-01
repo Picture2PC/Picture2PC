@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.presentation.app.ui
+package org.picture2pc.picture2pc.ui.app.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
@@ -18,12 +17,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import org.picture2pc.picture2pc.presentation.app.viewmodel.AppViewModel
+import org.picture2pc.picture2pc.ui.app.viewmodels.AppViewModel
+import org.picture2pc.picture2pc.ui.elements.ButtonType
+import org.picture2pc.picture2pc.ui.elements.PictureButton
+import org.picture2pc.picture2pc.ui.elements.PictureIconButton
+import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
+import org.picture2pc.picture2pc.ui.theme.PictureTheme
+import org.picture2pc.picture2pc.ui.theme.Theme
+import picture2pc.composeapp.generated.resources.Res
+import picture2pc.composeapp.generated.resources.crop
 
 @Composable
 @Preview
 fun App(appViewModel: AppViewModel = koinViewModel()) {
-    MaterialTheme {
+    Picture2PCTheme(theme = Theme.Dark) {
         val name by appViewModel.name.collectAsStateWithLifecycle()
         val connectable by appViewModel.connectable.collectAsStateWithLifecycle()
 

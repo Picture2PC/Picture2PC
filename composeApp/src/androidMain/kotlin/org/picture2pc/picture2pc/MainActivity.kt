@@ -11,7 +11,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.environmentProperties
 import org.picture2pc.picture2pc.di.initKoin
-import org.picture2pc.picture2pc.presentation.app.ui.App
+import org.picture2pc.picture2pc.ui.app.screens.App
 
 class AndroidApp : Application() {
     override fun onCreate() {
