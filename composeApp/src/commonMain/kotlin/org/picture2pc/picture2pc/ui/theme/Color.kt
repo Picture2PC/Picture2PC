@@ -5,33 +5,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-val receiving = Color(0xFF3557C8)
-val connected = Color(0xFF2FB86C)
-val pending = Color(0xFFFFE921)
-val accent = Color(0xFFFF6A00)
-val error = Color(0xFFC83538)
+private val receiving = Color(0xFF3557C8)
+private val connected = Color(0xFF2FB86C)
+private val pending = Color(0xFFFFE921)
+private val accent = Color(0xFFFF6A00)
+private val error = Color(0xFFC83538)
+private val errorBright = Color(0xFFC26D6F)
 
-val textDark = Color(0xFFEEEAF8)
-val textDisabledDark = Color(0xFFBCB9C4)
-val highlightDark = Color(0xFFA996DB)
-val primaryDark = Color(0xFF6441BE)
-val primaryHighlightedDark = Color(0xFF7F53F2)
-val primaryDisabledDark = Color(0xFF8D7ABE)
-val secondaryDark = Color(0xFF372469)
-val secondaryHighlightedDark = Color(0xFF51359C)
-val secondaryDisabledDark = Color(0xFF4E4369)
-val backgroundDark = Color(0xFF0B0715)
+private val textDark = Color(0xFFEEEAF8)
+private val textDisabledDark = Color(0xFFBCB9C4)
+private val highlightDark = Color(0xFFA996DB)
+private val primaryDark = Color(0xFF6441BE)
+private val primaryHighlightedDark = Color(0xFF7F53F2)
+private val primaryDisabledDark = Color(0xFF8D7ABE)
+private val secondaryDark = Color(0xFF372469)
+private val secondaryHighlightedDark = Color(0xFF51359C)
+private val secondaryDisabledDark = Color(0xFF4E4369)
+private val backgroundDark = Color(0xFF0B0715)
 
-val textLight = Color(0xFF1A1A1A)
-val textDisabledLight = Color(0xFF555555)
-val highlightLight = Color(0xFF7D4AE0)
-val primaryLight = Color(0xFF8C6EF6)
-val primaryHighlightedLight = Color(0xFFB299FF)
-val primaryDisabledLight = Color(0xFF7B5DE8)
-val secondaryLight = Color(0xFF6B54C7)
-val secondaryHighlightedLight = Color(0xFF9768FF)
-val secondaryDisabledLight = Color(0xFF7A70B5)
-val backgroundLight = Color(0xFFF5F2FF)
+private val textLight = Color(0xFF1A1A1A)
+private val textDisabledLight = Color(0xFF555555)
+private val highlightLight = Color(0xFF7D4AE0)
+private val primaryLight = Color(0xFF8C6EF6)
+private val primaryHighlightedLight = Color(0xFFB299FF)
+private val primaryDisabledLight = Color(0xFF7B5DE8)
+private val secondaryLight = Color(0xFF6B54C7)
+private val secondaryHighlightedLight = Color(0xFF9768FF)
+private val secondaryDisabledLight = Color(0xFF7A70B5)
+private val backgroundLight = Color(0xFFF5F2FF)
 
 class PictureColors(
     text: Color,
@@ -46,6 +47,7 @@ class PictureColors(
     background: Color,
     val accent: Color = org.picture2pc.picture2pc.ui.theme.accent,
     val error: Color = org.picture2pc.picture2pc.ui.theme.error,
+    val errorBright: Color = org.picture2pc.picture2pc.ui.theme.errorBright,
     val receiving: Color = org.picture2pc.picture2pc.ui.theme.receiving,
     val connected: Color = org.picture2pc.picture2pc.ui.theme.connected,
     val pending: Color = org.picture2pc.picture2pc.ui.theme.pending,
@@ -85,6 +87,7 @@ class PictureColors(
             background = background,
             accent = accent,
             error = error,
+            errorBright = errorBright,
             receiving = receiving,
             connected = connected,
             pending = pending,
@@ -116,8 +119,7 @@ val darkTheme = PictureColors(
     secondaryHighlighted = secondaryHighlightedDark,
     secondaryDisabled = secondaryDisabledDark,
     background = backgroundDark,
-
-    )
+)
 
 val lightTheme = PictureColors(
     text = textLight,
