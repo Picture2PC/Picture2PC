@@ -52,6 +52,8 @@ fun PictureSwitch(
             disabledUncheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.secondaryDisabled,
             disabledUncheckedIconColor = PictureTheme.colors.textDisabled
         )
+
+        else -> error("Unsupported switch type")
     }
 
     Switch(

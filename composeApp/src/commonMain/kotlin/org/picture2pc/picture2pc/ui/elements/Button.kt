@@ -38,6 +38,8 @@ fun PictureButton(
             disabledContainerColor = PictureTheme.colors.secondaryDisabled,
             disabledContentColor = PictureTheme.colors.textDisabled,
         )
+
+        else -> error("Unsupported button type")
     }
 
     when {
@@ -86,6 +88,13 @@ fun PictureIconButton(
             containerColor = PictureTheme.colors.secondary,
             contentColor = PictureTheme.colors.text,
             disabledContainerColor = PictureTheme.colors.secondaryDisabled,
+            disabledContentColor = PictureTheme.colors.textDisabled,
+        )
+
+        ButtonType.Exit -> IconButtonDefaults.iconButtonColors(
+            containerColor = PictureTheme.colors.error,
+            contentColor = PictureTheme.colors.text,
+            disabledContainerColor = PictureTheme.colors.errorBright,
             disabledContentColor = PictureTheme.colors.textDisabled,
         )
     }
