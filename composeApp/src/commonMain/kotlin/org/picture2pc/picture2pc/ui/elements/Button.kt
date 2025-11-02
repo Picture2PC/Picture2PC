@@ -15,11 +15,6 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.picture2pc.picture2pc.ui.theme.PictureTheme
 
-enum class ButtonType {
-    Primary,
-    Secondary,
-}
-
 @Composable
 fun PictureButton(
     type: ButtonType,

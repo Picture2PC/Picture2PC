@@ -21,6 +21,7 @@ import org.picture2pc.picture2pc.ui.app.viewmodels.AppViewModel
 import org.picture2pc.picture2pc.ui.elements.ButtonType
 import org.picture2pc.picture2pc.ui.elements.PictureButton
 import org.picture2pc.picture2pc.ui.elements.PictureIconButton
+import org.picture2pc.picture2pc.ui.elements.PictureSwitch
 import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
 import org.picture2pc.picture2pc.ui.theme.PictureTheme
 import org.picture2pc.picture2pc.ui.theme.Theme
@@ -36,12 +37,32 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
 
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(PictureTheme.colors.background)
                 .safeContentPadding()
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            PictureButton(
+                onClick = {},
+                text = "Picture Button",
+                type = ButtonType.Primary
+            )
+
+            PictureIconButton(
+                type = ButtonType.Secondary,
+                onClick = {},
+                icon = Res.drawable.crop,
+                iconDescription = "",
+                selected = true
+            )
+
+            PictureSwitch(
+                type = ButtonType.Secondary,
+                onCheckedChangeAction = {},
+                defaultState = true,
+            )
+
             OutlinedTextField(
                 value = name,
                 onValueChange = appViewModel::setName
