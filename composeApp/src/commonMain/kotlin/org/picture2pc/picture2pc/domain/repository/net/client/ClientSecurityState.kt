@@ -10,6 +10,6 @@ sealed class ClientSecurityState(val color: Color, val displayText: String) {
     sealed class PeerKnown(val peer: Peer, color: Color, displayText: String) :
         ClientSecurityState(color, displayText) {
         class Encrypted(peer: Peer, val sharedKey: SharedKey) : PeerKnown(peer, ConnectionColors.Connected, "")
-        class UnVerified(peer: Peer) : PeerKnown(peer, ConnectionColors.Disconnected, "")
+        class UnEncrypted(peer: Peer) : PeerKnown(peer, ConnectionColors.Disconnected, "")
     }
 }

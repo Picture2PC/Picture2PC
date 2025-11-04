@@ -10,6 +10,7 @@ import org.koin.mp.KoinPlatformTools
 import org.picture2pc.picture2pc.data.repository.net.impl.MulticastTcpClient
 import org.picture2pc.picture2pc.data.repository.net.packet.Packet
 import org.picture2pc.picture2pc.data.repository.net.payload.Payload
+import org.picture2pc.picture2pc.data.repository.net.payload.TcpPayload
 import org.picture2pc.picture2pc.data.repository.net.serialization.asByteArray
 import org.picture2pc.picture2pc.data.repository.net.serialization.fromByteArray
 import org.picture2pc.picture2pc.domain.repository.net.client.ClientSecurityState
@@ -27,6 +28,10 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
 
     suspend fun sendPayload(payload: Payload): Boolean {
         val encryptedState = client.securityState.value as? ClientSecurityState.PeerKnown.Encrypted
+        val tcpPayload = payload as? TcpPayload
+        if (tcpPayload != null && tcpPayload.forceEncryption && encryptedState == null) {
+            return false
+        }
         val payloadBytes = encryptedState?.sharedKey?.encrypt(payload.asByteArray()) ?: payload.asByteArray()
         val packet = Packet(
             KoinPlatformTools.getClassName(payload::class),
@@ -86,7 +91,7 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
                 }
 
                 if (client.securityState.value is ClientSecurityState.PeerUnknown && !header.sourcePeer.isAny) {
-                    client._securityState.emit(ClientSecurityState.PeerKnown.UnVerified(header.sourcePeer))
+                    client._securityState.emit(ClientSecurityState.PeerKnown.UnEncrypted(header.sourcePeer))
                 }
                 client._state.emit(ClientState.CONNECTED)
                 runCatching {

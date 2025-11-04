@@ -69,7 +69,7 @@ class TcpKtorDataTransmitter(
                     return@onEach
                 val newClient = MulticastTcpClient(
                     payload.peerName, ClientState.ONLINE,
-                    ClientSecurityState.PeerKnown.UnVerified(payload.sourcePeer), InetSocketAddress(
+                    ClientSecurityState.PeerKnown.UnEncrypted(payload.sourcePeer), InetSocketAddress(
                         payload.serviceAddress!!.address, payload.serviceAddress!!.port
                     )
                 )

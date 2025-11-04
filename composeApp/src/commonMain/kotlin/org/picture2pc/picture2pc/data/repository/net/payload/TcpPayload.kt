@@ -2,11 +2,16 @@ package org.picture2pc.picture2pc.data.repository.net.payload
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.cbor.ByteString
 import org.picture2pc.picture2pc.data.repository.net.peer.Peer
 
 @Serializable
-sealed class TcpPayload : Payload() {
+/*
+forceEncryption = true //Packet will only be sent if the channel is Encrypted
+ */
+sealed class TcpPayload(@Transient val forceEncryption: Boolean = false) : Payload() {
+
     // ------------Internal--------------
     @Serializable
     data class Ping(override val targetPeer: Peer) : TcpPayload()
@@ -33,7 +38,7 @@ sealed class TcpPayload : Payload() {
         val corners: List<Pair<Float, Float>>?,
         override val targetPeer: Peer = Peer.any()
     ) :
-        TcpPayload() {
+        TcpPayload(true) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
 
