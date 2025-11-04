@@ -84,6 +84,7 @@ class TcpKtorDataTransmitter(
 
     suspend fun start(): Int? {
         while (kotlin.runCatching {
+                require(!Peer.getSelf().isAny) // BLOCK until peer UUID is loaded
                 val serverSocket = aSocket(selectorManager).tcp().bind()
                 scope.launch {
                     while (isActive) {

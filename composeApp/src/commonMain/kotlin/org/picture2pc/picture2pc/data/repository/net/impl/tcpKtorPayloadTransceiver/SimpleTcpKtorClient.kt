@@ -26,9 +26,7 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
         get() = socket.isClosed
 
     suspend fun sendPayload(payload: Payload): Boolean {
-
         val encryptedState = client.securityState.value as? ClientSecurityState.PeerKnown.Encrypted
-        println(encryptedState)
         val payloadBytes = encryptedState?.sharedKey?.encrypt(payload.asByteArray()) ?: payload.asByteArray()
         val packet = Packet(
             KoinPlatformTools.getClassName(payload::class),
@@ -93,7 +91,6 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
                 client._state.emit(ClientState.CONNECTED)
                 runCatching {
                     if (header.encrypted) {
-                        println("received encrypted")
                         (client.securityState.value as? ClientSecurityState.PeerKnown.Encrypted)?.sharedKey?.decrypt(
                             byteArray
                         )?.let {
