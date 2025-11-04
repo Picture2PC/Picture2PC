@@ -1,33 +1,16 @@
 package org.picture2pc.picture2pc.data.repository.net.impl.tcpKtorPayloadTransceiver
 
-import io.ktor.network.selector.SelectorManager
-import io.ktor.network.sockets.InetSocketAddress
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.port
-import io.ktor.util.network.address
-import io.ktor.util.network.port
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import io.ktor.network.selector.*
+import io.ktor.network.sockets.*
+import io.ktor.util.network.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import org.picture2pc.picture2pc.data.repository.net.impl.MulticastTcpClient
 import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
 import org.picture2pc.picture2pc.data.repository.net.payload.Payload
 import org.picture2pc.picture2pc.data.repository.net.payload.TcpPayload
 import org.picture2pc.picture2pc.data.repository.net.peer.Peer
+import org.picture2pc.picture2pc.domain.repository.EncryptionProvider
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
 import org.picture2pc.picture2pc.domain.repository.net.DataTransmitter
@@ -38,6 +21,7 @@ class TcpKtorDataTransmitter(
     val scope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val clientDiscovery: ClientDiscovery,
+    private val encryptionProvider: EncryptionProvider,
     private val serverPreferences: PreferencesRepository
 ) : DataTransmitter {
     private val _connectedClients = MutableStateFlow<List<MulticastTcpClient>>(listOf())
@@ -149,7 +133,30 @@ class TcpKtorDataTransmitter(
                     payload.sourcePeer
                 )
             )
+            is TcpPayload.EncryptChannel -> {
+                val sharedKey = encryptionProvider.getSharedKey(payload.sourcePeer)
+                if (sharedKey != null) {
+                    client.sendPayload(TcpPayload.EncryptOk(payload.sourcePeer))
+                    client.client._securityState.emit(
+                        ClientSecurityState.PeerKnown.Encrypted(
+                            payload.sourcePeer,
+                            sharedKey
+                        )
+                    )
+                }
+            }
 
+            is TcpPayload.EncryptOk -> {
+                val sharedKey = encryptionProvider.getSharedKey(payload.sourcePeer)
+                if (sharedKey != null) {
+                    client.client._securityState.emit(
+                        ClientSecurityState.PeerKnown.Encrypted(
+                            payload.sourcePeer,
+                            sharedKey
+                        )
+                    )
+                }
+            }
             else -> {}
         }
     }
@@ -174,15 +181,17 @@ class TcpKtorDataTransmitter(
         }
         else {
             client.client.securityState.filterIsInstance<ClientSecurityState.PeerKnown>().onEach {
-                if (addPeer(it.peer, client))
+                if (addPeer(it.peer, client)) {
                     client.sendPayload(TcpPayload.RequestName(it.peer))
+                    client.sendPayload(TcpPayload.EncryptChannel(it.peer))
+                }
 
             }.take(1).launchIn(scope)
         }
         scope.launch {
             while (!client.isClosed) {
                 client.sendPayload(TcpPayload.Ping(Peer.any()))
-                delay(2000)
+                delay(3000)
             }
         }
     }

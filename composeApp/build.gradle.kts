@@ -67,6 +67,9 @@ kotlin {
             implementation(libs.multiplatform.settings.coroutines)
 
             implementation(libs.ktor.network)
+
+            implementation(libs.cryptography.core)
+            implementation(libs.cryptography.provider.optimal)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

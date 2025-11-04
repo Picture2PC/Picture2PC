@@ -13,6 +13,12 @@ sealed class TcpPayload : Payload() {
 
     @Serializable
     data class Pong(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class EncryptChannel(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class EncryptOk(override val targetPeer: Peer) : TcpPayload()
     // ------------Internal--------------
 
     @Serializable

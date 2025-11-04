@@ -2,8 +2,8 @@ package org.picture2pc.picture2pc.data.repository.net.peer
 
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import org.koin.core.component.get
+import org.picture2pc.picture2pc.domain.repository.EncryptionProvider
 
 @Serializable
 open class Peer {
@@ -17,15 +17,13 @@ open class Peer {
 
     companion object : KoinComponent {
         fun any(): Peer {
-            return Peer("0", true)
+            return Peer("", true)
         }
 
-        @OptIn(ExperimentalUuidApi::class)
-        private val uuid: String = Uuid.random().toString()
-
+        private val encryptionProvider: EncryptionProvider = get()
 
         fun getSelf(): Peer {
-            return Peer(uuid, false)
+            return Peer(encryptionProvider.publicKeyString, encryptionProvider.publicKeyString == "")
         }
     }
 
