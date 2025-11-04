@@ -3,7 +3,6 @@ package org.picture2pc.picture2pc.domain.repository.net.client
 import androidx.compose.ui.graphics.Color
 import org.picture2pc.picture2pc.data.repository.net.peer.Peer
 import org.picture2pc.picture2pc.domain.repository.SharedKey
-import org.picture2pc.picture2pc.presentation.elements.Style
 import org.picture2pc.picture2pc.ui.theme.ConnectionColors
 
 sealed class ClientSecurityState(val color: Color, val displayText: String) {
