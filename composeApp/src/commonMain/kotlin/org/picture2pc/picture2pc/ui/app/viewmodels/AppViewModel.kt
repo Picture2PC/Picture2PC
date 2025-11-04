@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.presentation.app.viewmodel
+package org.picture2pc.picture2pc.ui.app.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
