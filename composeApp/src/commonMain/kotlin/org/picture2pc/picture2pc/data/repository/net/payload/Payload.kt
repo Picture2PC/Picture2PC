@@ -13,4 +13,9 @@ sealed class Payload {
     // will be set by the transceiver
     @Transient
     var receivedPayloadInfo: PayloadInfo? = null
+
+//    @Serializable
+//    sealed class EncryptedPayload(val Payload) : Payload() {
+//        @ByteString val payload: ByteArray
+//    }
 }

@@ -1,15 +1,7 @@
 package org.picture2pc.picture2pc.data.repository.net.impl.tcpKtorPayloadTransceiver
 
-import io.ktor.network.sockets.InetSocketAddress
-import io.ktor.network.sockets.Socket
-import io.ktor.network.sockets.isClosed
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
-import io.ktor.utils.io.readAvailable
-import io.ktor.utils.io.readFully
-import io.ktor.utils.io.readInt
-import io.ktor.utils.io.writeByteArray
-import io.ktor.utils.io.writeInt
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.sync.Mutex
@@ -34,11 +26,13 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
         get() = socket.isClosed
 
     suspend fun sendPayload(payload: Payload): Boolean {
-        val payloadBytes = payload.asByteArray()
+        val encryptedState = client.securityState.value as? ClientSecurityState.PeerKnown.Encrypted
+        val payloadBytes = encryptedState?.sharedKey?.encrypt(payload.asByteArray()) ?: payload.asByteArray()
         val packet = Packet(
             KoinPlatformTools.getClassName(payload::class),
             payloadBytes.size,
-            payload.sourcePeer
+            payload.sourcePeer,
+            encryptedState != null,
         )
         val packetBytes = packet.asByteArray()
         kotlin.runCatching {
@@ -91,11 +85,21 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
                     )
                 }
 
-                if (client.securityState.value is ClientSecurityState.PeerUnknown) {
+                if (client.securityState.value is ClientSecurityState.PeerUnknown && !header.sourcePeer.isAny) {
                     client._securityState.emit(ClientSecurityState.PeerKnown.UnVerified(header.sourcePeer))
                 }
                 client._state.emit(ClientState.CONNECTED)
-                trySend(Payload.fromByteArray(byteArray))
+                runCatching {
+                    if (header.encrypted) {
+                        (client.securityState.value as? ClientSecurityState.PeerKnown.Encrypted)?.sharedKey?.decrypt(
+                            byteArray
+                        )?.let {
+                            trySend(Payload.fromByteArray(it))
+                        }
+                    } else {
+                        trySend(Payload.fromByteArray(byteArray))
+                    }
+                }
             }.onFailure {
                 close(ClientState.DISCONNECTED.ERROR_WHILE_RECEIVING(it.toString()))
                 return@channelFlow

@@ -1,17 +1,15 @@
 package org.picture2pc.picture2pc.di
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.picture2pc.picture2pc.data.repository.ECDHEncryptionProvider
 import org.picture2pc.picture2pc.data.repository.PreferencesMultiplatformSettings
 import org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver.MulticastPayloadTransceiver
 import org.picture2pc.picture2pc.data.repository.net.impl.tcpKtorPayloadTransceiver.TcpKtorDataTransmitter
+import org.picture2pc.picture2pc.domain.repository.EncryptionProvider
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
 import org.picture2pc.picture2pc.domain.repository.net.DataTransmitter
@@ -54,14 +52,14 @@ val netModule = module {
     single {
         TcpKtorDataTransmitter(
             get(BackgroundCoroutineScope),
-            get(IODispatcherQualifier), get(), get()
+            get(IODispatcherQualifier), get(), get(), get()
         )
     } bind DataTransmitter::class
 }
 val sharedModule = module {
     includes(qualifiers, preferencesModule, netModule)
 
-
+    single<EncryptionProvider> { ECDHEncryptionProvider(get(), get(BackgroundCoroutineScope)) }
 
     viewModelOf(::AppViewModel)
 }
