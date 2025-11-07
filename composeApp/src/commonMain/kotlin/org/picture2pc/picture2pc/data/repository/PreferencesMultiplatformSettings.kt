@@ -15,8 +15,8 @@ class PreferencesMultiplatformSettings(
     private companion object {
         const val NAME_KEY = "name"
         const val CONNECTABLE_KEY = "connectable"
-        const val PRIVATEKEY_KEY = "privateKey"
-        const val PUBLICKEY_KEY = "publicKey"
+        const val PRIVATE_KEY = "privateKey"
+        const val PUBLIC_KEY = "publicKey"
     }
 
     override var name =
@@ -26,15 +26,17 @@ class PreferencesMultiplatformSettings(
         CONNECTABLE_KEY, false
     )
 
-    override val privateKey = observableSettings.getStringStateFlow(defaultCoroutineScope, PRIVATEKEY_KEY, "")
-    override val publicKey = observableSettings.getStringStateFlow(defaultCoroutineScope, PUBLICKEY_KEY, "")
+    override val privateKey =
+        observableSettings.getStringStateFlow(defaultCoroutineScope, PRIVATE_KEY, "")
+    override val publicKey =
+        observableSettings.getStringStateFlow(defaultCoroutineScope, PUBLIC_KEY, "")
 
     override suspend fun setPublicKey(publicKey: String) {
-        observableSettings.putString(PUBLICKEY_KEY, publicKey)
+        observableSettings.putString(PUBLIC_KEY, publicKey)
     }
 
     override suspend fun setPrivateKey(privateKey: String) {
-        observableSettings.putString(PRIVATEKEY_KEY, privateKey)
+        observableSettings.putString(PRIVATE_KEY, privateKey)
     }
 
     override suspend fun setName(name: String) {
