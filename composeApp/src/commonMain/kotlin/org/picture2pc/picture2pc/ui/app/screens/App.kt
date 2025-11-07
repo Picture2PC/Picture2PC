@@ -21,11 +21,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.picture2pc.picture2pc.ui.app.viewmodels.AppViewModel
-import org.picture2pc.picture2pc.ui.elements.ButtonType
-import org.picture2pc.picture2pc.ui.elements.PictureButton
-import org.picture2pc.picture2pc.ui.elements.PictureIconButton
-import org.picture2pc.picture2pc.ui.elements.PictureInput
-import org.picture2pc.picture2pc.ui.elements.PictureSwitch
+import org.picture2pc.picture2pc.ui.components.ButtonType
+import org.picture2pc.picture2pc.ui.components.PictureButton
+import org.picture2pc.picture2pc.ui.components.PictureIconButton
+import org.picture2pc.picture2pc.ui.components.PictureInput
+import org.picture2pc.picture2pc.ui.components.PictureSwitch
 import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
 import org.picture2pc.picture2pc.ui.theme.PictureTheme
 import org.picture2pc.picture2pc.ui.theme.Theme

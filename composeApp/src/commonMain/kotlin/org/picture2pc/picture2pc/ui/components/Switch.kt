@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.ui.elements
+package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors

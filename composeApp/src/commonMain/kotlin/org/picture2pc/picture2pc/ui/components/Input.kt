@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.ui.elements
+package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
