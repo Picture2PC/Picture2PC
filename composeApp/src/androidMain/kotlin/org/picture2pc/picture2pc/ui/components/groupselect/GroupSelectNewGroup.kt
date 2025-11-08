@@ -1,0 +1,41 @@
+package org.picture2pc.picture2pc.ui.components.groupselect
+
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import org.jetbrains.compose.resources.stringResource
+import org.picture2pc.picture2pc.ui.components.ButtonVariant
+import org.picture2pc.picture2pc.ui.components.PictureIconButton
+import org.picture2pc.picture2pc.ui.components.PictureInput
+import picture2pc.composeapp.generated.resources.Res
+import picture2pc.composeapp.generated.resources.add_circle
+import picture2pc.composeapp.generated.resources.group_label
+import picture2pc.composeapp.generated.resources.group_placeholder
+
+@Composable
+fun GroupSelectNewGroup() {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PictureInput(
+            modifier = Modifier.weight(1f),
+            label = stringResource(Res.string.group_label),
+            value = "",
+            placeholder = stringResource(Res.string.group_placeholder),
+            isError = false,
+            disabled = true,
+            onValueChange = {},
+        )
+        PictureIconButton(
+            type = ButtonVariant.Primary,
+            onClick = {},
+            icon = Res.drawable.add_circle,
+            iconDescription = "Create new group",
+            disabled = false,
+            selected = false
+        )
+    }
+}

@@ -106,6 +106,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
 }
 
 dependencies {

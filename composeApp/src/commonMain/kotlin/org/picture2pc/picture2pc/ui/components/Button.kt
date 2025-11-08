@@ -1,6 +1,7 @@
 package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -10,6 +11,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -17,26 +19,27 @@ import org.picture2pc.picture2pc.ui.theme.PictureTheme
 
 @Composable
 fun PictureButton(
-    type: ButtonType,
+    modifier: Modifier = Modifier,
+    type: ButtonVariant,
     onClick: () -> Unit,
     text: String = "",
     disabled: Boolean = false,
     selected: Boolean = false,
 ) {
     val buttonColor = when (type) {
-        ButtonType.Primary ->
+        ButtonVariant.Primary ->
             ButtonDefaults.buttonColors(
-                containerColor = PictureTheme.colors.primary,
-                contentColor = PictureTheme.colors.text,
-                disabledContainerColor = PictureTheme.colors.primaryDisabled,
-                disabledContentColor = PictureTheme.colors.textDisabled,
+                containerColor = PictureTheme.Colors.primary,
+                contentColor = PictureTheme.Colors.text,
+                disabledContainerColor = PictureTheme.Colors.primaryDisabled,
+                disabledContentColor = PictureTheme.Colors.textDisabled,
             )
 
-        ButtonType.Secondary -> ButtonDefaults.buttonColors(
-            containerColor = PictureTheme.colors.secondary,
-            contentColor = PictureTheme.colors.text,
-            disabledContainerColor = PictureTheme.colors.secondaryDisabled,
-            disabledContentColor = PictureTheme.colors.textDisabled,
+        ButtonVariant.Secondary -> ButtonDefaults.buttonColors(
+            containerColor = PictureTheme.Colors.secondary,
+            contentColor = PictureTheme.Colors.text,
+            disabledContainerColor = PictureTheme.Colors.secondaryDisabled,
+            disabledContentColor = PictureTheme.Colors.textDisabled,
         )
 
         else -> error("Unsupported button type")
@@ -45,22 +48,24 @@ fun PictureButton(
     when {
         selected -> {
             OutlinedButton(
+                modifier = modifier.height(35.dp),
                 onClick = onClick,
                 enabled = !disabled,
                 colors = buttonColor,
-                border = BorderStroke(2.dp, PictureTheme.colors.accent)
+                border = BorderStroke(2.dp, PictureTheme.Colors.accent),
             ) {
-                Text(text, style = PictureTheme.typography.labelLarge)
+                Text(text, style = PictureTheme.Typography.labelLarge)
             }
         }
 
         else -> {
             Button(
+                modifier = modifier.height(35.dp),
                 onClick = onClick,
                 enabled = !disabled,
-                colors = buttonColor
+                colors = buttonColor,
             ) {
-                Text(text, style = PictureTheme.typography.labelLarge)
+                Text(text, style = PictureTheme.Typography.labelLarge)
             }
         }
     }
@@ -68,7 +73,8 @@ fun PictureButton(
 
 @Composable
 fun PictureIconButton(
-    type: ButtonType,
+    modifier: Modifier = Modifier,
+    type: ButtonVariant,
     onClick: () -> Unit,
     icon: DrawableResource,
     iconDescription: String,
@@ -76,36 +82,37 @@ fun PictureIconButton(
     selected: Boolean = false,
 ) {
     val buttonColor = when (type) {
-        ButtonType.Primary ->
+        ButtonVariant.Primary ->
             IconButtonDefaults.iconButtonColors(
-                containerColor = PictureTheme.colors.primary,
-                contentColor = PictureTheme.colors.text,
-                disabledContainerColor = PictureTheme.colors.primaryDisabled,
-                disabledContentColor = PictureTheme.colors.textDisabled,
+                containerColor = PictureTheme.Colors.primary,
+                contentColor = PictureTheme.Colors.text,
+                disabledContainerColor = PictureTheme.Colors.primaryDisabled,
+                disabledContentColor = PictureTheme.Colors.textDisabled,
             )
 
-        ButtonType.Secondary -> IconButtonDefaults.iconButtonColors(
-            containerColor = PictureTheme.colors.secondary,
-            contentColor = PictureTheme.colors.text,
-            disabledContainerColor = PictureTheme.colors.secondaryDisabled,
-            disabledContentColor = PictureTheme.colors.textDisabled,
+        ButtonVariant.Secondary -> IconButtonDefaults.iconButtonColors(
+            containerColor = PictureTheme.Colors.secondary,
+            contentColor = PictureTheme.Colors.text,
+            disabledContainerColor = PictureTheme.Colors.secondaryDisabled,
+            disabledContentColor = PictureTheme.Colors.textDisabled,
         )
 
-        ButtonType.Exit -> IconButtonDefaults.iconButtonColors(
-            containerColor = PictureTheme.colors.error,
-            contentColor = PictureTheme.colors.text,
-            disabledContainerColor = PictureTheme.colors.errorBright,
-            disabledContentColor = PictureTheme.colors.textDisabled,
+        ButtonVariant.Red -> IconButtonDefaults.iconButtonColors(
+            containerColor = PictureTheme.Colors.error,
+            contentColor = PictureTheme.Colors.text,
+            disabledContainerColor = PictureTheme.Colors.errorBright,
+            disabledContentColor = PictureTheme.Colors.textDisabled,
         )
     }
 
     when {
         selected -> {
             OutlinedIconButton(
+                modifier = modifier,
                 onClick = onClick,
                 enabled = !disabled,
                 colors = buttonColor,
-                border = BorderStroke(2.dp, PictureTheme.colors.accent)
+                border = BorderStroke(2.dp, PictureTheme.Colors.accent)
             ) {
                 Icon(painterResource((icon)), contentDescription = iconDescription)
             }
@@ -113,6 +120,7 @@ fun PictureIconButton(
 
         else -> {
             IconButton(
+                modifier = modifier,
                 onClick = onClick,
                 enabled = !disabled,
                 colors = buttonColor

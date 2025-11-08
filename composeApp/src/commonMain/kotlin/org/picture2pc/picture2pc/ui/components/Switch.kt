@@ -8,49 +8,49 @@ import org.picture2pc.picture2pc.ui.theme.PictureTheme
 
 @Composable
 fun PictureSwitch(
-    type: ButtonType,
+    type: ButtonVariant,
     checked: Boolean,
     onCheckedChangeAction: (Boolean) -> Unit,
     enabled: Boolean = true,
     selected: Boolean = false,
 ) {
     val switchColors: SwitchColors = when (type) {
-        ButtonType.Primary -> SwitchDefaults.colors(
-            checkedThumbColor = PictureTheme.colors.text,
-            checkedTrackColor = PictureTheme.colors.primary,
-            checkedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.primary,
-            checkedIconColor = PictureTheme.colors.text,
-            uncheckedThumbColor = PictureTheme.colors.text,
-            uncheckedTrackColor = PictureTheme.colors.background,
-            uncheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.primaryDisabled,
-            uncheckedIconColor = PictureTheme.colors.text,
-            disabledCheckedThumbColor = PictureTheme.colors.textDisabled,
-            disabledCheckedTrackColor = PictureTheme.colors.primaryDisabled,
-            disabledCheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.primaryDisabled,
-            disabledCheckedIconColor = PictureTheme.colors.textDisabled,
-            disabledUncheckedThumbColor = PictureTheme.colors.textDisabled,
-            disabledUncheckedTrackColor = PictureTheme.colors.primaryDisabled,
-            disabledUncheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.primaryDisabled,
-            disabledUncheckedIconColor = PictureTheme.colors.textDisabled
+        ButtonVariant.Primary -> SwitchDefaults.colors(
+            checkedThumbColor = PictureTheme.Colors.text,
+            checkedTrackColor = PictureTheme.Colors.primary,
+            checkedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.primary,
+            checkedIconColor = PictureTheme.Colors.text,
+            uncheckedThumbColor = PictureTheme.Colors.text,
+            uncheckedTrackColor = PictureTheme.Colors.background,
+            uncheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.primaryDisabled,
+            uncheckedIconColor = PictureTheme.Colors.text,
+            disabledCheckedThumbColor = PictureTheme.Colors.textDisabled,
+            disabledCheckedTrackColor = PictureTheme.Colors.primaryDisabled,
+            disabledCheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.primaryDisabled,
+            disabledCheckedIconColor = PictureTheme.Colors.textDisabled,
+            disabledUncheckedThumbColor = PictureTheme.Colors.textDisabled,
+            disabledUncheckedTrackColor = PictureTheme.Colors.primaryDisabled,
+            disabledUncheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.primaryDisabled,
+            disabledUncheckedIconColor = PictureTheme.Colors.textDisabled
         )
 
-        ButtonType.Secondary -> SwitchDefaults.colors(
-            checkedThumbColor = PictureTheme.colors.text,
-            checkedTrackColor = PictureTheme.colors.secondary,
-            checkedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.secondary,
-            checkedIconColor = PictureTheme.colors.text,
-            uncheckedThumbColor = PictureTheme.colors.text,
-            uncheckedTrackColor = PictureTheme.colors.secondary,
-            uncheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.secondaryDisabled,
-            uncheckedIconColor = PictureTheme.colors.text,
-            disabledCheckedThumbColor = PictureTheme.colors.textDisabled,
-            disabledCheckedTrackColor = PictureTheme.colors.secondaryDisabled,
-            disabledCheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.secondaryDisabled,
-            disabledCheckedIconColor = PictureTheme.colors.textDisabled,
-            disabledUncheckedThumbColor = PictureTheme.colors.textDisabled,
-            disabledUncheckedTrackColor = PictureTheme.colors.secondaryDisabled,
-            disabledUncheckedBorderColor = if (selected) PictureTheme.colors.accent else PictureTheme.colors.secondaryDisabled,
-            disabledUncheckedIconColor = PictureTheme.colors.textDisabled
+        ButtonVariant.Secondary -> SwitchDefaults.colors(
+            checkedThumbColor = PictureTheme.Colors.text,
+            checkedTrackColor = PictureTheme.Colors.secondary,
+            checkedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.secondary,
+            checkedIconColor = PictureTheme.Colors.text,
+            uncheckedThumbColor = PictureTheme.Colors.text,
+            uncheckedTrackColor = PictureTheme.Colors.secondary,
+            uncheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.secondaryDisabled,
+            uncheckedIconColor = PictureTheme.Colors.text,
+            disabledCheckedThumbColor = PictureTheme.Colors.textDisabled,
+            disabledCheckedTrackColor = PictureTheme.Colors.secondaryDisabled,
+            disabledCheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.secondaryDisabled,
+            disabledCheckedIconColor = PictureTheme.Colors.textDisabled,
+            disabledUncheckedThumbColor = PictureTheme.Colors.textDisabled,
+            disabledUncheckedTrackColor = PictureTheme.Colors.secondaryDisabled,
+            disabledUncheckedBorderColor = if (selected) PictureTheme.Colors.accent else PictureTheme.Colors.secondaryDisabled,
+            disabledUncheckedIconColor = PictureTheme.Colors.textDisabled
         )
 
         else -> error("Unsupported switch type")

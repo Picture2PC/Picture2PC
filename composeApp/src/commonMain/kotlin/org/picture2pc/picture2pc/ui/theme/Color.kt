@@ -48,7 +48,7 @@ class PictureColors(
     val accent: Color = org.picture2pc.picture2pc.ui.theme.accent,
     val error: Color = org.picture2pc.picture2pc.ui.theme.error,
     val errorBright: Color = org.picture2pc.picture2pc.ui.theme.errorBright,
-    val receiving: Color = org.picture2pc.picture2pc.ui.theme.receiving,
+    val blue: Color = org.picture2pc.picture2pc.ui.theme.receiving,
     val connected: Color = org.picture2pc.picture2pc.ui.theme.connected,
     val pending: Color = org.picture2pc.picture2pc.ui.theme.pending,
 ) {
@@ -88,7 +88,7 @@ class PictureColors(
             accent = accent,
             error = error,
             errorBright = errorBright,
-            receiving = receiving,
+            blue = blue,
             connected = connected,
             pending = pending,
         )

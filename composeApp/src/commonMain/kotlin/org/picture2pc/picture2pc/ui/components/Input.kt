@@ -11,35 +11,40 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import org.picture2pc.picture2pc.ui.theme.PictureTheme
+import org.picture2pc.picture2pc.ui.theme.PictureTheme.Typography
+import org.picture2pc.picture2pc.ui.theme.PictureTheme.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PictureInput(
+    modifier: Modifier = Modifier,
     label: String,
     value: String,
+    placeholder: String,
     isError: Boolean = false,
-    enabled: Boolean = true,
-    onValueChange: (String) -> Unit,
+    disabled: Boolean = true,
+    onValueChange: (String) -> Unit = {},
     onDone: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
     BasicTextField(
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
-        enabled = enabled,
+        enabled = disabled,
         interactionSource = interactionSource,
         singleLine = true,
-        textStyle = TextStyle(color = PictureTheme.colors.text),
-        cursorBrush = SolidColor(PictureTheme.colors.primary),
+        textStyle = TextStyle(color = Colors.text),
+        cursorBrush = SolidColor(Colors.primary),
         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
             onDone = {
@@ -51,31 +56,32 @@ fun PictureInput(
             OutlinedTextFieldDefaults.DecorationBox(
                 value = value,
                 innerTextField = innerTextField,
-                enabled = enabled,
+                enabled = disabled,
                 singleLine = true,
                 isError = isError,
-                label = { Text(text = label, style = PictureTheme.typography.labelLarge) },
+                label = { Text(text = label, style = Typography.labelLarge) },
+                placeholder = { Text(text = placeholder, style = Typography.labelLarge) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = PictureTheme.colors.text,
-                    unfocusedTextColor = PictureTheme.colors.text,
-                    disabledTextColor = PictureTheme.colors.textDisabled,
-                    errorTextColor = PictureTheme.colors.errorBright,
-                    focusedContainerColor = PictureTheme.colors.background,
-                    unfocusedContainerColor = PictureTheme.colors.background,
-                    disabledContainerColor = PictureTheme.colors.background,
-                    errorContainerColor = PictureTheme.colors.background,
-                    focusedLabelColor = PictureTheme.colors.text,
-                    unfocusedLabelColor = PictureTheme.colors.text,
-                    disabledLabelColor = PictureTheme.colors.textDisabled,
-                    errorLabelColor = PictureTheme.colors.errorBright,
-                    focusedPlaceholderColor = PictureTheme.colors.textDisabled,
-                    unfocusedPlaceholderColor = PictureTheme.colors.textDisabled,
-                    disabledPlaceholderColor = PictureTheme.colors.textDisabled,
-                    errorPlaceholderColor = PictureTheme.colors.errorBright,
-                    focusedBorderColor = PictureTheme.colors.primary,
-                    unfocusedBorderColor = PictureTheme.colors.primary,
-                    disabledBorderColor = PictureTheme.colors.primaryDisabled,
-                    errorBorderColor = PictureTheme.colors.error,
+                    focusedTextColor = Colors.text,
+                    unfocusedTextColor = Colors.text,
+                    disabledTextColor = Colors.textDisabled,
+                    errorTextColor = Colors.errorBright,
+                    focusedContainerColor = Colors.background,
+                    unfocusedContainerColor = Colors.background,
+                    disabledContainerColor = Colors.background,
+                    errorContainerColor = Colors.background,
+                    focusedLabelColor = Colors.text,
+                    unfocusedLabelColor = Colors.text,
+                    disabledLabelColor = Colors.textDisabled,
+                    errorLabelColor = Colors.errorBright,
+                    focusedPlaceholderColor = Colors.textDisabled,
+                    unfocusedPlaceholderColor = Colors.textDisabled,
+                    disabledPlaceholderColor = Colors.textDisabled,
+                    errorPlaceholderColor = Colors.errorBright,
+                    focusedBorderColor = Colors.primary,
+                    unfocusedBorderColor = Colors.primary,
+                    disabledBorderColor = Colors.primaryDisabled,
+                    errorBorderColor = Colors.error,
                 ),
                 interactionSource = interactionSource,
                 visualTransformation = VisualTransformation.None,
@@ -86,14 +92,14 @@ fun PictureInput(
                 ),
                 container = {
                     OutlinedTextFieldDefaults.Container(
-                        enabled = enabled,
+                        enabled = disabled,
                         isError = isError,
                         interactionSource = interactionSource,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = PictureTheme.colors.primary,
-                            unfocusedBorderColor = PictureTheme.colors.primary,
-                            disabledBorderColor = PictureTheme.colors.primaryDisabled,
-                            errorBorderColor = PictureTheme.colors.error,
+                            focusedBorderColor = Colors.primary,
+                            unfocusedBorderColor = Colors.primary,
+                            disabledBorderColor = Colors.primaryDisabled,
+                            errorBorderColor = Colors.error,
                         ),
                         shape = RoundedCornerShape(25.dp),
                         focusedBorderThickness = 2.5.dp,

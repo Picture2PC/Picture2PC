@@ -15,12 +15,12 @@ val LocalTypes = staticCompositionLocalOf<Typography> {
 }
 
 object PictureTheme {
-    val colors: PictureColors
+    val Colors: PictureColors
         @Composable
         @ReadOnlyComposable
         get() = LocalColors.current
 
-    val typography: Typography
+    val Typography: Typography
         @Composable
         @ReadOnlyComposable
         get() = LocalTypes.current
