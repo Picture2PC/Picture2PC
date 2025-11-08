@@ -2,7 +2,6 @@ package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -48,10 +48,11 @@ fun MessagePopup(
     ) {
         Column(
             modifier = modifier
+                .clip(CornerRadius.Default)
+                .clickable { visible = false }
                 .background(color.copy(0.5f), CornerRadius.Default)
                 .border(Outline.Thin, color, CornerRadius.Default)
                 .padding(Padding.Large)
-                .clickable { visible = false }
         ) {
 
             if (icon != null) {

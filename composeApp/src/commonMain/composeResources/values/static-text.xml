@@ -12,7 +12,7 @@
     <string name="reconnect_label">Reconnect</string>
 
     <string name="no_group_title">Don\u2019t see a group?</string>
-    <string name="no_group_description">Wait for someone to invite you into the group. \n Create your own group and invite others.</string>
+    <string name="no_group_description">Wait for someone to invite you into the group.\nCreate your own group and invite others.</string>
 
     <plurals name="peers_in_group">
         <item quantity="one">%d peer</item>
