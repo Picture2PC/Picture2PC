@@ -1,7 +1,11 @@
 package org.picture2pc.picture2pc.ui.components.groupselect
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,6 +16,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.picture2pc.picture2pc.ui.components.ButtonVariant
 import org.picture2pc.picture2pc.ui.components.PictureIconButton
 import org.picture2pc.picture2pc.ui.components.PictureInput
+import org.picture2pc.picture2pc.ui.theme.Spacer
 import picture2pc.composeapp.generated.resources.Res
 import picture2pc.composeapp.generated.resources.add_circle
 import picture2pc.composeapp.generated.resources.group_label
@@ -23,7 +28,8 @@ fun GroupSelectNewGroup() {
 
     Row(
         Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacer.Small)
     ) {
         PictureInput(
             modifier = Modifier.weight(1f),
@@ -35,6 +41,9 @@ fun GroupSelectNewGroup() {
             disabled = false,
         )
         PictureIconButton(
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .width(IntrinsicSize.Min),
             type = ButtonVariant.Primary,
             onClick = {},
             icon = Res.drawable.add_circle,

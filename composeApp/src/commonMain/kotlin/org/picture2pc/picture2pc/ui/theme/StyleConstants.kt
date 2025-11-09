@@ -21,6 +21,8 @@ object Outline {
 }
 
 object Spacer {
-    val Large = 20.dp
-    val Small = 10.dp
+    val XLarge = 20.dp
+    val Large = 15.dp
+    val Medium = 10.dp
+    val Small = 5.dp
 }

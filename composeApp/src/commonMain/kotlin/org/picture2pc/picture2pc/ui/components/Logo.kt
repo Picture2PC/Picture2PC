@@ -33,7 +33,7 @@ fun Logo(modifier: Modifier = Modifier, showName: Boolean) {
             stringResource(Res.string.app_name)
         )
         if (showName) {
-            Spacer(Modifier.width(Spacer.Large))
+            Spacer(Modifier.width(Spacer.XLarge))
             Text(
                 text = stringResource(Res.string.app_name),
                 color = Colors.text,

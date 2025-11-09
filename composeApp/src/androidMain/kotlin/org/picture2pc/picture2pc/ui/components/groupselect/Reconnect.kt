@@ -26,7 +26,7 @@ fun formatGroupRoom(previousConnection: PreviousConnection?): String {
         previousConnection?.group.isNullOrBlank() && previousConnection?.room.isNullOrBlank() -> ""
         previousConnection.group.isBlank() && !previousConnection.room.isNullOrBlank() -> ""
         previousConnection.group.isNotBlank() && previousConnection.room.isNullOrBlank() -> previousConnection.group
-        else -> "${previousConnection.group} / ${previousConnection.room}"
+        else -> "${previousConnection.group} : ${previousConnection.room}"
     }
 }
 

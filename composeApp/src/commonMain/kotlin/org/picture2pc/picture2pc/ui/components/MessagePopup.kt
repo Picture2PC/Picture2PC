@@ -63,11 +63,11 @@ fun MessagePopup(
                         contentDescription = icon.toString(),
                         tint = Colors.text
                     )
-                    Spacer(Modifier.width(Spacer.Small))
+                    Spacer(Modifier.width(Spacer.Medium))
                     Text(label, color = Colors.text, style = Typography.titleMedium)
                 }
                 if (description != null) {
-                    Spacer(Modifier.height(Spacer.Small))
+                    Spacer(Modifier.height(Spacer.Medium))
                     Text(description, color = Colors.text, style = Typography.labelLarge)
                 }
             } else {

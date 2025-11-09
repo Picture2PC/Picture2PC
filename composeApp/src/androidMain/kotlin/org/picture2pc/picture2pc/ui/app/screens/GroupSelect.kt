@@ -8,11 +8,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,7 +90,8 @@ fun GroupSelectGroupSelectSelect() {
                         BorderStroke(Outline.Container, Colors.primary),
                         CornerRadius.Default
                     )
-                    .padding(Padding.Container)
+                    .padding(Padding.Container),
+                verticalArrangement = Arrangement.spacedBy(Spacer.Large)
             ) {
                 PictureInput(
                     label = stringResource(Res.string.input_label),
@@ -103,11 +102,7 @@ fun GroupSelectGroupSelectSelect() {
                     disabled = false,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(Spacer.Small)
-                )
+
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -116,7 +111,7 @@ fun GroupSelectGroupSelectSelect() {
                             CornerRadius.Default
                         )
                         .padding(Padding.Container),
-                    verticalArrangement = Arrangement.spacedBy(Spacer.Small)
+                    verticalArrangement = Arrangement.spacedBy(Spacer.Medium)
                 ) {
                     Text(
                         stringResource(Res.string.group_header),
