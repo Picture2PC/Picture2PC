@@ -55,7 +55,6 @@ fun MessagePopup(
                 .border(Outline.Thin, color, CornerRadius.Default)
                 .padding(Padding.Large)
         ) {
-
             if (icon != null) {
                 Row {
                     Icon(
