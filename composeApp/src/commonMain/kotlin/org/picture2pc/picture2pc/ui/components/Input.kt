@@ -18,8 +18,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import org.picture2pc.picture2pc.ui.theme.PictureTheme.Typography
 import org.picture2pc.picture2pc.ui.theme.PictureTheme.Colors
+import org.picture2pc.picture2pc.ui.theme.PictureTheme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +29,7 @@ fun PictureInput(
     value: String,
     placeholder: String,
     isError: Boolean = false,
-    disabled: Boolean = true,
+    disabled: Boolean = false,
     onValueChange: (String) -> Unit = {},
     onDone: () -> Unit = {},
 ) {
@@ -40,7 +40,7 @@ fun PictureInput(
         modifier = modifier,
         value = value,
         onValueChange = onValueChange,
-        enabled = disabled,
+        enabled = !disabled,
         interactionSource = interactionSource,
         singleLine = true,
         textStyle = TextStyle(color = Colors.text),
@@ -56,7 +56,7 @@ fun PictureInput(
             OutlinedTextFieldDefaults.DecorationBox(
                 value = value,
                 innerTextField = innerTextField,
-                enabled = disabled,
+                enabled = !disabled,
                 singleLine = true,
                 isError = isError,
                 label = { Text(text = label, style = Typography.labelLarge) },
@@ -92,7 +92,7 @@ fun PictureInput(
                 ),
                 container = {
                     OutlinedTextFieldDefaults.Container(
-                        enabled = disabled,
+                        enabled = !disabled,
                         isError = isError,
                         interactionSource = interactionSource,
                         colors = OutlinedTextFieldDefaults.colors(

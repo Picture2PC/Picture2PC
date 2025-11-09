@@ -3,8 +3,11 @@ package org.picture2pc.picture2pc.ui.components.groupselect
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import org.jetbrains.compose.resources.stringResource
 import org.picture2pc.picture2pc.ui.components.ButtonVariant
 import org.picture2pc.picture2pc.ui.components.PictureIconButton
@@ -16,6 +19,9 @@ import picture2pc.composeapp.generated.resources.group_placeholder
 
 @Composable
 fun GroupSelectNewGroup() {
+    val groupName = remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -23,11 +29,12 @@ fun GroupSelectNewGroup() {
         PictureInput(
             modifier = Modifier.weight(1f),
             label = stringResource(Res.string.group_label),
-            value = "",
+            value = groupName.value,
+            onValueChange = { groupName.value = it },
+            onDone = { focusManager.clearFocus() },
             placeholder = stringResource(Res.string.group_placeholder),
             isError = false,
-            disabled = true,
-            onValueChange = {},
+            disabled = false,
         )
         PictureIconButton(
             type = ButtonVariant.Primary,

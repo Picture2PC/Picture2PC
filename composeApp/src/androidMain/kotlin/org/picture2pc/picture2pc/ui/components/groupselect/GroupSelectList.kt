@@ -10,17 +10,27 @@ import androidx.compose.ui.draw.clip
 import org.picture2pc.picture2pc.ui.theme.CornerRadius as DisplayRadius
 
 @Composable
-fun GroupList(modifier: Modifier = Modifier) {
+fun GroupSelectList(modifier: Modifier = Modifier) {
     Box(modifier = modifier.clip(DisplayRadius.Default)) {
         val state = rememberScrollState()
 
         Column(Modifier.verticalScroll(state)) {
-            repeat(5) { index ->
+            repeat(5) {
                 GroupEntry(
                     groupName = "Group Name",
                     peersInGroup = 2
                 )
             }
+            repeat(2) {
+                GroupEntry(
+                    groupName = "Group Name",
+                    peersInGroup = 1
+                )
+            }
+            GroupEntry(
+                groupName = "Group Name",
+                peersInGroup = 0
+            )
         }
     }
 }

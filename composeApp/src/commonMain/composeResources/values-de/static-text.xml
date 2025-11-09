@@ -6,10 +6,11 @@
     <string name="group_label">Gruppenname</string>
     <string name="group_placeholder">Gruppenname</string>
     <string name="reconnect_label">Wiederverbinden</string>
-    <string name="no_group_title">Keine Gruppe wird angezeigt?</string>
+    <string name="no_group_title">Keine Gruppen sichtbar?</string>
     <string name="no_group_description">Warte bis du in eine Gruppe eingeladen wird.\nErstelle eine eigene Gruppe und lade andere ein.</string>
     <plurals name="peers_in_group">
         <item quantity="one">%d Mitglied</item>
         <item quantity="other">%d Mitglieder</item>
     </plurals>
+    <string name="group_join">Beitreten</string>
 </resources>

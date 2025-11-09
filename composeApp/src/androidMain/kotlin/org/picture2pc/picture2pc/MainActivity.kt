@@ -9,7 +9,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.environmentProperties
 import org.picture2pc.picture2pc.di.initKoin
-import org.picture2pc.picture2pc.ui.app.screens.GroupSelectGroupSelect
+import org.picture2pc.picture2pc.ui.app.screens.GroupSelectGroupSelectSelect
+import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
+import org.picture2pc.picture2pc.ui.theme.Theme
 
 class AndroidApp : Application() {
     override fun onCreate() {
@@ -29,7 +31,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            GroupSelectGroupSelect()
+            Picture2PCTheme(theme = Theme.Dark) {
+                GroupSelectGroupSelectSelect()
+            }
         }
     }
 }

@@ -9,9 +9,5 @@ import org.picture2pc.picture2pc.ui.theme.Padding
 
 @Composable
 fun GroupSelectHeader() {
-    Logo(
-        Modifier
-            .padding(Padding.Container)
-            .fillMaxWidth(), true
-    )
+
 }
