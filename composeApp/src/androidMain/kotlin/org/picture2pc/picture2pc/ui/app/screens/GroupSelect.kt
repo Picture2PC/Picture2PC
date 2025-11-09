@@ -41,12 +41,16 @@ import picture2pc.composeapp.generated.resources.input_label
 import picture2pc.composeapp.generated.resources.no_group_description
 import picture2pc.composeapp.generated.resources.no_group_title
 
+data class PreviousConnection(val group: String, val room: String? = null)
+
 @Composable
 @Preview
 fun GroupSelectGroupSelectSelect() {
     val username = remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
+
+    val previousConnection = PreviousConnection("Zuhause", "Wohnzimmer")
 
     Box(
         Modifier
@@ -121,7 +125,7 @@ fun GroupSelectGroupSelectSelect() {
                     )
                     GroupSelectNewGroup()
                     GroupSelectList(Modifier.weight(1f))
-                    GroupSelectReconnect()
+                    GroupSelectReconnect(previousConnection)
                     // TODO(Show this only once on the first launch (maybe also second))
                     MessagePopup(
                         label = stringResource(Res.string.no_group_title),
