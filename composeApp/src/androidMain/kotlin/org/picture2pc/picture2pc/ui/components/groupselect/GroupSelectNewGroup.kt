@@ -15,7 +15,6 @@ import org.picture2pc.picture2pc.ui.components.PictureInput
 import picture2pc.composeapp.generated.resources.Res
 import picture2pc.composeapp.generated.resources.add_circle
 import picture2pc.composeapp.generated.resources.group_label
-import picture2pc.composeapp.generated.resources.group_placeholder
 
 @Composable
 fun GroupSelectNewGroup() {
@@ -32,7 +31,6 @@ fun GroupSelectNewGroup() {
             value = groupName.value,
             onValueChange = { groupName.value = it },
             onDone = { focusManager.clearFocus() },
-            placeholder = stringResource(Res.string.group_placeholder),
             isError = false,
             disabled = false,
         )

@@ -2,12 +2,10 @@
 <resources>
     <string name="app_name" translatable="false">Picture2PC</string>
 
-    <string name="input_label">Name</string>
-    <string name="input_placeholder">Username</string>
+    <string name="input_label">Username</string>
 
     <string name="group_header">Groups</string>
     <string name="group_label">Group name</string>
-    <string name="group_placeholder">Group name</string>
 
     <string name="reconnect_label">Reconnect</string>
 

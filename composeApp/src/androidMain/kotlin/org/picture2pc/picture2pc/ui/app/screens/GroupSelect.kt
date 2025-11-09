@@ -38,7 +38,6 @@ import picture2pc.composeapp.generated.resources.Res
 import picture2pc.composeapp.generated.resources.group_header
 import picture2pc.composeapp.generated.resources.info
 import picture2pc.composeapp.generated.resources.input_label
-import picture2pc.composeapp.generated.resources.input_placeholder
 import picture2pc.composeapp.generated.resources.no_group_description
 import picture2pc.composeapp.generated.resources.no_group_title
 
@@ -93,7 +92,6 @@ fun GroupSelectGroupSelectSelect() {
             ) {
                 PictureInput(
                     label = stringResource(Res.string.input_label),
-                    placeholder = stringResource(Res.string.input_placeholder),
                     value = username.value,
                     onValueChange = { username.value = it },
                     onDone = { focusManager.clearFocus() },
