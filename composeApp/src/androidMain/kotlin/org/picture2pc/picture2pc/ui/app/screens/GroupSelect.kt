@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.stringResource
 import org.picture2pc.picture2pc.ui.components.MessagePopup
 import org.picture2pc.picture2pc.ui.components.PictureInput
-import org.picture2pc.picture2pc.ui.components.groupselect.GroupEntry
 import org.picture2pc.picture2pc.ui.components.groupselect.GroupList
 import org.picture2pc.picture2pc.ui.components.groupselect.GroupSelectHeader
 import org.picture2pc.picture2pc.ui.components.groupselect.GroupSelectNewGroup
@@ -104,6 +103,7 @@ fun GroupSelectGroupSelect() {
                         GroupSelectNewGroup()
                         GroupList(Modifier.weight(1f))
                         GroupSelectReconnect()
+                        // TODO(Show this only once on the first launch (maybe also second))
                         MessagePopup(
                             label = stringResource(Res.string.no_group_title),
                             icon = Res.drawable.info,

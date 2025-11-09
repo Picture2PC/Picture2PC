@@ -2,6 +2,7 @@ package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,7 +45,7 @@ fun MessagePopup(
 
     AnimatedVisibility(
         visible = visible,
-        exit = fadeOut()
+        exit = fadeOut() + shrinkVertically()
     ) {
         Column(
             modifier = modifier
