@@ -25,4 +25,5 @@ object Spacer {
     val Large = 15.dp
     val Medium = 10.dp
     val Small = 5.dp
+    val XSmall = 2.5.dp
 }
