@@ -2,6 +2,7 @@ package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,7 +28,7 @@ fun PictureInput(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    placeholder: String,
+    placeholder: String? = null,
     isError: Boolean = false,
     disabled: Boolean = false,
     onValueChange: (String) -> Unit = {},
@@ -37,7 +38,7 @@ fun PictureInput(
     val interactionSource = remember { MutableInteractionSource() }
 
     BasicTextField(
-        modifier = modifier,
+        modifier = modifier.height(50.dp),
         value = value,
         onValueChange = onValueChange,
         enabled = !disabled,
@@ -60,7 +61,12 @@ fun PictureInput(
                 singleLine = true,
                 isError = isError,
                 label = { Text(text = label, style = Typography.labelLarge) },
-                placeholder = { Text(text = placeholder, style = Typography.labelLarge) },
+                placeholder = {
+                    if (placeholder != null) Text(
+                        text = placeholder,
+                        style = Typography.labelLarge
+                    )
+                },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Colors.text,
                     unfocusedTextColor = Colors.text,
