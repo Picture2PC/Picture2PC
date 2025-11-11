@@ -2,6 +2,7 @@ package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -82,13 +83,19 @@ fun PictureIconButton(
     selected: Boolean = false,
 ) {
     val buttonColor = when (type) {
-        ButtonVariant.Primary ->
-            IconButtonDefaults.iconButtonColors(
-                containerColor = PictureTheme.Colors.primary,
-                contentColor = PictureTheme.Colors.text,
-                disabledContainerColor = PictureTheme.Colors.primaryDisabled,
-                disabledContentColor = PictureTheme.Colors.textDisabled,
-            )
+        ButtonVariant.Primary -> IconButtonDefaults.iconButtonColors(
+            containerColor = PictureTheme.Colors.primary,
+            contentColor = PictureTheme.Colors.text,
+            disabledContainerColor = PictureTheme.Colors.primaryDisabled,
+            disabledContentColor = PictureTheme.Colors.textDisabled,
+        )
+
+        ButtonVariant.PrimaryDim -> IconButtonDefaults.iconButtonColors(
+            containerColor = PictureTheme.Colors.primary.copy(alpha = 0.25f),
+            contentColor = PictureTheme.Colors.text,
+            disabledContainerColor = PictureTheme.Colors.primaryDisabled.copy(alpha = 0.25f),
+            disabledContentColor = PictureTheme.Colors.textDisabled,
+        )
 
         ButtonVariant.Secondary -> IconButtonDefaults.iconButtonColors(
             containerColor = PictureTheme.Colors.secondary,
@@ -108,7 +115,7 @@ fun PictureIconButton(
     when {
         selected -> {
             OutlinedIconButton(
-                modifier = modifier,
+                modifier = modifier.size(30.dp),
                 onClick = onClick,
                 enabled = !disabled,
                 colors = buttonColor,
@@ -120,7 +127,7 @@ fun PictureIconButton(
 
         else -> {
             IconButton(
-                modifier = modifier,
+                modifier = modifier.size(45.dp),
                 onClick = onClick,
                 enabled = !disabled,
                 colors = buttonColor

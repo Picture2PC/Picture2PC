@@ -25,7 +25,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.picture2pc.picture2pc.ui.components.Logo
 import org.picture2pc.picture2pc.ui.components.MessagePopup
 import org.picture2pc.picture2pc.ui.components.PictureInput
-import org.picture2pc.picture2pc.ui.components.groupselect.GroupSelectList
+import org.picture2pc.picture2pc.ui.components.PictureScrollableList
+import org.picture2pc.picture2pc.ui.components.groupselect.GroupEntry
 import org.picture2pc.picture2pc.ui.components.groupselect.GroupSelectNewGroup
 import org.picture2pc.picture2pc.ui.components.groupselect.GroupSelectReconnect
 import org.picture2pc.picture2pc.ui.theme.CornerRadius
@@ -45,7 +46,7 @@ data class PreviousConnection(val group: String, val room: String? = null)
 
 @Composable
 @Preview
-fun GroupSelectGroupSelectSelect() {
+fun GroupSelect() {
     val username = remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -126,7 +127,14 @@ fun GroupSelectGroupSelectSelect() {
                             .height(Spacer.XSmall)
                     )
                     GroupSelectNewGroup()
-                    GroupSelectList(Modifier.weight(1f))
+                    PictureScrollableList(
+                        Modifier.weight(1f),
+                        repeat(5) {
+                            GroupEntry(
+                                groupName = "Group Name",
+                                peersInGroup = 2
+                            )
+                        })
                     GroupSelectReconnect(previousConnection)
                     // TODO(Show this only once on the first launch (maybe also second))
                     MessagePopup(

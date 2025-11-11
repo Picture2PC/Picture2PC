@@ -10,5 +10,8 @@
         <item quantity="one">%d Mitglied</item>
         <item quantity="other">%d Mitglieder</item>
     </plurals>
-    <string name="group_join">Beitreten</string>
+    <string name="room_select_connected_peers">Verbundene Mitglieder</string>
+    <string name="join">Beitreten</string>
+    <string name="room_select_rooms">Räume</string>
+    <string name="room_select_room_name_input">Raum Name</string>
 </resources>

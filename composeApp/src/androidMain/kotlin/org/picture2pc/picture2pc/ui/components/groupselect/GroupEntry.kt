@@ -22,7 +22,7 @@ import org.picture2pc.picture2pc.ui.theme.PictureTheme.Colors
 import picture2pc.composeapp.generated.resources.Res
 import picture2pc.composeapp.generated.resources.cancel
 import picture2pc.composeapp.generated.resources.group
-import picture2pc.composeapp.generated.resources.group_join
+import picture2pc.composeapp.generated.resources.join
 import picture2pc.composeapp.generated.resources.person
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +69,7 @@ fun GroupEntry(
         PictureButton(
             type = ButtonVariant.Primary,
             onClick = {},
-            text = stringResource(Res.string.group_join),
+            text = stringResource(Res.string.join),
             disabled = false,
             selected = false
         )

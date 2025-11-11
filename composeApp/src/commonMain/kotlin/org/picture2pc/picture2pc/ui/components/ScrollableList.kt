@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.ui.components.groupselect
+package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,31 +14,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.picture2pc.picture2pc.ui.theme.CornerRadius as DisplayRadius
+import org.picture2pc.picture2pc.ui.theme.CornerRadius
 
 @Composable
-fun GroupSelectList(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.clip(DisplayRadius.Default)) {
+fun PictureScrollableList(modifier: Modifier = Modifier, listItems: Unit) {
+    Box(modifier = modifier.clip(CornerRadius.Default)) {
         val state = rememberScrollState()
 
-        Column(Modifier.verticalScroll(state)) {
-            repeat(5) {
-                GroupEntry(
-                    groupName = "Group Name",
-                    peersInGroup = 2
-                )
-            }
-            repeat(2) {
-                GroupEntry(
-                    groupName = "Group Name",
-                    peersInGroup = 1
-                )
-            }
-            GroupEntry(
-                groupName = "Group Name",
-                peersInGroup = 0
-            )
-        }
+        Column(Modifier.verticalScroll(state)) { listItems }
         if (state.canScrollForward)
             Box(
                 Modifier

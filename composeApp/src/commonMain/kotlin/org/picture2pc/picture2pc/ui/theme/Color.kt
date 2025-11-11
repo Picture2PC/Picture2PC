@@ -48,9 +48,9 @@ class PictureColors(
     val accent: Color = org.picture2pc.picture2pc.ui.theme.accent,
     val error: Color = org.picture2pc.picture2pc.ui.theme.error,
     val errorBright: Color = org.picture2pc.picture2pc.ui.theme.errorBright,
-    val blue: Color = org.picture2pc.picture2pc.ui.theme.receiving,
-    val connected: Color = org.picture2pc.picture2pc.ui.theme.connected,
-    val pending: Color = org.picture2pc.picture2pc.ui.theme.pending,
+    val blue: Color = receiving,
+    val green: Color = connected,
+    val yellow: Color = pending,
 ) {
     var text by mutableStateOf(text)
         private set
@@ -89,8 +89,8 @@ class PictureColors(
             error = error,
             errorBright = errorBright,
             blue = blue,
-            connected = connected,
-            pending = pending,
+            green = green,
+            yellow = yellow,
         )
     }
 
