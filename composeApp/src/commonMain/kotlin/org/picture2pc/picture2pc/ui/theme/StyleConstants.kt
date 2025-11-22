@@ -13,6 +13,7 @@ object Padding {
 object CornerRadius {
     val Default = RoundedCornerShape(25.dp)
     val Small = RoundedCornerShape(15.dp)
+    val RoundedBottomDefault = RoundedCornerShape(bottomStart = 25.dp, bottomEnd = 25.dp)
 }
 
 object Outline {

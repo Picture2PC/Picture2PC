@@ -29,9 +29,6 @@ kotlin {
 
     jvm()
 
-
-
-
     sourceSets {
         val jvmSharedMain by creating {
             dependsOn(commonMain.get())
@@ -70,6 +67,8 @@ kotlin {
 
             implementation(libs.cryptography.core)
             implementation(libs.cryptography.provider.optimal)
+
+            implementation(libs.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

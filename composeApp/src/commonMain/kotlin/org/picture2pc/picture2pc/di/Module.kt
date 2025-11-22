@@ -1,6 +1,10 @@
 package org.picture2pc.picture2pc.di
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -56,6 +60,7 @@ val netModule = module {
         )
     } bind DataTransmitter::class
 }
+
 val sharedModule = module {
     includes(qualifiers, preferencesModule, netModule)
 

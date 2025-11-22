@@ -11,7 +11,7 @@
         <item quantity="one">%d peer</item>
         <item quantity="other">%d peers</item>
     </plurals>
-    <string name="room_select_connected_peers">Connected Peers</string>
+    <string name="room_select_invite_peers">Invite Peers</string>
     <string name="join">Join</string>
     <string name="room_select_rooms">Rooms</string>
     <string name="room_select_room_name_input">Room name</string>

@@ -1,6 +1,8 @@
 package org.picture2pc.picture2pc.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -15,10 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,18 +36,18 @@ fun MessagePopup(
     label: String,
     icon: DrawableResource? = null,
     description: String? = null,
-    color: Color
+    color: Color,
+    visible: MutableState<Boolean>
 ) {
-    var visible by remember { mutableStateOf(true) }
-
     AnimatedVisibility(
-        visible = visible,
+        visible = visible.value,
+        enter = fadeIn() + expandVertically(),
         exit = fadeOut() + shrinkVertically()
     ) {
         Column(
             modifier = modifier
                 .clip(CornerRadius.Default)
-                .clickable { visible = false }
+                .clickable { visible.value = false }
                 .background(color.copy(0.5f), CornerRadius.Default)
                 .border(Outline.Thin, color, CornerRadius.Default)
                 .padding(Padding.Large)

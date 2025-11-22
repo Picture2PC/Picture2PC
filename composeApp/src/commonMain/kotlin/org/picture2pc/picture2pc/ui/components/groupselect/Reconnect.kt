@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import org.jetbrains.compose.resources.stringResource
+import org.picture2pc.picture2pc.ui.app.routing.Routes
 import org.picture2pc.picture2pc.ui.app.screens.PreviousConnection
 import org.picture2pc.picture2pc.ui.components.ButtonVariant
 import org.picture2pc.picture2pc.ui.components.PictureButton
@@ -31,9 +33,11 @@ fun formatGroupRoom(previousConnection: PreviousConnection?): String {
 }
 
 @Composable
-fun GroupSelectReconnect(previousConnection: PreviousConnection? = null) {
+fun GroupSelectReconnect(
+    previousConnection: PreviousConnection? = null,
+    navController: NavController
+) {
     if (previousConnection != null && !previousConnection.group.isBlank()) {
-
         Column(
             Modifier
                 .background(
@@ -48,7 +52,7 @@ fun GroupSelectReconnect(previousConnection: PreviousConnection? = null) {
                     .height(IntrinsicSize.Min)
                     .padding(bottom = Padding.Small),
                 type = ButtonVariant.Primary,
-                onClick = {},
+                onClick = { navController.navigate(Routes.ROOM_SELECT) },
                 text = stringResource(Res.string.reconnect_label),
                 disabled = false,
                 selected = false
@@ -66,7 +70,7 @@ fun GroupSelectReconnect(previousConnection: PreviousConnection? = null) {
                 .height(IntrinsicSize.Min)
                 .padding(bottom = Padding.Small),
             type = ButtonVariant.Primary,
-            onClick = {},
+            onClick = { navController.navigate(Routes.ROOM_SELECT) },
             text = stringResource(Res.string.reconnect_label),
             disabled = false,
             selected = false

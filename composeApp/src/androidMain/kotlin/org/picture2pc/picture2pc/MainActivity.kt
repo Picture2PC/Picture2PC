@@ -9,7 +9,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.environmentProperties
 import org.picture2pc.picture2pc.di.initKoin
-import org.picture2pc.picture2pc.ui.app.screens.GroupSelect
+import org.picture2pc.picture2pc.ui.app.routing.NavigationController
 import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
 import org.picture2pc.picture2pc.ui.theme.Theme
 
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Picture2PCTheme(theme = Theme.Dark) {
-                GroupSelect()
+                NavigationController()
             }
         }
     }

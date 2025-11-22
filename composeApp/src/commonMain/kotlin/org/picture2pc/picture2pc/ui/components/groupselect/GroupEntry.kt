@@ -3,7 +3,9 @@ package org.picture2pc.picture2pc.ui.components.groupselect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -19,6 +21,7 @@ import org.picture2pc.picture2pc.ui.components.PictureButton
 import org.picture2pc.picture2pc.ui.components.PictureIconButton
 import org.picture2pc.picture2pc.ui.theme.PictureTheme
 import org.picture2pc.picture2pc.ui.theme.PictureTheme.Colors
+import org.picture2pc.picture2pc.ui.theme.Spacer
 import picture2pc.composeapp.generated.resources.Res
 import picture2pc.composeapp.generated.resources.cancel
 import picture2pc.composeapp.generated.resources.group
@@ -34,14 +37,15 @@ fun GroupEntry(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacer.Small)
     ) {
         Row(
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(Spacer.Small)
         ) {
             Text(
                 text = groupName,
@@ -63,10 +67,10 @@ fun GroupEntry(
                 "peer icon",
                 tint = Colors.textDisabled
             )
-
         }
 
         PictureButton(
+            modifier = Modifier.height(35.dp),
             type = ButtonVariant.Primary,
             onClick = {},
             text = stringResource(Res.string.join),
@@ -74,6 +78,7 @@ fun GroupEntry(
             selected = false
         )
         PictureIconButton(
+            modifier = Modifier.size(35.dp),
             type = ButtonVariant.Red,
             onClick = {},
             icon = Res.drawable.cancel,
