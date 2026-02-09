@@ -1,27 +1,25 @@
-package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver
+package org.picture2pc.picture2pc.data.repository.net.multicastPayloadTransceiver
 
-import io.ktor.util.network.NetworkAddress
+import co.touchlab.kermit.Logger
+import io.ktor.util.network.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
-import org.picture2pc.picture2pc.data.repository.net.payload.Payload
-import org.picture2pc.picture2pc.data.repository.net.payload.PayloadInfo
-import org.picture2pc.picture2pc.data.repository.net.peer.Peer
-import org.picture2pc.picture2pc.data.repository.net.serialization.asByteArray
-import org.picture2pc.picture2pc.data.repository.net.serialization.fromByteArray
+import org.picture2pc.picture2pc.data.repository.net.common.peer.Peer
+import org.picture2pc.picture2pc.domain.repository.net.payload.Payload
+import org.picture2pc.picture2pc.domain.repository.net.payload.PayloadInfo
+import org.picture2pc.picture2pc.domain.serialization.asByteArray
+import org.picture2pc.picture2pc.domain.serialization.fromByteArray
 import java.io.IOException
-import java.net.DatagramPacket
-import java.net.InetSocketAddress
-import java.net.MulticastSocket
-import java.net.NetworkInterface
-import java.net.SocketTimeoutException
+import java.net.*
 
 
 class SimpleMulticastSocket(
     private val ioDispatcher: CoroutineDispatcher,
-    private val inetSocketAddress: InetSocketAddress
+    private val inetSocketAddress: InetSocketAddress,
+    private val logger: Logger
 ) {
     private lateinit var jvmMulticastSocket: MulticastSocket
     // get network interface for local dns
@@ -57,7 +55,7 @@ class SimpleMulticastSocket(
                     datagramPacket
                 )
             }
-        }.isSuccess
+        }.onFailure { logger.e("Failed to send ${payload::class.simpleName} to ${payload.targetPeer.uuid}") }.isSuccess
 
     }
 
@@ -91,6 +89,8 @@ class SimpleMulticastSocket(
                         NetworkAddress(datagramPacket.address.hostName, datagramPacket.port)
                     )
                 this.trySend(payload)
+            }.onFailure {
+                logger.w("Failed to receive payload", it)
             }
 
         }

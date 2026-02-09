@@ -1,9 +1,9 @@
-package org.picture2pc.picture2pc.data.repository.net.peer
+package org.picture2pc.picture2pc.data.repository.net.common.peer
 
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import org.picture2pc.picture2pc.domain.repository.EncryptionProvider
+import org.picture2pc.picture2pc.domain.repository.net.encryption.EncryptionProvider
 
 @Serializable
 open class Peer {
@@ -23,7 +23,7 @@ open class Peer {
         private val encryptionProvider: EncryptionProvider = get()
 
         fun getSelf(): Peer {
-            return Peer(encryptionProvider.publicKeyString, encryptionProvider.publicKeyString == "")
+            return Peer(encryptionProvider.publicKeyString.value, false)
         }
     }
 

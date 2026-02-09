@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.data.repository.net.impl.tcpKtorPayloadTransceiver
+package org.picture2pc.picture2pc.data.repository.net.tcpKtorPayloadTransceiver
 
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
@@ -7,14 +7,14 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.mp.KoinPlatformTools
-import org.picture2pc.picture2pc.data.repository.net.impl.MulticastTcpClient
-import org.picture2pc.picture2pc.data.repository.net.packet.Packet
-import org.picture2pc.picture2pc.data.repository.net.payload.Payload
-import org.picture2pc.picture2pc.data.repository.net.payload.TcpPayload
-import org.picture2pc.picture2pc.data.repository.net.serialization.asByteArray
-import org.picture2pc.picture2pc.data.repository.net.serialization.fromByteArray
+import org.picture2pc.picture2pc.data.repository.net.MulticastTcpClient
+import org.picture2pc.picture2pc.data.repository.net.common.packet.Packet
 import org.picture2pc.picture2pc.domain.repository.net.client.ClientSecurityState
 import org.picture2pc.picture2pc.domain.repository.net.client.ClientState
+import org.picture2pc.picture2pc.domain.repository.net.payload.Payload
+import org.picture2pc.picture2pc.domain.repository.net.payload.TcpPayload
+import org.picture2pc.picture2pc.domain.serialization.asByteArray
+import org.picture2pc.picture2pc.domain.serialization.fromByteArray
 
 class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpClient) {
     private val writeChannel = socket.openWriteChannel(autoFlush = true)
@@ -40,7 +40,7 @@ class SimpleTcpKtorClient(private val socket: Socket, val client: MulticastTcpCl
             encryptedState != null,
         )
         val packetBytes = packet.asByteArray()
-        kotlin.runCatching {
+        runCatching {
             writeMutex.withLock {
                 // Sending Start
 

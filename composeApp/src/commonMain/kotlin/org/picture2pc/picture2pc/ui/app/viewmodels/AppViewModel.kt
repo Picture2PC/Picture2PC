@@ -20,7 +20,7 @@ class AppViewModel(
     val connectable = preferencesUseCase.connectable
 
     init {
-        clientDiscovery.connectedClients.onEach {
+        clientDiscovery.availableClients.onEach {
             println(it)
             it.forEach { c ->
                 c.name.onEach { println("${c.name.value} ${c.securityState.value} ${c.state.value}") }

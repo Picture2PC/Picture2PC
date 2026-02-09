@@ -70,6 +70,9 @@ kotlin {
 
             implementation(libs.cryptography.core)
             implementation(libs.cryptography.provider.optimal)
+
+            implementation(libs.kermit)
+            implementation(libs.kermit.koin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,26 +1,20 @@
-package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver
+package org.picture2pc.picture2pc.data.repository.net.multicastPayloadTransceiver
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import co.touchlab.kermit.Logger
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import org.picture2pc.picture2pc.data.repository.net.payload.DiscoverPayload
-import org.picture2pc.picture2pc.data.repository.net.payload.Payload
+import kotlinx.coroutines.flow.*
 import org.picture2pc.picture2pc.domain.repository.net.ClientDiscovery
+import org.picture2pc.picture2pc.domain.repository.net.payload.DiscoverPayload
+import org.picture2pc.picture2pc.domain.repository.net.payload.Payload
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 
 actual class MulticastPayloadTransceiver actual constructor(
-    val scope: CoroutineScope,
-    val ioDispatcher: CoroutineDispatcher
+    private val scope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val logger: Logger,
 ) :
     ClientDiscovery {
     companion object {
@@ -51,6 +45,7 @@ actual class MulticastPayloadTransceiver actual constructor(
 
     actual override fun discover(serviceOnlineProvider: () -> DiscoverPayload.ServiceOnline): Flow<DiscoverPayload.ServiceOnline> =
         channelFlow {
+            logger.d { "Discovering with ${serviceOnlineProvider()}" }
             while (true) {
                 updateMulticastSockets(this)
                 emitServerOnline(serviceOnlineProvider())
@@ -69,7 +64,11 @@ actual class MulticastPayloadTransceiver actual constructor(
                 removeInterfaces.forEach {
                     stopSingleSocket(it)
                 }
-
+            }.onFailure {
+                logger.w(
+                    messageString = "Failed to update Network-interfaces, will retry in: ${MulticastConstants.RETRY_DELAY / 1000} seconds",
+                    throwable = it
+                )
             }.isFailure) {
             delay(MulticastConstants.RETRY_DELAY)
         }
@@ -81,7 +80,8 @@ actual class MulticastPayloadTransceiver actual constructor(
     ) {
         val multicastSocket = SimpleMulticastSocket(
             ioDispatcher,
-            InetSocketAddress(MulticastConstants.ADDRESS, MulticastConstants.PORT)
+            InetSocketAddress(MulticastConstants.ADDRESS, MulticastConstants.PORT),
+            logger
         )
         multicastSocket.start(networkInterface)
         multicastSockets[networkInterface] = multicastSocket
@@ -98,6 +98,7 @@ actual class MulticastPayloadTransceiver actual constructor(
         payload: DiscoverPayload,
         collector: ProducerScope<DiscoverPayload.ServiceOnline>
     ) {
+        logger.v("Received payload ${payload::class.simpleName}")
         when (payload) {
             is DiscoverPayload.ServiceOnline ->
                 payload.serviceAddress?.let {

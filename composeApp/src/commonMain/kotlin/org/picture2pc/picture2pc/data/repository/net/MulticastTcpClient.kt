@@ -1,6 +1,6 @@
-package org.picture2pc.picture2pc.data.repository.net.impl
+package org.picture2pc.picture2pc.data.repository.net
 
-import io.ktor.network.sockets.InetSocketAddress
+import io.ktor.network.sockets.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.picture2pc.picture2pc.domain.repository.net.client.Client

@@ -1,5 +1,6 @@
 package org.picture2pc.picture2pc.data.repository
 
+import co.touchlab.kermit.Logger
 import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.coroutines.getBooleanStateFlow
@@ -10,13 +11,15 @@ import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
 @OptIn(ExperimentalSettingsApi::class)
 class PreferencesMultiplatformSettings(
     private val observableSettings: ObservableSettings,
-    defaultCoroutineScope: CoroutineScope
+    defaultCoroutineScope: CoroutineScope,
+    private val logger: Logger,
 ) : PreferencesRepository {
     private companion object {
         const val NAME_KEY = "name"
         const val CONNECTABLE_KEY = "connectable"
         const val PRIVATEKEY_KEY = "privateKey"
         const val PUBLICKEY_KEY = "publicKey"
+        const val GROUPS_KEY = "groups"
     }
 
     override var name =
@@ -28,6 +31,8 @@ class PreferencesMultiplatformSettings(
 
     override val privateKey = observableSettings.getStringStateFlow(defaultCoroutineScope, PRIVATEKEY_KEY, "")
     override val publicKey = observableSettings.getStringStateFlow(defaultCoroutineScope, PUBLICKEY_KEY, "")
+
+    override val groups = observableSettings.getStringStateFlow(defaultCoroutineScope, GROUPS_KEY, "")
 
     override suspend fun setPublicKey(publicKey: String) {
         observableSettings.putString(PUBLICKEY_KEY, publicKey)
@@ -43,5 +48,9 @@ class PreferencesMultiplatformSettings(
 
     override suspend fun setConnectable(connectable: Boolean) {
         observableSettings.putBoolean(CONNECTABLE_KEY, connectable)
+    }
+
+    override suspend fun setGroupData(groups: String) {
+        observableSettings.putString(GROUPS_KEY, groups)
     }
 }

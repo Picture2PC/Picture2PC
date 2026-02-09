@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.data.repository.net.impl.multicastPayloadTransceiver
+package org.picture2pc.picture2pc.data.repository.net.multicastPayloadTransceiver
 
 object MulticastConstants {
     const val ADDRESS = "224.0.0.69"

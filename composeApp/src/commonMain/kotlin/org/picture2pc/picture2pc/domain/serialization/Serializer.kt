@@ -1,4 +1,4 @@
-package org.picture2pc.picture2pc.data.repository.net.serialization
+package org.picture2pc.picture2pc.domain.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor

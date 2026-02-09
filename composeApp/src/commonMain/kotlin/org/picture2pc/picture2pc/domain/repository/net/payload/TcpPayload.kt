@@ -1,10 +1,11 @@
-package org.picture2pc.picture2pc.data.repository.net.payload
+package org.picture2pc.picture2pc.domain.repository.net.payload
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.cbor.ByteString
-import org.picture2pc.picture2pc.data.repository.net.peer.Peer
+import org.picture2pc.picture2pc.data.repository.net.common.peer.Peer
+import org.picture2pc.picture2pc.domain.repository.group.Room
 
 @Serializable
 /*
@@ -24,6 +25,9 @@ sealed class TcpPayload(@Transient val forceEncryption: Boolean = false) : Paylo
 
     @Serializable
     data class EncryptOk(override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class RoomChange(val room: Room, override val targetPeer: Peer) : TcpPayload()
     // ------------Internal--------------
 
     @Serializable
@@ -31,6 +35,9 @@ sealed class TcpPayload(@Transient val forceEncryption: Boolean = false) : Paylo
 
     @Serializable
     data class NameUpdate(val name: String, override val targetPeer: Peer) : TcpPayload()
+
+    @Serializable
+    data class GroupInvite(val name: String, val groupHash: String, override val targetPeer: Peer) : TcpPayload(true)
 
     @Serializable
     data class Picture @OptIn(ExperimentalSerializationApi::class) constructor(

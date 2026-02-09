@@ -1,8 +1,8 @@
-package org.picture2pc.picture2pc.data.repository.net.payload
+package org.picture2pc.picture2pc.domain.repository.net.payload
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.picture2pc.picture2pc.data.repository.net.peer.Peer
+import org.picture2pc.picture2pc.data.repository.net.common.peer.Peer
 
 @Serializable
 sealed class Payload {

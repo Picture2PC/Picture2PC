@@ -1,22 +1,17 @@
-package org.picture2pc.picture2pc.data.repository
+package org.picture2pc.picture2pc.data.repository.net.encryption
 
 import dev.whyoleg.cryptography.BinarySize.Companion.bytes
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.*
 import dev.whyoleg.cryptography.algorithms.AES.Key
 import io.ktor.util.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.picture2pc.picture2pc.data.repository.net.peer.Peer
-import org.picture2pc.picture2pc.domain.repository.EncryptionProvider
+import org.picture2pc.picture2pc.data.repository.net.common.peer.Peer
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
-import org.picture2pc.picture2pc.domain.repository.SharedKey
-
-class AESSharedKey(private val cipher: AES.IvAuthenticatedCipher) : SharedKey {
-    override suspend fun encrypt(data: ByteArray): ByteArray = cipher.encrypt(data)
-    override suspend fun decrypt(data: ByteArray): ByteArray? = runCatching { cipher.decrypt(data) }.getOrNull()
-}
+import org.picture2pc.picture2pc.domain.repository.net.encryption.EncryptionProvider
 
 class ECDHEncryptionProvider(
     private val preferencesRepository: PreferencesRepository,
@@ -25,18 +20,16 @@ class ECDHEncryptionProvider(
     private val ecdhProvider = CryptographyProvider.Default.get(ECDH)
     private val hkdfProvider = CryptographyProvider.Default.get(HKDF)
     private val aesProvider = CryptographyProvider.Default.get(AES.GCM)
+    private val hashProvider = CryptographyProvider.Default.get(SHA3_512)
 
     private var privateKey: ECDH.PrivateKey? = null
-    private var privateKeyString: String = ""
+    private val privateKeyString = preferencesRepository.privateKey
 
-    var publicKey: ECDH.PublicKey? = null
-        private set
-    override var publicKeyString: String = ""
-        private set
+    private var publicKey: ECDH.PublicKey? = null
+    override val publicKeyString = preferencesRepository.publicKey
 
     init {
-        preferencesRepository.privateKey.onEach {
-            this.privateKeyString = it
+        privateKeyString.onEach {
             privateKey = runCatching {
                 ecdhProvider.privateKeyDecoder(
                     EC.Curve.P521
@@ -46,8 +39,7 @@ class ECDHEncryptionProvider(
                 generateKeyPair()
             }
         }.launchIn(backgroundScope)
-        preferencesRepository.publicKey.onEach {
-            this.publicKeyString = it
+        publicKeyString.onEach {
             publicKey = runCatching {
                 ecdhProvider.publicKeyDecoder(
                     EC.Curve.P521
@@ -78,5 +70,9 @@ class ECDHEncryptionProvider(
         preferencesRepository.setPrivateKey(
             keyPair.privateKey.encodeToByteArray(EC.PrivateKey.Format.DER).encodeBase64()
         )
+    }
+
+    override suspend fun hashString(data: String): String {
+        return hashProvider.hasher().hash(data.toByteArray()).encodeBase64()
     }
 }
