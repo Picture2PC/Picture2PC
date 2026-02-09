@@ -21,11 +21,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.picture2pc.picture2pc.ui.app.viewmodels.AppViewModel
-import org.picture2pc.picture2pc.ui.elements.ButtonType
-import org.picture2pc.picture2pc.ui.elements.PictureButton
-import org.picture2pc.picture2pc.ui.elements.PictureIconButton
-import org.picture2pc.picture2pc.ui.elements.PictureInput
-import org.picture2pc.picture2pc.ui.elements.PictureSwitch
+import org.picture2pc.picture2pc.ui.components.ButtonVariant
+import org.picture2pc.picture2pc.ui.components.PictureButton
+import org.picture2pc.picture2pc.ui.components.PictureIconButton
+import org.picture2pc.picture2pc.ui.components.PictureInput
+import org.picture2pc.picture2pc.ui.components.PictureSwitch
 import org.picture2pc.picture2pc.ui.theme.Picture2PCTheme
 import org.picture2pc.picture2pc.ui.theme.PictureTheme
 import org.picture2pc.picture2pc.ui.theme.Theme
@@ -44,7 +44,7 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
 
         Column(
             modifier = Modifier
-                .background(PictureTheme.colors.background)
+                .background(PictureTheme.Colors.background)
                 .safeContentPadding()
                 .fillMaxSize()
                 .clickable(
@@ -57,11 +57,11 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
             PictureButton(
                 onClick = {},
                 text = "Picture Button",
-                type = ButtonType.Primary
+                type = ButtonVariant.Primary
             )
 
             PictureIconButton(
-                type = ButtonType.Secondary,
+                type = ButtonVariant.Secondary,
                 onClick = {},
                 icon = Res.drawable.crop,
                 iconDescription = "",
@@ -69,7 +69,7 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
             )
 
             PictureSwitch(
-                type = ButtonType.Primary,
+                type = ButtonVariant.Primary,
                 checked = connectable.value,
                 onCheckedChangeAction = { connectable.value = it },
             )
@@ -77,6 +77,7 @@ fun App(appViewModel: AppViewModel = koinViewModel()) {
             PictureInput(
                 label = "Name",
                 value = name,
+                placeholder = "",
                 onValueChange = { appViewModel.setName(it) },
             )
             Spacer(Modifier.height(20.dp))

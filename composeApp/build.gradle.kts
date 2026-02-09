@@ -29,9 +29,6 @@ kotlin {
 
     jvm()
 
-
-
-
     sourceSets {
         val jvmSharedMain by creating {
             dependsOn(commonMain.get())
@@ -73,6 +70,8 @@ kotlin {
 
             implementation(libs.kermit)
             implementation(libs.kermit.koin)
+
+            implementation(libs.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -109,6 +108,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
 }
 
 dependencies {

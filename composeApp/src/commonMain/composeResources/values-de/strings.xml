@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_label">Benutzername</string>
+    <string name="group_header">Gruppen</string>
+    <string name="group_label">Gruppenname</string>
+    <string name="reconnect_label">Wiederverbinden</string>
+    <string name="no_group_title">Keine Gruppen sichtbar?</string>
+    <string name="no_group_description">Warte bis du in eine Gruppe eingeladen wird.\nErstelle eine eigene Gruppe und lade andere ein.</string>
+    <plurals name="peers_in_group">
+        <item quantity="one">%d Mitglied</item>
+        <item quantity="other">%d Mitglieder</item>
+    </plurals>
+    <string name="room_select_invite_peers">Mitglieder einladen</string>
+    <string name="join">Beitreten</string>
+    <string name="room_select_rooms">Räume</string>
+    <string name="room_select_room_name_input">Raum Name</string>
+</resources>
