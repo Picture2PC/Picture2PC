@@ -1,11 +1,30 @@
 package org.picture2pc.picture2pc.data.repository.net.tcpKtorPayloadTransceiver
 
 import co.touchlab.kermit.Logger
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.util.network.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import io.ktor.network.selector.SelectorManager
+import io.ktor.network.sockets.InetSocketAddress
+import io.ktor.network.sockets.Socket
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.port
+import io.ktor.util.network.address
+import io.ktor.util.network.port
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.picture2pc.picture2pc.data.repository.net.MulticastTcpClient
 import org.picture2pc.picture2pc.data.repository.net.common.peer.Peer
 import org.picture2pc.picture2pc.domain.repository.PreferencesRepository
@@ -102,8 +121,7 @@ class TcpKtorDataTransmitter(
 
     private suspend fun newDiscovery(payload: DiscoverPayload.ServiceOnline) {
         if (payload.sourcePeer in peerClientMap.keys) {
-            // Update if it is already in availableClients
-            TODO("DELETE old client and add a new one!")
+            // Update if it is already in availableClients  TODO("DELETE old client and add a new one!")
             val client = peerClientMap[payload.sourcePeer]!!.client
             val state = client._securityState.value as? ClientSecurityState.PeerKnown
             (if (payload.room != null) state?.addRoom(payload.room) else state?.removeRoom())?.let {
@@ -113,7 +131,7 @@ class TcpKtorDataTransmitter(
             }
             if (client.name.value != payload.peerName)
                 client._name.value = payload.peerName
-            if (client.inetSocketAddress)
+            if (!client.inetSocketAddress.equals(payload.serviceAddress))
                 return
         }
 
